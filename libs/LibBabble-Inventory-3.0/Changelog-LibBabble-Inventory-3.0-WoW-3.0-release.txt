@@ -1,0 +1,283 @@
+------------------------------------------------------------------------
+r61 | ckknight | 2008-10-14 20:30:09 +0000 (Tue, 14 Oct 2008) | 1 line
+Changed paths:
+   A /tags/WoW-3.0-release (from /trunk:60)
+
+Tagging as WoW-3.0-release.
+------------------------------------------------------------------------
+r60 | stanzilla | 2008-10-14 16:51:22 +0000 (Tue, 14 Oct 2008) | 1 line
+Changed paths:
+   M /trunk/LibBabble-Inventory-3.0.toc
+
+Update TOC for WotLK
+------------------------------------------------------------------------
+r59 | nevcairiel | 2008-10-12 11:39:18 +0000 (Sun, 12 Oct 2008) | 1 line
+Changed paths:
+   M /trunk/LibBabble-Inventory-3.0.toc
+
+Patch 3.0 prep: Remove LoD from Libraries that have no load manager (LoD+OptDep Bug)
+------------------------------------------------------------------------
+r58 | nevcairiel | 2008-10-09 21:52:00 +0000 (Thu, 09 Oct 2008) | 1 line
+Changed paths:
+   M /trunk/LibBabble-Inventory-3.0.lua
+
+WoWAce Post-Processing: Virtually inflate Library Revision numbers for proper upgrade path
+------------------------------------------------------------------------
+r57 | trasher | 2008-10-05 19:25:35 +0000 (Sun, 05 Oct 2008) | 1 line
+Changed paths:
+   M /trunk/LibBabble-Inventory-3.0.lua
+
+frFR update
+------------------------------------------------------------------------
+r56 | arrowmaster | 2008-10-04 01:31:16 +0000 (Sat, 04 Oct 2008) | 1 line
+Changed paths:
+   M /trunk/LibBabble-Inventory-3.0.lua
+   M /trunk/LibBabble-Inventory-3.0.toc
+   M /trunk/LibStub/LibStub.lua
+
+Fix autoupdating minor version
+------------------------------------------------------------------------
+r55 | root | 2008-09-29 21:46:30 +0000 (Mon, 29 Sep 2008) | 1 line
+Changed paths:
+   A /trunk/.pkgmeta
+
+Facilitate WowAce-on-CurseForge transition
+------------------------------------------------------------------------
+r53 | root | 2008-09-29 20:58:16 +0000 (Mon, 29 Sep 2008) | 1 line
+Changed paths:
+   D /tmp/trunk/LibBabble-Inventory-3.0
+   A /trunk (from /tmp/trunk/LibBabble-Inventory-3.0:52)
+
+Importing old repo data under /trunk
+------------------------------------------------------------------------
+r50 | Cybersea | 2008-07-15 14:53:42 +0000 (Tue, 15 Jul 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0
+- added ruRU translation
+------------------------------------------------------------------------
+r49 | scorpio0920 | 2008-05-27 04:42:44 +0000 (Tue, 27 May 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0:
+- Update zhTW localization. (Thanks s8095324)
+------------------------------------------------------------------------
+r48 | Thaoky | 2008-05-26 10:28:12 +0000 (Mon, 26 May 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0:
+- Added a few missing frFR translations (bag types)
+------------------------------------------------------------------------
+r47 | archarodim | 2008-05-17 22:55:22 +0000 (Sat, 17 May 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0:
+- Fix 'Pet' translation for frFR (many others are missing)
+------------------------------------------------------------------------
+r46 | kunda | 2008-05-17 11:04:35 +0000 (Sat, 17 May 2008) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: deDE update
+------------------------------------------------------------------------
+r45 | Thaoky | 2008-05-17 06:44:32 +0000 (Sat, 17 May 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0:
+- frFR: "Premiers Soins" is now "Secourisme"
+------------------------------------------------------------------------
+r44 | ananhaid | 2008-05-16 10:15:13 +0000 (Fri, 16 May 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: 
+- zhCN update.
+------------------------------------------------------------------------
+r43 | StiviS | 2008-05-14 20:01:05 +0000 (Wed, 14 May 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.toc
+
+LibBabble-Inventory-3.0:
+- esES updated
+------------------------------------------------------------------------
+r42 | 7destiny | 2008-05-14 10:17:24 +0000 (Wed, 14 May 2008) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: koKR Update
+------------------------------------------------------------------------
+r41 | odlaw | 2008-05-14 08:04:17 +0000 (Wed, 14 May 2008) | 3 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0:
+- Added Materials under Trade Goods
+- Added Mount under Miscellaneous
+------------------------------------------------------------------------
+r39 | StiviS | 2008-04-25 08:27:44 +0000 (Fri, 25 Apr 2008) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: esES updated
+------------------------------------------------------------------------
+r38 | sayclub | 2008-04-25 04:24:27 +0000 (Fri, 25 Apr 2008) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: koKR update.
+------------------------------------------------------------------------
+r37 | maqjav | 2008-04-20 09:51:15 +0000 (Sun, 20 Apr 2008) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: esES update.
+------------------------------------------------------------------------
+r36 | bendo | 2008-04-11 00:10:03 +0000 (Fri, 11 Apr 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0
+- frFR update
+------------------------------------------------------------------------
+r35 | bendo | 2008-04-08 19:36:08 +0000 (Tue, 08 Apr 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0
+- frFR update
+------------------------------------------------------------------------
+r34 | scorpio0920 | 2008-04-02 03:09:03 +0000 (Wed, 02 Apr 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0
+- Update zhTW localization.
+------------------------------------------------------------------------
+r33 | arrowmaster | 2008-04-01 07:16:23 +0000 (Tue, 01 Apr 2008) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.toc
+
+.You are not a special or unique snowflake. Get back in line and use the 'Lib: ...' title format like everybody else to save the sanity of those of us looking through an alpha sorted addon list
+------------------------------------------------------------------------
+r32 | 7destiny | 2008-03-30 20:51:38 +0000 (Sun, 30 Mar 2008) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.toc
+
+LibBabble-Inventory-3.0: TOC 20400
+------------------------------------------------------------------------
+r30 | sayclub | 2008-03-10 03:44:25 +0000 (Mon, 10 Mar 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0 :
+- Update locale koKR
+------------------------------------------------------------------------
+r29 | cwdg | 2008-03-06 07:05:05 +0000 (Thu, 06 Mar 2008) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: zhCN update
+------------------------------------------------------------------------
+r28 | kunda | 2008-03-05 16:16:57 +0000 (Wed, 05 Mar 2008) | 3 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0:
+- revert to r63629 because r63632 is not UTF-8 encoded
+- deDE update
+------------------------------------------------------------------------
+r27 | sayclub | 2008-03-05 03:04:43 +0000 (Wed, 05 Mar 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0 :
+- Update locale koKR
+------------------------------------------------------------------------
+r26 | next96 | 2008-03-05 02:08:16 +0000 (Wed, 05 Mar 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0 :
+- Update locale koKR
+------------------------------------------------------------------------
+r25 | next96 | 2008-03-05 02:06:17 +0000 (Wed, 05 Mar 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0 :
+- Update locale koKR
+------------------------------------------------------------------------
+r24 | odlaw | 2008-03-04 18:45:56 +0000 (Tue, 04 Mar 2008) | 8 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: enUS additions
+- Armor SubTypes: Shields, Librams, Idols, Totems
+- Container: Leatherworking Bag
+- Weapon Types: Fishing Poles, Ranged
+- Consumable: Food & Drink, Potion, Elixir, Bandage, Item Enhancement, Scroll, Other
+- Trade Goods: Elemental, Metal & Stone, Meat, Herb
+- Recipe: Jewelcrafting, Fishing
+- Miscellaneous: Pet, Holiday
+------------------------------------------------------------------------
+r23 | ckknight | 2008-02-03 02:14:45 +0000 (Sun, 03 Feb 2008) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+.LibBabble-*-3.0 - upgrade LibBabble-3.0 to r2. Fixes an issue with error messages and upgrade issues
+
+------------------------------------------------------------------------
+r22 | funkydude | 2007-11-09 06:45:26 +0000 (Fri, 09 Nov 2007) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.toc
+   M /tmp/trunk/LibBabble-Inventory-3.0/lib.xml
+
+.trunk: revert back to having LibStub in toc's so we don't load 5 billion copies when we have addons with embeds. Authors, if you use a library that uses LibStub, embed the LibStub tag version with it, not the trunk. Carto/CowTip/FuBar/PitBull have been changed accordingly.
+------------------------------------------------------------------------
+r21 | ammo | 2007-11-07 09:45:28 +0000 (Wed, 07 Nov 2007) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.toc
+   M /tmp/trunk/LibBabble-Inventory-3.0/lib.xml
+
+LibBabble-Inventory-3.0: fix LibStub reference to be in lib.xml not in .toc
+
+------------------------------------------------------------------------
+r20 | funkydude | 2007-11-07 00:51:32 +0000 (Wed, 07 Nov 2007) | 1 line
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.toc
+   A /tmp/trunk/LibBabble-Inventory-3.0/LibStub
+   A /tmp/trunk/LibBabble-Inventory-3.0/LibStub/LibStub.lua
+
+.trunk: Fix various libraries to use LibStub properly
+------------------------------------------------------------------------
+r19 | kemayo | 2007-10-30 22:54:33 +0000 (Tue, 30 Oct 2007) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: "Armor" and "Weapon" types.
+
+------------------------------------------------------------------------
+r18 | kemayo | 2007-10-30 22:09:46 +0000 (Tue, 30 Oct 2007) | 2 lines
+Changed paths:
+   M /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+
+LibBabble-Inventory-3.0: Add svn:keywords.
+
+------------------------------------------------------------------------
+r17 | kemayo | 2007-10-30 22:06:38 +0000 (Tue, 30 Oct 2007) | 2 lines
+Changed paths:
+   A /tmp/trunk/LibBabble-Inventory-3.0
+   A /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.lua
+   A /tmp/trunk/LibBabble-Inventory-3.0/LibBabble-Inventory-3.0.toc
+   A /tmp/trunk/LibBabble-Inventory-3.0/lib.xml
+
+LibBabble-Inventory-3.0:  Drycoded update of Babble-Inventory-2.2.  Made it less wishy-washy.
+
+------------------------------------------------------------------------

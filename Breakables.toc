@@ -1,0 +1,11 @@
+## Interface: 30000
+## Author: Parnic
+## Name: Breakables
+## Title: Breakables |cff7fff7f -Ace3-|r
+## Notes: Tracks herbs/ore/items that can be broken into component pieces
+## Version: @project-version@ (Revision: @project-revision@)
+## SavedVariables: BreakablesDB
+
+embeds.xml
+
+Breakables.lua
