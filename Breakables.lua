@@ -16,7 +16,7 @@ function Breakables:OnInitialize()
 		buttonFrameLeft = 100,
 		buttonFrameTop = -100,
 	}
-	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", defaults)
+	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
 
 	self:RegisterChatCommand("breakables", "OnSlashCommand")
 	self:RegisterChatCommand("brk", "OnSlashCommand")
