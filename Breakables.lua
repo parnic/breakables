@@ -13,8 +13,10 @@ local CanDisenchant = false
 
 function Breakables:OnInitialize()
 	self.defaults = {
-		buttonFrameLeft = 100,
-		buttonFrameTop = -100,
+		profile = {
+			buttonFrameLeft = 100,
+			buttonFrameTop = -100,
+		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
 
@@ -31,7 +33,7 @@ function Breakables:OnEnable()
 	CanProspect = IsUsableSpell(GetSpellInfo(ProspectingId))
 	CanDisenchant = IsUsableSpell(GetSpellInfo(DisenchantId))
 
-	if CanMill then
+	if CanMill or CanProspect or CanDisenchant then
 		self:CreateButtonFrame()
 	end
 end
