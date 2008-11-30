@@ -1,15 +1,23 @@
 Breakables = LibStub("AceAddon-3.0"):NewAddon("Breakables", "AceConsole-3.0", "AceEvent-3.0")
+local babbleInv = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local MillingId = 51005
-local MillingItemSubType = "Herb"
+local MillingItemSubType = babbleInv["Herb"]
 local CanMill = false
 
 local ProspectingId = 31252
-local ProspectingItemSubType = "Metal & Stone"
+local ProspectingItemSubType = babbleInv["Metal & Stone"]
 local CanProspect = false
 
-local DisenchantId = 1
+local DisenchantId = 13262
 local CanDisenchant = false
+
+local IDX_LINK = 1
+local IDX_COUNT = 2
+local IDX_TYPE = 3
+local IDX_TEXTURE = 4
+local IDX_BAG = 5
+local IDX_SLOT = 6
 
 function Breakables:OnInitialize()
 	self.defaults = {
@@ -115,7 +123,7 @@ function Breakables:FindBreakables()
 	end
 
 	for i=1,#foundBreakables do
-		if foundBreakables[i][2] >= 5 then
+		if foundBreakables[i][IDX_COUNT] >= 5 then
 			if not self.herbs then
 				self.herbs = {}
 			end
@@ -125,26 +133,38 @@ function Breakables:FindBreakables()
 			if not self.herbs[numBreakableStacks] then
 				self.herbs[numBreakableStacks] = CreateFrame("Button", "BreakablesButtonStackFrame"..numBreakableStacks, self.buttonFrame, "SecureActionButtonTemplate")
 			end
-			self.herbs[numBreakableStacks]:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame or self.herbs[numBreakableStacks - 1], "RIGHT")
-			self.herbs[numBreakableStacks]:SetWidth(40)
-			self.herbs[numBreakableStacks]:SetHeight(40)
-			self.herbs[numBreakableStacks]:EnableMouse(true)
-			self.herbs[numBreakableStacks]:RegisterForClicks("AnyUp")
-			self.herbs[numBreakableStacks]:SetAttribute("type1", "item")
-			self.herbs[numBreakableStacks]:SetAttribute("bag1", foundBreakables[i][5])
-			self.herbs[numBreakableStacks]:SetAttribute("slot1", foundBreakables[i][6])
+			local btn = self.herbs[numBreakableStacks]
+			btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame or self.herbs[numBreakableStacks - 1], "RIGHT")
+			btn:SetWidth(40)
+			btn:SetHeight(40)
+			btn:EnableMouse(true)
+			btn:RegisterForClicks("AnyUp")
+			btn:SetAttribute("type1", "item")
+			btn:SetAttribute("bag1", foundBreakables[i][IDX_BAG])
+			btn:SetAttribute("slot1", foundBreakables[i][IDX_SLOT])
 
-			if not self.herbs[numBreakableStacks].icon then
-				self.herbs[numBreakableStacks].icon = self.herbs[numBreakableStacks]:CreateTexture(nil, "BACKGROUND")
+			if not btn.text then
+				btn.text = btn:CreateFontString()
+				btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
 			end
-			self.herbs[numBreakableStacks].icon:SetTexture(foundBreakables[i][4])
-			self.herbs[numBreakableStacks].icon:SetAllPoints(self.herbs[numBreakableStacks])
+			btn.text:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+			btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
+
+			btn:SetScript("OnEnter", function() self:OnEnterBreakableButton(foundBreakables[i]) end)
+			btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
+
+			if not btn.icon then
+				btn.icon = btn:CreateTexture(nil, "BACKGROUND")
+			end
+			btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
+			btn.icon:SetAllPoints(btn)
 		end
 	end
 
 	if self.herbs and numBreakableStacks < #self.herbs then
 		for i=numBreakableStacks+1,#self.herbs do
 			self.herbs[i].icon:SetTexture(nil)
+			self.herbs[i].text:SetText()
 			self.herbs[i]:EnableMouse(false)
 		end
 	end
@@ -154,6 +174,15 @@ function Breakables:FindBreakables()
 	else
 		self.buttonFrame:Show()
 	end
+end
+
+function Breakables:OnEnterBreakableButton(breakable)
+	GameTooltip:SetOwner(this, "ANCHOR_PRESERVE")
+	GameTooltip:SetBagItem(breakable[IDX_BAG], breakable[IDX_SLOT])
+end
+
+function Breakables:OnLeaveBreakableButton(breakable)
+	GameTooltip:Hide()
 end
 
 function Breakables:FindBreakablesInBag(bagId)
@@ -199,8 +228,8 @@ function Breakables:MergeBreakables(foundBreakable, breakableList)
 		local existingLink, existingCount, existingType = breakableList[n]
 		local itemLink, itemCount, itemType = foundBreakable
 
-		if foundBreakable[1] == breakableList[n][1] then
-			breakableList[n][2] = breakableList[n][2] + foundBreakable[2]
+		if foundBreakable[IDX_LINK] == breakableList[n][IDX_LINK] then
+			breakableList[n][IDX_COUNT] = breakableList[n][IDX_COUNT] + foundBreakable[IDX_COUNT]
 			return true
 		end
 	end
