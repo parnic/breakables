@@ -24,45 +24,90 @@ function Breakables:OnInitialize()
 		profile = {
 			buttonFrameLeft = 100,
 			buttonFrameTop = -100,
+			hideIfNoBreakables = true,
+			maxBreakablesToShow = 5,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
+	self.settings = self.db.profile
 
-	self:RegisterChatCommand("breakables", "OnSlashCommand")
-	self:RegisterChatCommand("brk", "OnSlashCommand")
+--	self:RegisterChatCommand("breakables", "OnSlashCommand")
+--	self:RegisterChatCommand("brk", "OnSlashCommand")
 
-	-- would have used ITEM_PUSH here, but that seems to fire after looting and before the bag actually gets the item
-	-- another alternative is to parse the chat msg, but that seems lame...however, that should only fire once as opposed to BAG_UPDATE's potential double-fire
-	self:RegisterEvent("BAG_UPDATE", "OnItemReceived")
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), {"breakables", "brk"})
 end
 
 function Breakables:OnEnable()
+	-- would have used ITEM_PUSH here, but that seems to fire after looting and before the bag actually gets the item
+	-- another alternative is to parse the chat msg, but that seems lame...however, that should only fire once as opposed to BAG_UPDATE's potential double-fire
+	self:RegisterEvent("BAG_UPDATE", "OnItemReceived")
+
 	CanMill = IsUsableSpell(GetSpellInfo(MillingId))
 	CanProspect = IsUsableSpell(GetSpellInfo(ProspectingId))
 	CanDisenchant = IsUsableSpell(GetSpellInfo(DisenchantId))
 
 	if CanMill or CanProspect or CanDisenchant then
 		self:CreateButtonFrame()
+	else
+		self:UnregisterAllEvents()
 	end
 end
 
 function Breakables:OnDisable()
-
+	self:UnregisterAllEvents()
 end
-
+--[[
 function Breakables:OnSlashCommand(input)
 	self:FindBreakables()
 end
-
+]]
 function Breakables:OnItemReceived(bag)
 	self:FindBreakables()
+end
+
+function Breakables:GetOptions()
+	return {
+		name = "Breakables",
+		handler = Breakables,
+		type = "group",
+		args = {
+			hideNoBreakables = {
+				type = "toggle",
+				name = "Hide bar without breakables",
+				desc = "Whether or not to hide the action bar if no breakables are present in your bags",
+				get = function()
+					return self.settings.hideIfNoBreakables
+				end,
+				set = function(v)
+					self.settings.hideIfNoBreakables = v
+					self:FindBreakables()
+				end,
+			},
+--[[			maxBreakables = {
+				type = 'range',
+				name = 'Max number of breakables to display',
+				desc = 'How many breakable buttons to display next to the profession button at maximum',
+				min = 1,
+				max = 50,
+				step = 1,
+				get = function()
+					return self.settings.maxBreakablesToShow
+				end,
+				set = function(v)
+					self.settings.maxBreakablesToShow = v
+					self:FindBreakables()
+				end,
+			},
+]]
+		},
+	}
 end
 
 function Breakables:CreateButtonFrame()
 	if not self.buttonFrame then
 		self.buttonFrame = CreateFrame("Button", "BreakablesButtonFrame1", UIParent, "SecureActionButtonTemplate")
 	end
-	self.buttonFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", self.db.profile.buttonFrameLeft, self.db.profile.buttonFrameTop)
+	self.buttonFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", self.settings.buttonFrameLeft, self.settings.buttonFrameTop)
 
 	if not self.buttonFrame.icon then
 		self.buttonFrame.icon = self.buttonFrame:CreateTexture(nil, "BACKGROUND")
@@ -102,8 +147,8 @@ function Breakables:OnMouseUp()
 	self.buttonFrame:StopMovingOrSizing()
 
 	local _, _, _, xOff, yOff = self.buttonFrame:GetPoint(1)
-	self.db.profile.buttonFrameLeft = xOff
-	self.db.profile.buttonFrameTop = yOff
+	self.settings.buttonFrameLeft = xOff
+	self.settings.buttonFrameTop = yOff
 end
 
 function Breakables:FindBreakables()
@@ -123,19 +168,21 @@ function Breakables:FindBreakables()
 		end
 	end
 
+	self:SortBreakables(foundBreakables)
+
 	for i=1,#foundBreakables do
 		if foundBreakables[i][IDX_COUNT] >= 5 then
-			if not self.herbs then
-				self.herbs = {}
+			if not self.breakableButtons then
+				self.breakableButtons = {}
 			end
 
 			numBreakableStacks = numBreakableStacks + 1
 
-			if not self.herbs[numBreakableStacks] then
-				self.herbs[numBreakableStacks] = CreateFrame("Button", "BreakablesButtonStackFrame"..numBreakableStacks, self.buttonFrame, "SecureActionButtonTemplate")
+			if not self.breakableButtons[numBreakableStacks] then
+				self.breakableButtons[numBreakableStacks] = CreateFrame("Button", "BreakablesButtonStackFrame"..numBreakableStacks, self.buttonFrame, "SecureActionButtonTemplate")
 			end
-			local btn = self.herbs[numBreakableStacks]
-			btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame or self.herbs[numBreakableStacks - 1], "RIGHT")
+			local btn = self.breakableButtons[numBreakableStacks]
+			btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame or self.breakableButtons[numBreakableStacks - 1], "RIGHT")
 			btn:SetWidth(40)
 			btn:SetHeight(40)
 			btn:EnableMouse(true)
@@ -159,19 +206,23 @@ function Breakables:FindBreakables()
 			end
 			btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
 			btn.icon:SetAllPoints(btn)
+
+			if numBreakableStacks >= self.settings.maxBreakablesToShow then
+				break
+			end
 		end
 	end
 
-	if self.herbs and numBreakableStacks < #self.herbs then
-		for i=numBreakableStacks+1,#self.herbs do
-			self.herbs[i].icon:SetTexture(nil)
-			self.herbs[i].text:SetText()
-			self.herbs[i]:EnableMouse(false)
+	if self.breakableButtons and numBreakableStacks < #self.breakableButtons then
+		for i=numBreakableStacks+1,#self.breakableButtons do
+			self.breakableButtons[i].icon:SetTexture(nil)
+			self.breakableButtons[i].text:SetText()
+			self.breakableButtons[i]:EnableMouse(false)
 		end
 	end
 
 	if self.buttonFrame then
-		if numBreakableStacks == 0 then
+		if numBreakableStacks == 0 and self.settings.hideIfNoBreakables then
 			self.buttonFrame:Hide()
 		else
 			self.buttonFrame:Show()
@@ -235,4 +286,18 @@ function Breakables:MergeBreakables(foundBreakable, breakableList)
 	end
 
 	return false
+end
+
+function Breakables:SortBreakables(foundBreakables)
+	for i=1,#foundBreakables do
+		local _, iId = strsplit(":", foundBreakables[i][IDX_LINK])
+		for j=i,#foundBreakables do
+			local _, jId = strsplit(":", foundBreakables[j][IDX_LINK])
+			if iId < jId then
+				local temp = foundBreakables[i]
+				foundBreakables[i] = foundBreakables[j]
+				foundBreakables[j] = temp
+			end
+		end
+	end
 end
