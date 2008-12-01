@@ -213,8 +213,6 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 	local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bagId, slotId)
 	if texture then
 		local itemLink = GetContainerItemLink(bagId, slotId)
-
-
 		local _, _, _, _, _, itemType, itemSubType, _, _, itemTexture = GetItemInfo(itemLink)
 
 		if (CanMill and itemSubType == MillingItemSubType)
@@ -227,11 +225,10 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 end
 
 function Breakables:MergeBreakables(foundBreakable, breakableList)
+	local _, foundItemId = strsplit(":", foundBreakable[IDX_LINK])
 	for n=1,#breakableList do
-		local existingLink, existingCount, existingType = breakableList[n]
-		local itemLink, itemCount, itemType = foundBreakable
-
-		if foundBreakable[IDX_LINK] == breakableList[n][IDX_LINK] then
+		local _, listItemId = strsplit(":", breakableList[n][IDX_LINK])
+		if foundItemId == listItemId then
 			breakableList[n][IDX_COUNT] = breakableList[n][IDX_COUNT] + foundBreakable[IDX_COUNT]
 			return true
 		end
