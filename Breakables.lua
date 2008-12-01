@@ -80,10 +80,11 @@ function Breakables:CreateButtonFrame()
 		self.buttonFrame:SetScript("OnMouseUp", function() self:OnMouseUp() end)
 		self.buttonFrame:SetClampedToScreen(true)
 
-		self.buttonFrame:SetAttribute("type1", "spell")
-		self.buttonFrame:SetAttribute("spell1", GetSpellInfo(MillingId))
+		local spellName, _, texture = GetSpellInfo((CanMill and MillingId) or (CanProspect and ProspectingId) or DisenchantingId)
 
-		local _,_,texture = GetSpellInfo((CanMill and MillingId) or (CanProspect and ProspectingId) or DisenchantingId)
+		self.buttonFrame:SetAttribute("type1", "spell")
+		self.buttonFrame:SetAttribute("spell1", spellName)
+
 		self.buttonFrame.icon:SetTexture(texture)
 		self.buttonFrame.icon:SetAllPoints(self.buttonFrame)
 	else
@@ -169,10 +170,12 @@ function Breakables:FindBreakables()
 		end
 	end
 
-	if numBreakableStacks == 0 then
-		self.buttonFrame:Hide()
-	else
-		self.buttonFrame:Show()
+	if self.buttonFrame then
+		if numBreakableStacks == 0 then
+			self.buttonFrame:Hide()
+		else
+			self.buttonFrame:Show()
+		end
 	end
 end
 
