@@ -38,9 +38,7 @@ function Breakables:OnInitialize()
 end
 
 function Breakables:OnEnable()
-	-- would have used ITEM_PUSH here, but that seems to fire after looting and before the bag actually gets the item
-	-- another alternative is to parse the chat msg, but that seems lame...however, that should only fire once as opposed to BAG_UPDATE's potential double-fire
-	self:RegisterEvent("BAG_UPDATE", "OnItemReceived")
+	self:RegisterEvents()
 
 	CanMill = IsUsableSpell(GetSpellInfo(MillingId))
 	CanProspect = IsUsableSpell(GetSpellInfo(ProspectingId))
@@ -53,6 +51,15 @@ function Breakables:OnEnable()
 	end
 end
 
+function Breakables:RegisterEvents()
+	-- would have used ITEM_PUSH here, but that seems to fire after looting and before the bag actually gets the item
+	-- another alternative is to parse the chat msg, but that seems lame...however, that should only fire once as opposed to BAG_UPDATE's potential double-fire
+	self:RegisterEvent("BAG_UPDATE", "OnItemReceived")
+
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEnterCombat")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnLeaveCombat")
+end
+
 function Breakables:OnDisable()
 	self:UnregisterAllEvents()
 end
@@ -63,6 +70,19 @@ end
 ]]
 function Breakables:OnItemReceived(bag)
 	self:FindBreakables()
+end
+
+function Breakables:OnEnterCombat()
+	self.bCombat = true
+end
+
+function Breakables:OnLeaveCombat()
+	self.bCombat = false
+
+	if self.bPendingUpdate then
+		self.bPendingUpdate = false
+		self:FindBreakables()
+	end
 end
 
 function Breakables:GetOptions()
@@ -152,6 +172,11 @@ function Breakables:OnMouseUp()
 end
 
 function Breakables:FindBreakables()
+	if self.bCombat then
+		self.bPendingUpdate = true
+		return
+	end
+
 	local foundBreakables = {}
 	local i=1
 	local numBreakableStacks = 0
