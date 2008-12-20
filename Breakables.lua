@@ -10,7 +10,9 @@ local ProspectingItemSubType = babbleInv["Metal & Stone"]
 local CanProspect = false
 
 local DisenchantId = 13262
+local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
 local CanDisenchant = false
+local EnchantingLevel = 0
 
 local IDX_LINK = 1
 local IDX_COUNT = 2
@@ -18,6 +20,7 @@ local IDX_TYPE = 3
 local IDX_TEXTURE = 4
 local IDX_BAG = 5
 local IDX_SLOT = 6
+local IDX_TYPE = 7
 
 function Breakables:OnInitialize()
 	self.defaults = {
@@ -38,11 +41,15 @@ function Breakables:OnInitialize()
 end
 
 function Breakables:OnEnable()
-	self:RegisterEvents()
-
 	CanMill = IsUsableSpell(GetSpellInfo(MillingId))
 	CanProspect = IsUsableSpell(GetSpellInfo(ProspectingId))
 	CanDisenchant = IsUsableSpell(GetSpellInfo(DisenchantId))
+
+	self:RegisterEvents()
+
+	if CanDisenchant then
+		self:GetEnchantingLevel()
+	end
 
 	if CanMill or CanProspect or CanDisenchant then
 		self:CreateButtonFrame()
@@ -58,6 +65,10 @@ function Breakables:RegisterEvents()
 
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEnterCombat")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnLeaveCombat")
+
+	if CanDisenchant then
+		self:RegisterEvent("TRADE_SKILL_UPDATE", "OnTradeSkillUpdate")
+	end
 end
 
 function Breakables:OnDisable()
@@ -83,6 +94,15 @@ function Breakables:OnLeaveCombat()
 		self.bPendingUpdate = false
 		self:FindBreakables()
 	end
+end
+
+function Breakables:OnTradeSkillUpdate()
+	self:GetEnchantingLevel()
+end
+
+-- todo: figure out how to get the enchanting level without the player opening the tradeskill window...
+function Breakables:GetEnchantingLevel()
+	EnchantingLevel = 0
 end
 
 function Breakables:GetOptions()
@@ -145,7 +165,7 @@ function Breakables:CreateButtonFrame()
 		self.buttonFrame:SetScript("OnMouseUp", function() self:OnMouseUp() end)
 		self.buttonFrame:SetClampedToScreen(true)
 
-		local spellName, _, texture = GetSpellInfo((CanMill and MillingId) or (CanProspect and ProspectingId) or DisenchantingId)
+		local spellName, _, texture = GetSpellInfo((CanMill and MillingId) or (CanProspect and ProspectingId) or DisenchantId)
 
 		self.buttonFrame:SetAttribute("type1", "spell")
 		self.buttonFrame:SetAttribute("spell1", spellName)
@@ -221,7 +241,12 @@ function Breakables:FindBreakables()
 				btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
 			end
 			btn.text:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
-			btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
+
+			if self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL]) then
+				btn.text:SetText(foundBreakables[i][IDX_COUNT])
+			else
+				btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
+			end
 
 			btn:SetScript("OnEnter", function() self:OnEnterBreakableButton(foundBreakables[i]) end)
 			btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
@@ -256,7 +281,7 @@ function Breakables:FindBreakables()
 end
 
 function Breakables:OnEnterBreakableButton(breakable)
-	GameTooltip:SetOwner(this, "ANCHOR_PRESERVE")
+	GameTooltip:SetOwner(this, "ANCHOR_BOTTOMLEFT")
 	GameTooltip:SetBagItem(breakable[IDX_BAG], breakable[IDX_SLOT])
 end
 
@@ -286,14 +311,23 @@ function Breakables:FindBreakablesInBag(bagId)
 end
 
 function Breakables:FindBreakablesInSlot(bagId, slotId)
+	if not self.myTooltip then
+		self.myTooltip = CreateFrame("GameTooltip", "BreakablesTooltip", nil, "GameTooltipTemplate")
+		self.myTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+	end
+
 	local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bagId, slotId)
 	if texture then
 		local itemLink = GetContainerItemLink(bagId, slotId)
-		local _, _, _, _, _, itemType, itemSubType, _, _, itemTexture = GetItemInfo(itemLink)
+		local _, _, itemRarity, itemLevel, _, itemType, itemSubType, _, _, itemTexture = GetItemInfo(itemLink)
 
-		if (CanMill and itemSubType == MillingItemSubType)
-			or (CanProspect and itemSubType == ProspectingItemSubType) then
-			return {itemLink, itemCount, itemSubType, itemTexture, bagId, slotId}
+		self.myTooltip:SetBagItem(bagId, slotId)
+		local extraInfo = BreakablesTooltipTextLeft2:GetText()
+
+		if (CanMill and itemSubType == MillingItemSubType and extraInfo == ITEM_MILLABLE)
+			or (CanProspect and itemSubType == ProspectingItemSubType and extraInfo == ITEM_PROSPECTABLE)
+			or (CanDisenchant and itemRarity >= 2 and self:BreakableIsDisenchantable(itemType, itemLevel)) then
+			return {itemLink, itemCount, itemSubType, itemTexture, bagId, slotId, itemLevel}
 		end
 	end
 
@@ -325,4 +359,16 @@ function Breakables:SortBreakables(foundBreakables)
 			end
 		end
 	end
+end
+
+function Breakables:BreakableIsDisenchantable(itemType, itemLevel)
+	for i=1,#DisenchantTypes do
+		if DisenchantTypes[i] == itemType then
+			-- todo: figure out if the iLevel works with our enchanting skill level.
+			-- formula (from http://www.wowwiki.com/Disenchanting): 5*ceiling(iLevel,5)-100
+			return true
+		end
+	end
+
+	return false
 end
