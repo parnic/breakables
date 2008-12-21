@@ -326,7 +326,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 
 		if (CanMill and itemSubType == MillingItemSubType and extraInfo == ITEM_MILLABLE)
 			or (CanProspect and itemSubType == ProspectingItemSubType and extraInfo == ITEM_PROSPECTABLE)
-			or (CanDisenchant and itemRarity >= 2 and self:BreakableIsDisenchantable(itemType, itemLevel)) then
+			or (CanDisenchant and itemRarity and itemRarity >= 2 and self:BreakableIsDisenchantable(itemType, itemLevel)) then
 			return {itemLink, itemCount, itemSubType, itemTexture, bagId, slotId, itemLevel}
 		end
 	end
