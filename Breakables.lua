@@ -232,9 +232,14 @@ function Breakables:FindBreakables()
 			btn:SetHeight(40)
 			btn:EnableMouse(true)
 			btn:RegisterForClicks("AnyUp")
-			btn:SetAttribute("type1", "item")
-			btn:SetAttribute("bag1", foundBreakables[i][IDX_BAG])
-			btn:SetAttribute("slot1", foundBreakables[i][IDX_SLOT])
+
+			btn:SetAttribute("type", "macro")
+			local BreakableAbilityName = GetSpellInfo((CanMill and MillingId) or (CanProspect and ProspectingId) or DisenchantId)
+			btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT])
+
+--			btn:SetAttribute("type1", "item")
+--			btn:SetAttribute("bag1", foundBreakables[i][IDX_BAG])
+--			btn:SetAttribute("slot1", foundBreakables[i][IDX_SLOT])
 
 			if not btn.text then
 				btn.text = btn:CreateFontString()
