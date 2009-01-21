@@ -12,7 +12,8 @@ local CanProspect = false
 local DisenchantId = 13262
 local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
 local CanDisenchant = false
-local EnchantingLevel = 0
+-- item rarity must meet or surpass this to be considered for disenchantability (is that a word?)
+local RARITY_UNCOMMON = 2
 
 local IDX_LINK = 1
 local IDX_COUNT = 2
@@ -20,7 +21,14 @@ local IDX_TYPE = 3
 local IDX_TEXTURE = 4
 local IDX_BAG = 5
 local IDX_SLOT = 6
-local IDX_TYPE = 7
+local IDX_SUBTYPE = 7
+local IDX_LEVEL = 8
+local IDX_BREAKABLETYPE = 9
+local IDX_SOULBOUND = 10
+
+local BREAKABLE_HERB = 1
+local BREAKABLE_ORE = 2
+local BREAKABLE_DE = 3
 
 function Breakables:OnInitialize()
 	self.defaults = {
@@ -29,6 +37,7 @@ function Breakables:OnInitialize()
 			buttonFrameTop = -100,
 			hideIfNoBreakables = true,
 			maxBreakablesToShow = 5,
+			showSoulbound = false,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
@@ -46,10 +55,6 @@ function Breakables:OnEnable()
 	CanDisenchant = IsUsableSpell(GetSpellInfo(DisenchantId))
 
 	self:RegisterEvents()
-
-	if CanDisenchant then
-		self:GetEnchantingLevel()
-	end
 
 	if CanMill or CanProspect or CanDisenchant then
 		self:CreateButtonFrame()
@@ -100,9 +105,13 @@ function Breakables:OnTradeSkillUpdate()
 	self:GetEnchantingLevel()
 end
 
--- todo: figure out how to get the enchanting level without the player opening the tradeskill window...
 function Breakables:GetEnchantingLevel()
-	EnchantingLevel = 0
+	local skillName, skillType, numAvailable, isExpanded = GetTradeSkillInfo(1)
+
+	if skillName == "Enchant" then
+		local _, rank, maxRank = GetTradeSkillLine()
+		self.settings.EnchantingLevel = rank
+	end
 end
 
 function Breakables:GetOptions()
@@ -216,7 +225,8 @@ function Breakables:FindBreakables()
 	self:SortBreakables(foundBreakables)
 
 	for i=1,#foundBreakables do
-		if foundBreakables[i][IDX_COUNT] >= 5 then
+		local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL])
+		if (CanDisenchant and isDisenchantable) or foundBreakables[i][IDX_COUNT] >= 5 then
 			if not self.breakableButtons then
 				self.breakableButtons = {}
 			end
@@ -233,8 +243,8 @@ function Breakables:FindBreakables()
 			btn:EnableMouse(true)
 			btn:RegisterForClicks("AnyUp")
 
+			local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
 			btn:SetAttribute("type", "macro")
-			local BreakableAbilityName = GetSpellInfo((CanMill and MillingId) or (CanProspect and ProspectingId) or DisenchantId)
 			btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT])
 
 --			btn:SetAttribute("type1", "item")
@@ -247,9 +257,7 @@ function Breakables:FindBreakables()
 			end
 			btn.text:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
 
-			if self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL]) then
-				btn.text:SetText(foundBreakables[i][IDX_COUNT])
-			else
+			if not isDisenchantable then
 				btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
 			end
 
@@ -327,12 +335,32 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		local _, _, itemRarity, itemLevel, _, itemType, itemSubType, _, _, itemTexture = GetItemInfo(itemLink)
 
 		self.myTooltip:SetBagItem(bagId, slotId)
+
+		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and self:BreakableIsDisenchantable(itemType, itemLevel) then
+			local i = 1
+			local soulbound = false
+			for i=1,5 do
+				if getglobal("BreakablesTooltipTextLeft"..i):GetText() == "Soulbound" then
+					soulbound = true
+					break
+				end
+			end
+
+			if not soulbound or self.settings.showSoulbound then
+				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound}
+			else
+				return nil
+			end
+		end
+
 		local extraInfo = BreakablesTooltipTextLeft2:GetText()
 
-		if (CanMill and itemSubType == MillingItemSubType and extraInfo == ITEM_MILLABLE)
-			or (CanProspect and itemSubType == ProspectingItemSubType and extraInfo == ITEM_PROSPECTABLE)
-			or (CanDisenchant and itemRarity and itemRarity >= 2 and self:BreakableIsDisenchantable(itemType, itemLevel)) then
-			return {itemLink, itemCount, itemSubType, itemTexture, bagId, slotId, itemLevel}
+		if CanMill and itemSubType == MillingItemSubType and extraInfo == ITEM_MILLABLE then
+			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false}
+		end
+
+		if CanProspect and itemSubType == ProspectingItemSubType and extraInfo == ITEM_PROSPECTABLE then
+			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false}
 		end
 	end
 
