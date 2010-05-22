@@ -210,7 +210,7 @@ function Breakables:FindBreakables()
 	local i=1
 	local numBreakableStacks = 0
 
-	for bagId=1,NUM_BAG_SLOTS do
+	for bagId=0,NUM_BAG_SLOTS do
 		local found = self:FindBreakablesInBag(bagId)
 		for n=1,#found do
 			local addedToExisting = self:MergeBreakables(found[n], foundBreakables)
