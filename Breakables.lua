@@ -3,6 +3,7 @@ local babbleInv = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
 local MillingId = 51005
 local MillingItemSubType = babbleInv["Herb"]
+local MillingItemSecondarySubType = babbleInv["Other"]
 local CanMill = false
 
 local ProspectingId = 31252
@@ -355,7 +356,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 
 		local extraInfo = BreakablesTooltipTextLeft2:GetText()
 
-		if CanMill and itemSubType == MillingItemSubType and extraInfo == ITEM_MILLABLE then
+		if CanMill and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType) and extraInfo == ITEM_MILLABLE then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false}
 		end
 
