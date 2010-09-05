@@ -31,6 +31,8 @@ local BREAKABLE_HERB = 1
 local BREAKABLE_ORE = 2
 local BREAKABLE_DE = 3
 
+Breakables.optionsFrame = {}
+
 function Breakables:OnInitialize()
 	self.defaults = {
 		profile = {
@@ -47,7 +49,7 @@ function Breakables:OnInitialize()
 	self:RegisterChatCommand("brk", "OnSlashCommand")
 
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), "breakables")
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
+	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
 end
 
 function Breakables:OnEnable()
@@ -82,7 +84,7 @@ function Breakables:OnDisable()
 end
 
 function Breakables:OnSlashCommand(input)
-	self:FindBreakables()
+	InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
 end
 
 function Breakables:OnItemReceived(bag)
@@ -123,7 +125,7 @@ function Breakables:GetOptions()
 		args = {
 			hideNoBreakables = {
 				type = "toggle",
-				name = "Hide bar without breakables",
+				name = "Hide if no breakables",
 				desc = "Whether or not to hide the action bar if no breakables are present in your bags",
 				get = function(info)
 					return self.settings.hideIfNoBreakables
@@ -135,7 +137,7 @@ function Breakables:GetOptions()
 			},
 			maxBreakables = {
 				type = 'range',
-				name = 'Max number of breakables to display',
+				name = 'Max number to display',
 				desc = 'How many breakable buttons to display next to the profession button at maximum',
 				min = 1,
 				max = 50,
