@@ -44,10 +44,10 @@ function Breakables:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
 	self.settings = self.db.profile
 
---	self:RegisterChatCommand("breakables", "OnSlashCommand")
---	self:RegisterChatCommand("brk", "OnSlashCommand")
+	self:RegisterChatCommand("brk", "OnSlashCommand")
 
-	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), {"breakables", "brk"})
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), "breakables")
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
 end
 
 function Breakables:OnEnable()
@@ -80,11 +80,11 @@ end
 function Breakables:OnDisable()
 	self:UnregisterAllEvents()
 end
---[[
+
 function Breakables:OnSlashCommand(input)
 	self:FindBreakables()
 end
-]]
+
 function Breakables:OnItemReceived(bag)
 	self:FindBreakables()
 end
@@ -125,30 +125,41 @@ function Breakables:GetOptions()
 				type = "toggle",
 				name = "Hide bar without breakables",
 				desc = "Whether or not to hide the action bar if no breakables are present in your bags",
-				get = function()
+				get = function(info)
 					return self.settings.hideIfNoBreakables
 				end,
-				set = function(v)
+				set = function(info, v)
 					self.settings.hideIfNoBreakables = v
 					self:FindBreakables()
 				end,
 			},
---[[			maxBreakables = {
+			maxBreakables = {
 				type = 'range',
 				name = 'Max number of breakables to display',
 				desc = 'How many breakable buttons to display next to the profession button at maximum',
 				min = 1,
 				max = 50,
 				step = 1,
-				get = function()
+				get = function(info)
 					return self.settings.maxBreakablesToShow
 				end,
-				set = function(v)
+				set = function(info, v)
 					self.settings.maxBreakablesToShow = v
 					self:FindBreakables()
 				end,
 			},
-]]
+			showSoulbound = {
+				type = "toggle",
+				name = "Show soulbound items",
+				desc = "Whether or not to display soulbound items as breakables. Mostly for enchanting.",
+				get = function(info)
+					return self.settings.showSoulbound
+				end,
+				set = function(info, v)
+					self.settings.showSoulbound = v
+					self:FindBreakables()
+				end,
+			},
 		},
 	}
 end
@@ -262,7 +273,7 @@ function Breakables:FindBreakables()
 				btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
 			end
 
-			btn:SetScript("OnEnter", function() self:OnEnterBreakableButton(foundBreakables[i]) end)
+			btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
 			btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
 
 			if not btn.icon then
@@ -294,7 +305,7 @@ function Breakables:FindBreakables()
 	end
 end
 
-function Breakables:OnEnterBreakableButton(breakable)
+function Breakables:OnEnterBreakableButton(this, breakable)
 	GameTooltip:SetOwner(this, "ANCHOR_BOTTOMLEFT")
 	GameTooltip:SetBagItem(breakable[IDX_BAG], breakable[IDX_SLOT])
 end
