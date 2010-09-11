@@ -41,21 +41,22 @@ function Breakables:OnInitialize()
 			hideIfNoBreakables = true,
 			maxBreakablesToShow = 5,
 			showSoulbound = false,
+			hideEqManagerItems = true,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
 	self.settings = self.db.profile
 
 	self:RegisterChatCommand("brk", "OnSlashCommand")
-
-	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), "breakables")
-	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
 end
 
 function Breakables:OnEnable()
 	CanMill = IsUsableSpell(GetSpellInfo(MillingId))
 	CanProspect = IsUsableSpell(GetSpellInfo(ProspectingId))
 	CanDisenchant = IsUsableSpell(GetSpellInfo(DisenchantId))
+
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), "breakables")
+	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
 
 	self:RegisterEvents()
 
@@ -118,7 +119,7 @@ function Breakables:GetEnchantingLevel()
 end
 
 function Breakables:GetOptions()
-	return {
+	local opts = {
 		name = "Breakables",
 		handler = Breakables,
 		type = "group",
@@ -134,6 +135,7 @@ function Breakables:GetOptions()
 					self.settings.hideIfNoBreakables = v
 					self:FindBreakables()
 				end,
+				order = 1,
 			},
 			maxBreakables = {
 				type = 'range',
@@ -149,21 +151,44 @@ function Breakables:GetOptions()
 					self.settings.maxBreakablesToShow = v
 					self:FindBreakables()
 				end,
-			},
-			showSoulbound = {
-				type = "toggle",
-				name = "Show soulbound items",
-				desc = "Whether or not to display soulbound items as breakables. Mostly for enchanting.",
-				get = function(info)
-					return self.settings.showSoulbound
-				end,
-				set = function(info, v)
-					self.settings.showSoulbound = v
-					self:FindBreakables()
-				end,
+				order = 2,
 			},
 		},
 	}
+
+	if CanDisenchant then
+		opts.args.showSoulbound = {
+			type = "toggle",
+			name = "Show soulbound items",
+			desc = "Whether or not to display soulbound items as breakables.",
+			get = function(info)
+				return self.settings.showSoulbound
+			end,
+			set = function(info, v)
+				self.settings.showSoulbound = v
+				self:FindBreakables()
+			end,
+			order = 3,
+		}
+		opts.args.hideSoulboundIfInEquipmentManager = {
+			type = "toggle",
+			name = "Hide Eq. Mgr items",
+			desc = "Whether or not to hide items that are part of an equipment set in the game's equipment manager.",
+			get = function(info)
+				return self.settings.hideEqManagerItems
+			end,
+			set = function(info, v)
+				self.settings.hideEqManagerItems = v
+				self:FindBreakables()
+			end,
+			hidden = function()
+				return not self.settings.showSoulbound
+			end,
+			order = 4,
+		}
+	end
+	
+	return opts
 end
 
 function Breakables:CreateButtonFrame()
@@ -354,13 +379,19 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			local i = 1
 			local soulbound = false
 			for i=1,5 do
-				if getglobal("BreakablesTooltipTextLeft"..i):GetText() == "Soulbound" then
+				if _G["BreakablesTooltipTextLeft"..i]:GetText() == ITEM_SOULBOUND then
 					soulbound = true
 					break
 				end
 			end
 
-			if not soulbound or self.settings.showSoulbound then
+			local isInEquipmentSet = false
+			if self.settings.hideEqManagerItems then
+				isInEquipmentSet = self:IsInEquipmentSet(self:GetItemIdFromLink(itemLink))
+			end
+			local shouldHideThisItem = self.settings.hideEqManagerItems and isInEquipmentSet
+
+			if (not soulbound or self.settings.showSoulbound) and not shouldHideThisItem then
 				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound}
 			else
 				return nil
@@ -381,10 +412,30 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 	return nil
 end
 
+function Breakables:IsInEquipmentSet(itemId)
+	for setIdx=1, GetNumEquipmentSets() do
+		local set = GetEquipmentSetInfo(setIdx)
+		local itemArray = GetEquipmentSetItemIDs(set)
+
+		for i=1, EQUIPPED_LAST do
+			if itemArray[i] and itemArray[i] == itemId then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+function Breakables:GetItemIdFromLink(itemLink)
+	local _, foundItemId = strsplit(":", itemLink)
+	return tonumber(foundItemId)
+end
+
 function Breakables:MergeBreakables(foundBreakable, breakableList)
-	local _, foundItemId = strsplit(":", foundBreakable[IDX_LINK])
+	local foundItemId = self:GetItemIdFromLink(foundBreakable[IDX_LINK])
 	for n=1,#breakableList do
-		local _, listItemId = strsplit(":", breakableList[n][IDX_LINK])
+		local listItemId = self:GetItemIdFromLink(breakableList[n][IDX_LINK])
 		if foundItemId == listItemId then
 			breakableList[n][IDX_COUNT] = breakableList[n][IDX_COUNT] + foundBreakable[IDX_COUNT]
 			return true
@@ -396,9 +447,9 @@ end
 
 function Breakables:SortBreakables(foundBreakables)
 	for i=1,#foundBreakables do
-		local _, iId = strsplit(":", foundBreakables[i][IDX_LINK])
+		local iId = self:GetItemIdFromLink(foundBreakables[i][IDX_LINK])
 		for j=i,#foundBreakables do
-			local _, jId = strsplit(":", foundBreakables[j][IDX_LINK])
+			local jId = self:GetItemIdFromLink(foundBreakables[j][IDX_LINK])
 			if iId < jId then
 				local temp = foundBreakables[i]
 				foundBreakables[i] = foundBreakables[j]
