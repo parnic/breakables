@@ -9,5 +9,6 @@
 ## X-Compatible-With: 40000
 
 embeds.xml
+LibDataBroker-1.1.lua
 
 Breakables.lua

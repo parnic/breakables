@@ -13,6 +13,7 @@ local CanProspect = false
 local DisenchantId = 13262
 local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
 local CanDisenchant = false
+
 -- item rarity must meet or surpass this to be considered for disenchantability (is that a word?)
 local RARITY_UNCOMMON = 2
 
@@ -31,6 +32,8 @@ local BREAKABLE_HERB = 1
 local BREAKABLE_ORE = 2
 local BREAKABLE_DE = 3
 
+local _G = _G
+
 Breakables.optionsFrame = {}
 
 function Breakables:OnInitialize()
@@ -42,12 +45,31 @@ function Breakables:OnInitialize()
 			maxBreakablesToShow = 5,
 			showSoulbound = false,
 			hideEqManagerItems = true,
+			hide = false,
+			hideInCombat = false,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
 	self.settings = self.db.profile
 
 	self:RegisterChatCommand("brk", "OnSlashCommand")
+
+	self:InitLDB()
+end
+
+function Breakables:InitLDB()
+	local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
+
+	if (LDB) then
+		local ldbButton = LDB:NewDataObject("Breakables", {
+			type = "launcher",
+			text = "Breakables",
+			icon = "Interface\\Icons\\ability_warrior_sunder",
+			OnClick = function(_, msg)
+				self:OnSlashCommand()
+			end,
+		})
+	end
 end
 
 function Breakables:OnEnable()
@@ -62,6 +84,9 @@ function Breakables:OnEnable()
 
 	if CanMill or CanProspect or CanDisenchant then
 		self:CreateButtonFrame()
+		if self.settings.hide and self.buttonFrame then
+			self.buttonFrame:Hide()
+		end
 	else
 		self:UnregisterAllEvents()
 	end
@@ -94,12 +119,15 @@ end
 
 function Breakables:OnEnterCombat()
 	self.bCombat = true
+	if self.settings.hideInCombat then
+		self.buttonFrame:Hide()
+	end
 end
 
 function Breakables:OnLeaveCombat()
 	self.bCombat = false
 
-	if self.bPendingUpdate then
+	if self.bPendingUpdate or self.settings.hideInCombat then
 		self.bPendingUpdate = false
 		self:FindBreakables()
 	end
@@ -124,6 +152,35 @@ function Breakables:GetOptions()
 		handler = Breakables,
 		type = "group",
 		args = {
+			intro = {
+				type = "description",
+				fontSize = "small",
+				name = [[Thanks for using |cff33ff99Breakables|r! Use |cffffff78/brk|r to open this menu or |cffffff78/breakables|r to access the same options on the command line.
+
+Hold shift and drag the profession button to move the breakables bar around. If you have any feature requests or problems, please email |cff33ff99breakables@parnic.com|r or visit the |cffffff78curse.com|r or |cffffff78wowinterface.com|r page and leave a comment.]],
+				order = 0,
+			},
+			hideAlways = {
+				type = "toggle",
+				name = "Hide bar",
+				desc = "This will completely hide the breakables bar whether you have anything to break down or not. Note that you can toggle this in a macro using the /breakables command as well.",
+				get = function(info)
+					return self.settings.hide
+				end,
+				set = function(info, v)
+					self.settings.hide = v
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.hide))
+					end
+					if v then
+						self.buttonFrame:Hide()
+					else
+						self.buttonFrame:Show()
+						self:FindBreakables()
+					end
+				end,
+				order = 1
+			},
 			hideNoBreakables = {
 				type = "toggle",
 				name = "Hide if no breakables",
@@ -133,9 +190,27 @@ function Breakables:GetOptions()
 				end,
 				set = function(info, v)
 					self.settings.hideIfNoBreakables = v
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78hideIfNoBreakables|r to " .. tostring(self.settings.hideIfNoBreakables))
+					end
 					self:FindBreakables()
 				end,
-				order = 1,
+				order = 2,
+			},
+			hideInCombat = {
+				type = "toggle",
+				name = "Hide during combat",
+				desc = "Whether or not to hide the breakables bar when you enter combat and show it again when leaving combat.",
+				get = function(info)
+					return self.settings.hideInCombat
+				end,
+				set = function(info, v)
+					self.settings.hideInCombat = v
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78hideInCombat|r to " .. tostring(self.settings.hideInCombat))
+					end
+				end,
+				order = 3,
 			},
 			maxBreakables = {
 				type = 'range',
@@ -149,9 +224,12 @@ function Breakables:GetOptions()
 				end,
 				set = function(info, v)
 					self.settings.maxBreakablesToShow = v
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.maxBreakablesToShow))
+					end
 					self:FindBreakables()
 				end,
-				order = 2,
+				order = 4,
 			},
 		},
 	}
@@ -166,11 +244,14 @@ function Breakables:GetOptions()
 			end,
 			set = function(info, v)
 				self.settings.showSoulbound = v
+				if info.uiType == "cmd" then
+					print("|cff33ff99Breakables|r: set |cffffff78showSoulbound|r to " .. tostring(self.settings.showSoulbound))
+				end
 				self:FindBreakables()
 			end,
-			order = 3,
+			order = 20,
 		}
-		opts.args.hideSoulboundIfInEquipmentManager = {
+		opts.args.hideEqManagerItems = {
 			type = "toggle",
 			name = "Hide Eq. Mgr items",
 			desc = "Whether or not to hide items that are part of an equipment set in the game's equipment manager.",
@@ -179,15 +260,18 @@ function Breakables:GetOptions()
 			end,
 			set = function(info, v)
 				self.settings.hideEqManagerItems = v
+				if info.uiType == "cmd" then
+					print("|cff33ff99Breakables|r: set |cffffff78hideEqManagerItems|r to " .. tostring(self.settings.hideEqManagerItems))
+				end
 				self:FindBreakables()
 			end,
 			hidden = function()
 				return not self.settings.showSoulbound
 			end,
-			order = 4,
+			order = 21,
 		}
 	end
-	
+
 	return opts
 end
 
@@ -240,6 +324,10 @@ function Breakables:OnMouseUp()
 end
 
 function Breakables:FindBreakables()
+	if self.settings.hide then
+		return
+	end
+
 	if self.bCombat then
 		self.bPendingUpdate = true
 		return
