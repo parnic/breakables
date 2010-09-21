@@ -65,10 +65,17 @@ function Breakables:InitLDB()
 			type = "launcher",
 			text = "Breakables",
 			icon = "Interface\\Icons\\ability_warrior_sunder",
-			OnClick = function(_, msg)
+			OnClick = function(button, msg)
 				self:OnSlashCommand()
 			end,
 		})
+
+		if ldbButton then
+			function ldbButton:OnTooltipShow()
+				self:AddLine("Breakables @project-version@")
+				self:AddLine("Click to open Breakables options.", 1, 1, 1)
+			end
+		end
 	end
 end
 
