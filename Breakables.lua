@@ -39,6 +39,8 @@ for i=0,NUM_BAG_SLOTS do
 	nextCheck[i] = -1
 end
 
+local buttonSize = 40
+
 local _G = _G
 
 Breakables.optionsFrame = {}
@@ -55,6 +57,8 @@ function Breakables:OnInitialize()
 			hideEqManagerItems = true,
 			hide = false,
 			hideInCombat = false,
+			buttonScale = 1,
+			fontSize = 10,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
@@ -269,6 +273,44 @@ function Breakables:GetOptions()
 				end,
 				order = 4,
 			},
+			buttonScale = {
+				type = 'range',
+				name = L["Button scale"],
+				desc = L["This will scale the size of each button up or down."],
+				min = 0.1,
+				max = 2,
+				step = 0.01,
+				get = function(info)
+					return self.settings.buttonScale
+				end,
+				set = function(info, v)
+					self.settings.buttonScale = v
+					Breakables:ApplyScale()
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78buttonScale|r to " .. tostring(self.settings.buttonScale))
+					end
+				end,
+				order = 5,
+			},
+			fontSize = {
+				type = 'range',
+				name = L["Font size"],
+				desc = L["This sets the size of the text that shows how many items you have to break."],
+				min = 4,
+				max = 90,
+				step = 1,
+				get = function(info)
+					return self.settings.fontSize
+				end,
+				set = function(info, v)
+					self.settings.fontSize = v
+					Breakables:ApplyScale()
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78fontSize|r to " .. tostring(self.settings.fontSize))
+					end
+				end,
+				order = 6,
+			},
 		},
 	}
 
@@ -323,8 +365,8 @@ function Breakables:CreateButtonFrame()
 		self.buttonFrame.icon = self.buttonFrame:CreateTexture(nil, "BACKGROUND")
 	end
 	if CanMill or CanProspect or CanDisenchant then
-		self.buttonFrame:SetWidth(40)
-		self.buttonFrame:SetHeight(40)
+		self.buttonFrame:SetWidth(buttonSize * self.settings.buttonScale)
+		self.buttonFrame:SetHeight(buttonSize * self.settings.buttonScale)
 
 		self.buttonFrame:EnableMouse(true)
 		self.buttonFrame:RegisterForClicks("LeftButtonUp")
@@ -344,6 +386,24 @@ function Breakables:CreateButtonFrame()
 		self.buttonFrame.icon:SetAllPoints(self.buttonFrame)
 	else
 		self.buttonFrame:SetTexture(nil)
+	end
+end
+
+function Breakables:ApplyScale()
+	if not self.buttonFrame then
+		return
+	end
+
+	-- yes, setscale exists...but it was scaling buttonFrame and breakableButtons differently for some reason. this works better.
+	self.buttonFrame:SetWidth(buttonSize * self.settings.buttonScale)
+	self.buttonFrame:SetHeight(buttonSize * self.settings.buttonScale)
+
+	if self.breakableButtons then
+		for i=1,#self.breakableButtons do
+			self.breakableButtons[i]:SetWidth(buttonSize * self.settings.buttonScale)
+			self.breakableButtons[i]:SetHeight(buttonSize * self.settings.buttonScale)
+			self.breakableButtons[i].text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
+		end
 	end
 end
 
@@ -409,8 +469,8 @@ function Breakables:FindBreakables(bag)
 				btn = self.breakableButtons[numBreakableStacks]
 
 				btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame or self.breakableButtons[numBreakableStacks - 1], "RIGHT")
-				btn:SetWidth(40)
-				btn:SetHeight(40)
+				btn:SetWidth(buttonSize * self.settings.buttonScale)
+				btn:SetHeight(buttonSize * self.settings.buttonScale)
 				btn:EnableMouse(true)
 				btn:RegisterForClicks("AnyUp")
 
@@ -424,7 +484,7 @@ function Breakables:FindBreakables(bag)
 					btn.text = btn:CreateFontString()
 					btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
 				end
-				btn.text:SetFont(NumberFont_Outline_Med:GetFont(), 10, "OUTLINE")
+				btn.text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
 
 				if not btn.icon then
 					btn.icon = btn:CreateTexture(nil, "BACKGROUND")
