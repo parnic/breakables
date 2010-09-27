@@ -32,9 +32,16 @@ local BREAKABLE_HERB = 1
 local BREAKABLE_ORE = 2
 local BREAKABLE_DE = 3
 
+local BagUpdateCheckDelay = 1.5
+local nextCheck = {}
+for i=0,NUM_BAG_SLOTS do
+	nextCheck[i] = -1
+end
+
 local _G = _G
 
 Breakables.optionsFrame = {}
+Breakables.nextCheck = nextCheck
 
 function Breakables:OnInitialize()
 	self.defaults = {
@@ -91,11 +98,17 @@ function Breakables:OnEnable()
 
 	if CanMill or CanProspect or CanDisenchant then
 		self:CreateButtonFrame()
-		if self.settings.hide and self.buttonFrame then
-			self.buttonFrame:Hide()
+		self.buttonFrame:SetScript("OnUpdate", function() self:CheckShouldFindBreakables() end)
+		if self.settings.hide then
+			if self.buttonFrame then
+				self.buttonFrame:Hide()
+			end
+		else
+			self:FindBreakables()
 		end
 	else
 		self:UnregisterAllEvents()
+		self.buttonFrame:SetScript("OnUpdate", nil)
 	end
 end
 
@@ -114,14 +127,33 @@ end
 
 function Breakables:OnDisable()
 	self:UnregisterAllEvents()
+	self.buttonFrame:SetScript("OnUpdate", nil)
 end
 
 function Breakables:OnSlashCommand(input)
 	InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
 end
 
-function Breakables:OnItemReceived(bag)
-	self:FindBreakables()
+function Breakables:OnItemReceived(event, bag)
+	if bag >= 0 then
+		nextCheck[bag] = GetTime() + BagUpdateCheckDelay
+	end
+end
+
+function Breakables:CheckShouldFindBreakables()
+	local latestTime = -1
+	for i=0,#nextCheck do
+		if nextCheck[i] > latestTime then
+			latestTime = nextCheck[i]
+		end
+	end
+
+	if latestTime > 0 and latestTime <= GetTime() then
+		self:FindBreakables()
+		for i=0,#nextCheck do
+			nextCheck[i] = -1
+		end
+	end
 end
 
 function Breakables:OnEnterCombat()
@@ -330,7 +362,7 @@ function Breakables:OnMouseUp()
 	self.settings.buttonFrameTop = yOff
 end
 
-function Breakables:FindBreakables()
+function Breakables:FindBreakables(bag)
 	if self.settings.hide then
 		return
 	end
@@ -345,15 +377,19 @@ function Breakables:FindBreakables()
 	local numBreakableStacks = 0
 
 	for bagId=0,NUM_BAG_SLOTS do
-		local found = self:FindBreakablesInBag(bagId)
-		for n=1,#found do
-			local addedToExisting = self:MergeBreakables(found[n], foundBreakables)
+		-- this is where i tried to throttle updates...can't just yet since the full breakables list is rebuilt every time this function is called
+		-- consider ways of caching off the last-known state of all breakables
+		--if bag == nil or bag == bagId then
+			local found = self:FindBreakablesInBag(bagId)
+			for n=1,#found do
+				local addedToExisting = self:MergeBreakables(found[n], foundBreakables)
 
-			if not addedToExisting then
-				foundBreakables[i] = found[n]
-				i = i + 1
+				if not addedToExisting then
+					foundBreakables[i] = found[n]
+					i = i + 1
+				end
 			end
-		end
+		--end
 	end
 
 	self:SortBreakables(foundBreakables)
@@ -367,42 +403,48 @@ function Breakables:FindBreakables()
 
 			numBreakableStacks = numBreakableStacks + 1
 
+			local btn = self.breakableButtons[numBreakableStacks]
 			if not self.breakableButtons[numBreakableStacks] then
 				self.breakableButtons[numBreakableStacks] = CreateFrame("Button", "BreakablesButtonStackFrame"..numBreakableStacks, self.buttonFrame, "SecureActionButtonTemplate")
+
+				btn = self.breakableButtons[numBreakableStacks]
+
+				btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame or self.breakableButtons[numBreakableStacks - 1], "RIGHT")
+				btn:SetWidth(40)
+				btn:SetHeight(40)
+				btn:EnableMouse(true)
+				btn:RegisterForClicks("AnyUp")
+
+				btn:SetAttribute("type", "macro")
+
+--				btn:SetAttribute("type1", "item")
+--				btn:SetAttribute("bag1", foundBreakables[i][IDX_BAG])
+--				btn:SetAttribute("slot1", foundBreakables[i][IDX_SLOT])
+
+				if not btn.text then
+					btn.text = btn:CreateFontString()
+					btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
+				end
+				btn.text:SetFont(NumberFont_Outline_Med:GetFont(), 10, "OUTLINE")
+
+				if not btn.icon then
+					btn.icon = btn:CreateTexture(nil, "BACKGROUND")
+				end
+				btn.icon:SetAllPoints(btn)
 			end
-			local btn = self.breakableButtons[numBreakableStacks]
-			btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame or self.breakableButtons[numBreakableStacks - 1], "RIGHT")
-			btn:SetWidth(40)
-			btn:SetHeight(40)
-			btn:EnableMouse(true)
-			btn:RegisterForClicks("AnyUp")
-
-			local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
-			btn:SetAttribute("type", "macro")
-			btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT])
-
---			btn:SetAttribute("type1", "item")
---			btn:SetAttribute("bag1", foundBreakables[i][IDX_BAG])
---			btn:SetAttribute("slot1", foundBreakables[i][IDX_SLOT])
-
-			if not btn.text then
-				btn.text = btn:CreateFontString()
-				btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
-			end
-			btn.text:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
 
 			if not isDisenchantable then
 				btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
 			end
 
+			local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
+			btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT])
+			btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
+
 			btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
 			btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
 
-			if not btn.icon then
-				btn.icon = btn:CreateTexture(nil, "BACKGROUND")
-			end
-			btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
-			btn.icon:SetAllPoints(btn)
+			btn:Show()
 
 			if numBreakableStacks >= self.settings.maxBreakablesToShow then
 				break
@@ -412,9 +454,8 @@ function Breakables:FindBreakables()
 
 	if self.breakableButtons and numBreakableStacks < #self.breakableButtons then
 		for i=numBreakableStacks+1,#self.breakableButtons do
+			self.breakableButtons[i]:Hide()
 			self.breakableButtons[i].icon:SetTexture(nil)
-			self.breakableButtons[i].text:SetText()
-			self.breakableButtons[i]:EnableMouse(false)
 		end
 	end
 
