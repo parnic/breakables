@@ -28,6 +28,9 @@ externals:
     libs/AceEvent-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceEvent-3.0
         tag: latest
+    libs/AceLocale-3.0:
+        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceLocale-3.0
+        tag: latest
     libs/LibBabble-Inventory-3.0:
         url: svn://svn.wowace.com/wow/libbabble-inventory-3-0/mainline/trunk
         tag: latest

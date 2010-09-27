@@ -1,3 +1,4 @@
+local L = LibStub("AceLocale-3.0"):GetLocale("Breakables", false)
 Breakables = LibStub("AceAddon-3.0"):NewAddon("Breakables", "AceConsole-3.0", "AceEvent-3.0")
 local babbleInv = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
 
@@ -70,7 +71,7 @@ function Breakables:InitLDB()
 	if (LDB) then
 		local ldbButton = LDB:NewDataObject("Breakables", {
 			type = "launcher",
-			text = "Breakables",
+			text = L["Breakables"],
 			icon = "Interface\\Icons\\ability_warrior_sunder",
 			OnClick = function(button, msg)
 				self:OnSlashCommand()
@@ -79,8 +80,8 @@ function Breakables:InitLDB()
 
 		if ldbButton then
 			function ldbButton:OnTooltipShow()
-				self:AddLine("Breakables @project-version@")
-				self:AddLine("Click to open Breakables options.", 1, 1, 1)
+				self:AddLine(L["Breakables"] .. " @project-version@")
+				self:AddLine(L["Click to open Breakables options."], 1, 1, 1)
 			end
 		end
 	end
@@ -187,22 +188,20 @@ end
 
 function Breakables:GetOptions()
 	local opts = {
-		name = "Breakables",
+		name = L["Breakables"],
 		handler = Breakables,
 		type = "group",
 		args = {
 			intro = {
 				type = "description",
 				fontSize = "small",
-				name = [[Thanks for using |cff33ff99Breakables|r! Use |cffffff78/brk|r to open this menu or |cffffff78/breakables|r to access the same options on the command line.
-
-Hold shift and drag the profession button to move the breakables bar around. If you have any feature requests or problems, please email |cff33ff99breakables@parnic.com|r or visit the |cffffff78curse.com|r or |cffffff78wowinterface.com|r page and leave a comment.]],
+				name = L["Welcome"],
 				order = 0,
 			},
 			hideAlways = {
 				type = "toggle",
-				name = "Hide bar",
-				desc = "This will completely hide the breakables bar whether you have anything to break down or not. Note that you can toggle this in a macro using the /breakables command as well.",
+				name = L["Hide bar"],
+				desc = L["This will completely hide the breakables bar whether you have anything to break down or not. Note that you can toggle this in a macro using the /breakables command as well."],
 				get = function(info)
 					return self.settings.hide
 				end,
@@ -222,8 +221,8 @@ Hold shift and drag the profession button to move the breakables bar around. If 
 			},
 			hideNoBreakables = {
 				type = "toggle",
-				name = "Hide if no breakables",
-				desc = "Whether or not to hide the action bar if no breakables are present in your bags",
+				name = L["Hide if no breakables"],
+				desc = L["Whether or not to hide the action bar if no breakables are present in your bags"],
 				get = function(info)
 					return self.settings.hideIfNoBreakables
 				end,
@@ -238,8 +237,8 @@ Hold shift and drag the profession button to move the breakables bar around. If 
 			},
 			hideInCombat = {
 				type = "toggle",
-				name = "Hide during combat",
-				desc = "Whether or not to hide the breakables bar when you enter combat and show it again when leaving combat.",
+				name = L["Hide during combat"],
+				desc = L["Whether or not to hide the breakables bar when you enter combat and show it again when leaving combat."],
 				get = function(info)
 					return self.settings.hideInCombat
 				end,
@@ -253,8 +252,8 @@ Hold shift and drag the profession button to move the breakables bar around. If 
 			},
 			maxBreakables = {
 				type = 'range',
-				name = 'Max number to display',
-				desc = 'How many breakable buttons to display next to the profession button at maximum',
+				name = L["Max number to display"],
+				desc = L["How many breakable buttons to display next to the profession button at maximum"],
 				min = 1,
 				max = 50,
 				step = 1,
@@ -276,8 +275,8 @@ Hold shift and drag the profession button to move the breakables bar around. If 
 	if CanDisenchant then
 		opts.args.showSoulbound = {
 			type = "toggle",
-			name = "Show soulbound items",
-			desc = "Whether or not to display soulbound items as breakables.",
+			name = L["Show soulbound items"],
+			desc = L["Whether or not to display soulbound items as breakables."],
 			get = function(info)
 				return self.settings.showSoulbound
 			end,
@@ -292,8 +291,8 @@ Hold shift and drag the profession button to move the breakables bar around. If 
 		}
 		opts.args.hideEqManagerItems = {
 			type = "toggle",
-			name = "Hide Eq. Mgr items",
-			desc = "Whether or not to hide items that are part of an equipment set in the game's equipment manager.",
+			name = L["Hide Eq. Mgr items"],
+			desc = L["Whether or not to hide items that are part of an equipment set in the game's equipment manager."],
 			get = function(info)
 				return self.settings.hideEqManagerItems
 			end,
