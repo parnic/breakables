@@ -39,12 +39,12 @@ for i=0,NUM_BAG_SLOTS do
 	nextCheck[i] = -1
 end
 
-local buttonSize = 40
+local buttonSize = 28
 
 local _G = _G
 
 Breakables.optionsFrame = {}
-Breakables.nextCheck = nextCheck
+Breakables.justClicked = false
 
 function Breakables:OnInitialize()
 	self.defaults = {
@@ -58,7 +58,7 @@ function Breakables:OnInitialize()
 			hide = false,
 			hideInCombat = false,
 			buttonScale = 1,
-			fontSize = 10,
+			fontSize = 7,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
@@ -103,7 +103,6 @@ function Breakables:OnEnable()
 
 	if CanMill or CanProspect or CanDisenchant then
 		self:CreateButtonFrame()
-		self.buttonFrame:SetScript("OnUpdate", function() self:CheckShouldFindBreakables() end)
 		if self.settings.hide then
 			if self.buttonFrame then
 				self.buttonFrame:Hide()
@@ -111,9 +110,9 @@ function Breakables:OnEnable()
 		else
 			self:FindBreakables()
 		end
+		self.frame:SetScript("OnUpdate", function() self:CheckShouldFindBreakables() end)
 	else
 		self:UnregisterAllEvents()
-		self.buttonFrame:SetScript("OnUpdate", nil)
 	end
 end
 
@@ -132,7 +131,7 @@ end
 
 function Breakables:OnDisable()
 	self:UnregisterAllEvents()
-	self.buttonFrame:SetScript("OnUpdate", nil)
+	self.frame:SetScript("OnUpdate", nil)
 end
 
 function Breakables:OnSlashCommand(input)
@@ -140,7 +139,10 @@ function Breakables:OnSlashCommand(input)
 end
 
 function Breakables:OnItemReceived(event, bag)
-	if bag >= 0 then
+	if self.justClicked then
+		self:FindBreakables()
+		self.justClicked = false
+	elseif not bag or bag >= 0 then
 		nextCheck[bag] = GetTime() + BagUpdateCheckDelay
 	end
 end
@@ -356,8 +358,11 @@ function Breakables:GetOptions()
 end
 
 function Breakables:CreateButtonFrame()
+	if not self.frame then
+		self.frame = CreateFrame("Frame")
+	end
 	if not self.buttonFrame then
-		self.buttonFrame = CreateFrame("Button", "BreakablesButtonFrame1", UIParent, "SecureActionButtonTemplate")
+		self.buttonFrame = CreateFrame("Button", "BreakablesButtonFrame1", self.frame, "SecureActionButtonTemplate")
 	end
 	self.buttonFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", self.settings.buttonFrameLeft, self.settings.buttonFrameTop)
 
@@ -497,7 +502,7 @@ function Breakables:FindBreakables(bag)
 			end
 
 			local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
-			btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT])
+			btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT].."\n/script Breakables.justClicked=true")
 			btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
 
 			btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
