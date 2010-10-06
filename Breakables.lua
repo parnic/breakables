@@ -43,6 +43,9 @@ local buttonSize = 28
 
 local _G = _G
 
+-- can be 1 or 2
+local numEligibleProfessions = 0
+
 Breakables.optionsFrame = {}
 Breakables.justClicked = false
 
@@ -102,17 +105,41 @@ function Breakables:OnEnable()
 	self:RegisterEvents()
 
 	if CanMill or CanProspect or CanDisenchant then
+		if CanMill then
+			numEligibleProfessions = numEligibleProfessions + 1
+		end
+		if CanProspect then
+			numEligibleProfessions = numEligibleProfessions + 1
+		end
+		if CanDisenchant then
+			numEligibleProfessions = numEligibleProfessions + 1
+		end
+
 		self:CreateButtonFrame()
 		if self.settings.hide then
-			if self.buttonFrame then
-				self.buttonFrame:Hide()
-			end
+			self:ToggleButtonFrameVisibility(false)
 		else
 			self:FindBreakables()
 		end
 		self.frame:SetScript("OnUpdate", function() self:CheckShouldFindBreakables() end)
 	else
 		self:UnregisterAllEvents()
+	end
+end
+
+function Breakables:ToggleButtonFrameVisibility(show)
+	for i=1,numEligibleProfessions do
+		if self.buttonFrame[i] then
+			if show == nil then
+				show = not self.buttonFrame[i]:IsVisible()
+			end
+
+			if not show then
+				self.buttonFrame[i]:Hide()
+			else
+				self.buttonFrame[i]:Show()
+			end
+		end
 	end
 end
 
@@ -166,7 +193,7 @@ end
 function Breakables:OnEnterCombat()
 	self.bCombat = true
 	if self.settings.hideInCombat then
-		self.buttonFrame:Hide()
+		self:ToggleButtonFrameVisibility(false)
 	end
 end
 
@@ -216,10 +243,8 @@ function Breakables:GetOptions()
 					if info.uiType == "cmd" then
 						print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.hide))
 					end
-					if v then
-						self.buttonFrame:Hide()
-					else
-						self.buttonFrame:Show()
+					self:ToggleButtonFrameVisibility(v)
+					if not v then
 						self:FindBreakables()
 					end
 				end,
@@ -362,35 +387,49 @@ function Breakables:CreateButtonFrame()
 		self.frame = CreateFrame("Frame")
 	end
 	if not self.buttonFrame then
-		self.buttonFrame = CreateFrame("Button", "BreakablesButtonFrame1", self.frame, "SecureActionButtonTemplate")
+		self.buttonFrame = {}
 	end
-	self.buttonFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", self.settings.buttonFrameLeft, self.settings.buttonFrameTop)
 
-	if not self.buttonFrame.icon then
-		self.buttonFrame.icon = self.buttonFrame:CreateTexture(nil, "BACKGROUND")
-	end
-	if CanMill or CanProspect or CanDisenchant then
-		self.buttonFrame:SetWidth(buttonSize * self.settings.buttonScale)
-		self.buttonFrame:SetHeight(buttonSize * self.settings.buttonScale)
+	for i=1,numEligibleProfessions do
+		if not self.buttonFrame[i] then
+			self.buttonFrame[i] = CreateFrame("Button", "BreakablesButtonFrame1", self.frame, "SecureActionButtonTemplate")
+		end
+		self.buttonFrame[i]:SetPoint("TOPLEFT", UIParent, "TOPLEFT", self.settings.buttonFrameLeft, self.settings.buttonFrameTop)
 
-		self.buttonFrame:EnableMouse(true)
-		self.buttonFrame:RegisterForClicks("LeftButtonUp")
+		if CanMill and i == 1 or self.buttonFrame[1].type ~= BREAKABLE_HERB then
+			self.buttonFrame[i].type = BREAKABLE_HERB
+		elseif CanDisenchant and i == 1 or self.buttonFrame[1].type ~= BREAKABLE_DE then
+			self.buttonFrame[i].type = BREAKABLE_DE
+		elseif CanProspect and i == 1 or self.buttonFrame[1].type ~= BREAKABLE_ORE then
+			self.buttonFrame[i].type = BREAKABLE_ORE
+		end
 
-		self.buttonFrame:SetMovable(true)
-		self.buttonFrame:RegisterForDrag("LeftButton")
-		self.buttonFrame:SetScript("OnMouseDown", function() self:OnMouseDown() end)
-		self.buttonFrame:SetScript("OnMouseUp", function() self:OnMouseUp() end)
-		self.buttonFrame:SetClampedToScreen(true)
+		if not self.buttonFrame[i].icon then
+			self.buttonFrame[i].icon = self.buttonFrame[i]:CreateTexture(nil, "BACKGROUND")
+		end
+		if self.buttonFrame[i].type then
+			self.buttonFrame[i]:SetWidth(buttonSize * self.settings.buttonScale)
+			self.buttonFrame[i]:SetHeight(buttonSize * self.settings.buttonScale)
 
-		local spellName, _, texture = GetSpellInfo((CanMill and MillingId) or (CanProspect and ProspectingId) or DisenchantId)
+			self.buttonFrame[i]:EnableMouse(true)
+			self.buttonFrame[i]:RegisterForClicks("LeftButtonUp")
 
-		self.buttonFrame:SetAttribute("type1", "spell")
-		self.buttonFrame:SetAttribute("spell1", spellName)
+			self.buttonFrame[i]:SetMovable(true)
+			self.buttonFrame[i]:RegisterForDrag("LeftButton")
+			self.buttonFrame[i]:SetScript("OnMouseDown", function(frame) self:OnMouseDown(frame) end)
+			self.buttonFrame[i]:SetScript("OnMouseUp", function(frame) self:OnMouseUp(frame) end)
+			self.buttonFrame[i]:SetClampedToScreen(true)
 
-		self.buttonFrame.icon:SetTexture(texture)
-		self.buttonFrame.icon:SetAllPoints(self.buttonFrame)
-	else
-		self.buttonFrame:SetTexture(nil)
+			local spellName, _, texture = GetSpellInfo((self.buttonFrame[i].type == BREAKABLE_HERB and MillingId) or (self.buttonFrame[i].type == BREAKABLE_ORE and ProspectingId) or DisenchantId)
+
+			self.buttonFrame[i]:SetAttribute("type1", "spell")
+			self.buttonFrame[i]:SetAttribute("spell1", spellName)
+
+			self.buttonFrame[i].icon:SetTexture(texture)
+			self.buttonFrame[i].icon:SetAllPoints(self.buttonFrame[i])
+		else
+			self.buttonFrame[i]:SetTexture(nil)
+		end
 	end
 end
 
@@ -399,29 +438,31 @@ function Breakables:ApplyScale()
 		return
 	end
 
-	-- yes, setscale exists...but it was scaling buttonFrame and breakableButtons differently for some reason. this works better.
-	self.buttonFrame:SetWidth(buttonSize * self.settings.buttonScale)
-	self.buttonFrame:SetHeight(buttonSize * self.settings.buttonScale)
+	for i=1,numEligibleProfessions do
+		-- yes, setscale exists...but it was scaling buttonFrame and breakableButtons differently for some reason. this works better.
+		self.buttonFrame[i]:SetWidth(buttonSize * self.settings.buttonScale)
+		self.buttonFrame[i]:SetHeight(buttonSize * self.settings.buttonScale)
 
-	if self.breakableButtons then
-		for i=1,#self.breakableButtons do
-			self.breakableButtons[i]:SetWidth(buttonSize * self.settings.buttonScale)
-			self.breakableButtons[i]:SetHeight(buttonSize * self.settings.buttonScale)
-			self.breakableButtons[i].text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
+		if self.breakableButtons[i] then
+			for j=1,#self.breakableButtons[i] do
+				self.breakableButtons[i][j]:SetWidth(buttonSize * self.settings.buttonScale)
+				self.breakableButtons[i][j]:SetHeight(buttonSize * self.settings.buttonScale)
+				self.breakableButtons[i][j].text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
+			end
 		end
 	end
 end
 
-function Breakables:OnMouseDown()
+function Breakables:OnMouseDown(frame)
 	if IsShiftKeyDown() then
-		self.buttonFrame:StartMoving()
+		frame:StartMoving()
 	end
 end
 
-function Breakables:OnMouseUp()
-	self.buttonFrame:StopMovingOrSizing()
+function Breakables:OnMouseUp(frame)
+	frame:StopMovingOrSizing()
 
-	local _, _, _, xOff, yOff = self.buttonFrame:GetPoint(1)
+	local _, _, _, xOff, yOff = frame:GetPoint(1)
 	self.settings.buttonFrameLeft = xOff
 	self.settings.buttonFrameTop = yOff
 end
@@ -459,77 +500,81 @@ function Breakables:FindBreakables(bag)
 	self:SortBreakables(foundBreakables)
 
 	for i=1,#foundBreakables do
-		local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL])
-		if (CanDisenchant and isDisenchantable) or foundBreakables[i][IDX_COUNT] >= 5 then
-			if not self.breakableButtons then
-				self.breakableButtons = {}
+		if not self.breakableButtons then
+			self.breakableButtons = {}
+		end
+
+		for i=1,numEligibleProfessions do
+			if not self.breakableButtons[i] then
+				self.breakableButtons[i] = {}
 			end
 
-			numBreakableStacks = numBreakableStacks + 1
+			if foundBreakables[i][IDX_TYPE] == self.buttonFrame[i].type then
+				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL])
+				if (CanDisenchant and isDisenchantable) or foundBreakables[i][IDX_COUNT] >= 5 then
+					numBreakableStacks = numBreakableStacks + 1
 
-			local btn = self.breakableButtons[numBreakableStacks]
-			if not self.breakableButtons[numBreakableStacks] then
-				self.breakableButtons[numBreakableStacks] = CreateFrame("Button", "BreakablesButtonStackFrame"..numBreakableStacks, self.buttonFrame, "SecureActionButtonTemplate")
+					local btn = self.breakableButtons[i][numBreakableStacks]
+					if not self.breakableButtons[i][numBreakableStacks] then
+						self.breakableButtons[i][numBreakableStacks] = CreateFrame("Button", "BreakablesButtonStackFrame"..numBreakableStacks, self.buttonFrame[i], "SecureActionButtonTemplate")
 
-				btn = self.breakableButtons[numBreakableStacks]
+						btn = self.breakableButtons[i][numBreakableStacks]
 
-				btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame or self.breakableButtons[numBreakableStacks - 1], "RIGHT")
-				btn:SetWidth(buttonSize * self.settings.buttonScale)
-				btn:SetHeight(buttonSize * self.settings.buttonScale)
-				btn:EnableMouse(true)
-				btn:RegisterForClicks("AnyUp")
+						btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame[i] or self.breakableButtons[i][numBreakableStacks - 1], "RIGHT")
+						btn:SetWidth(buttonSize * self.settings.buttonScale)
+						btn:SetHeight(buttonSize * self.settings.buttonScale)
+						btn:EnableMouse(true)
+						btn:RegisterForClicks("AnyUp")
 
-				btn:SetAttribute("type", "macro")
+						btn:SetAttribute("type", "macro")
 
---				btn:SetAttribute("type1", "item")
---				btn:SetAttribute("bag1", foundBreakables[i][IDX_BAG])
---				btn:SetAttribute("slot1", foundBreakables[i][IDX_SLOT])
+--						btn:SetAttribute("type1", "item")
+--						btn:SetAttribute("bag1", foundBreakables[i][IDX_BAG])
+--						btn:SetAttribute("slot1", foundBreakables[i][IDX_SLOT])
 
-				if not btn.text then
-					btn.text = btn:CreateFontString()
-					btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
+						if not btn.text then
+							btn.text = btn:CreateFontString()
+							btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
+						end
+						btn.text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
+
+						if not btn.icon then
+							btn.icon = btn:CreateTexture(nil, "BACKGROUND")
+						end
+						btn.icon:SetAllPoints(btn)
+					end
+
+					if not isDisenchantable then
+						btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
+					end
+
+					local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
+					btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT].."\n/script Breakables.justClicked=true")
+					btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
+
+					btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
+					btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
+
+					btn:Show()
+
+					if numBreakableStacks >= self.settings.maxBreakablesToShow then
+						break
+					end
 				end
-				btn.text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
-
-				if not btn.icon then
-					btn.icon = btn:CreateTexture(nil, "BACKGROUND")
-				end
-				btn.icon:SetAllPoints(btn)
-			end
-
-			if not isDisenchantable then
-				btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
-			end
-
-			local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
-			btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT].."\n/script Breakables.justClicked=true")
-			btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
-
-			btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
-			btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
-
-			btn:Show()
-
-			if numBreakableStacks >= self.settings.maxBreakablesToShow then
-				break
 			end
 		end
 	end
 
-	if self.breakableButtons and numBreakableStacks < #self.breakableButtons then
-		for i=numBreakableStacks+1,#self.breakableButtons do
-			self.breakableButtons[i]:Hide()
-			self.breakableButtons[i].icon:SetTexture(nil)
+	for i=1,numEligibleProfessions do
+		if self.breakableButtons[i] and numBreakableStacks < #self.breakableButtons[i] then
+			for j=numBreakableStacks+1,#self.breakableButtons[i] do
+				self.breakableButtons[i][j]:Hide()
+				self.breakableButtons[i][j].icon:SetTexture(nil)
+			end
 		end
 	end
 
-	if self.buttonFrame then
-		if numBreakableStacks == 0 and self.settings.hideIfNoBreakables then
-			self.buttonFrame:Hide()
-		else
-			self.buttonFrame:Show()
-		end
-	end
+	self:ToggleButtonFrameVisibility(not (numBreakableStacks == 0 and self.settings.hideIfNoBreakables))
 end
 
 function Breakables:OnEnterBreakableButton(this, breakable)
