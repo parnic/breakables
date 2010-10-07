@@ -52,8 +52,8 @@ Breakables.justClicked = false
 function Breakables:OnInitialize()
 	self.defaults = {
 		profile = {
-			buttonFrameLeft = 100,
-			buttonFrameTop = -100,
+			buttonFrameLeft = {100, 100},
+			buttonFrameTop = {-100, -150},
 			hideIfNoBreakables = true,
 			maxBreakablesToShow = 5,
 			showSoulbound = false,
@@ -68,6 +68,19 @@ function Breakables:OnInitialize()
 	self.settings = self.db.profile
 
 	self:RegisterChatCommand("brk", "OnSlashCommand")
+
+	if type(self.settings.buttonFrameLeft) ~= "table" then
+		local old = self.settings.buttonFrameLeft
+		self.settings.buttonFrameLeft = {}
+		self.settings.buttonFrameLeft[1] = old
+		self.settings.buttonFrameLeft[2] = self.defaults.profile.buttonFrameLeft[2]
+	end
+	if type(self.settings.buttonFrameTop) ~= "table" then
+		local old = self.settings.buttonFrameTop
+		self.settings.buttonFrameTop = {}
+		self.settings.buttonFrameTop[1] = old
+		self.settings.buttonFrameTop[2] = self.defaults.profile.buttonFrameTop[2]
+	end
 
 	self:InitLDB()
 end
@@ -243,7 +256,7 @@ function Breakables:GetOptions()
 					if info.uiType == "cmd" then
 						print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.hide))
 					end
-					self:ToggleButtonFrameVisibility(v)
+					self:ToggleButtonFrameVisibility(not v)
 					if not v then
 						self:FindBreakables()
 					end
@@ -394,13 +407,13 @@ function Breakables:CreateButtonFrame()
 		if not self.buttonFrame[i] then
 			self.buttonFrame[i] = CreateFrame("Button", "BreakablesButtonFrame1", self.frame, "SecureActionButtonTemplate")
 		end
-		self.buttonFrame[i]:SetPoint("TOPLEFT", UIParent, "TOPLEFT", self.settings.buttonFrameLeft, self.settings.buttonFrameTop)
+		self.buttonFrame[i]:SetPoint("TOPLEFT", UIParent, "TOPLEFT", self.settings.buttonFrameLeft[i], self.settings.buttonFrameTop[i])
 
-		if CanMill and i == 1 or self.buttonFrame[1].type ~= BREAKABLE_HERB then
+		if CanMill and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_HERB) then
 			self.buttonFrame[i].type = BREAKABLE_HERB
-		elseif CanDisenchant and i == 1 or self.buttonFrame[1].type ~= BREAKABLE_DE then
+		elseif CanDisenchant and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_DE) then
 			self.buttonFrame[i].type = BREAKABLE_DE
-		elseif CanProspect and i == 1 or self.buttonFrame[1].type ~= BREAKABLE_ORE then
+		elseif CanProspect and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_ORE) then
 			self.buttonFrame[i].type = BREAKABLE_ORE
 		end
 
@@ -462,9 +475,17 @@ end
 function Breakables:OnMouseUp(frame)
 	frame:StopMovingOrSizing()
 
+	local frameNum = 1
+	for i=1,numEligibleProfessions do
+		if self.buttonFrame[i] == frame then
+			frameNum = i
+			break
+		end
+	end
+
 	local _, _, _, xOff, yOff = frame:GetPoint(1)
-	self.settings.buttonFrameLeft = xOff
-	self.settings.buttonFrameTop = yOff
+	self.settings.buttonFrameLeft[frameNum] = xOff
+	self.settings.buttonFrameTop[frameNum] = yOff
 end
 
 function Breakables:FindBreakables(bag)
@@ -479,7 +500,7 @@ function Breakables:FindBreakables(bag)
 
 	local foundBreakables = {}
 	local i=1
-	local numBreakableStacks = 0
+	local numBreakableStacks = {}
 
 	for bagId=0,NUM_BAG_SLOTS do
 		-- this is where i tried to throttle updates...can't just yet since the full breakables list is rebuilt every time this function is called
@@ -499,28 +520,32 @@ function Breakables:FindBreakables(bag)
 
 	self:SortBreakables(foundBreakables)
 
-	for i=1,#foundBreakables do
-		if not self.breakableButtons then
-			self.breakableButtons = {}
-		end
+	if not self.breakableButtons then
+		self.breakableButtons = {}
+	end
 
-		for i=1,numEligibleProfessions do
-			if not self.breakableButtons[i] then
-				self.breakableButtons[i] = {}
+	for i=1,#foundBreakables do
+		for j=1,numEligibleProfessions do
+			if not self.breakableButtons[j] then
+				self.breakableButtons[j] = {}
 			end
 
-			if foundBreakables[i][IDX_TYPE] == self.buttonFrame[i].type then
+			if not numBreakableStacks[j] then
+				numBreakableStacks[j] = 0
+			end
+
+			if foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
 				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL])
 				if (CanDisenchant and isDisenchantable) or foundBreakables[i][IDX_COUNT] >= 5 then
-					numBreakableStacks = numBreakableStacks + 1
+					numBreakableStacks[j] = numBreakableStacks[j] + 1
 
-					local btn = self.breakableButtons[i][numBreakableStacks]
-					if not self.breakableButtons[i][numBreakableStacks] then
-						self.breakableButtons[i][numBreakableStacks] = CreateFrame("Button", "BreakablesButtonStackFrame"..numBreakableStacks, self.buttonFrame[i], "SecureActionButtonTemplate")
+					local btn = self.breakableButtons[j][numBreakableStacks[j]]
+					if not self.breakableButtons[j][numBreakableStacks[j]] then
+						self.breakableButtons[j][numBreakableStacks[j]] = CreateFrame("Button", nil, self.buttonFrame[j], "SecureActionButtonTemplate")
 
-						btn = self.breakableButtons[i][numBreakableStacks]
+						btn = self.breakableButtons[j][numBreakableStacks[j]]
 
-						btn:SetPoint("LEFT", numBreakableStacks == 1 and self.buttonFrame[i] or self.breakableButtons[i][numBreakableStacks - 1], "RIGHT")
+						btn:SetPoint("LEFT", numBreakableStacks[j] == 1 and self.buttonFrame[j] or self.breakableButtons[j][numBreakableStacks[j] - 1], "RIGHT")
 						btn:SetWidth(buttonSize * self.settings.buttonScale)
 						btn:SetHeight(buttonSize * self.settings.buttonScale)
 						btn:EnableMouse(true)
@@ -556,25 +581,31 @@ function Breakables:FindBreakables(bag)
 					btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
 
 					btn:Show()
-
-					if numBreakableStacks >= self.settings.maxBreakablesToShow then
-						break
-					end
 				end
 			end
 		end
 	end
 
 	for i=1,numEligibleProfessions do
-		if self.breakableButtons[i] and numBreakableStacks < #self.breakableButtons[i] then
-			for j=numBreakableStacks+1,#self.breakableButtons[i] do
+		if not numBreakableStacks[i] then
+			numBreakableStacks[i] = 0
+		end
+
+		if self.breakableButtons[i] and numBreakableStacks[i] < #self.breakableButtons[i] then
+			for j=numBreakableStacks[i]+1,#self.breakableButtons[i] do
 				self.breakableButtons[i][j]:Hide()
 				self.breakableButtons[i][j].icon:SetTexture(nil)
 			end
 		end
-	end
 
-	self:ToggleButtonFrameVisibility(not (numBreakableStacks == 0 and self.settings.hideIfNoBreakables))
+		if self.buttonFrame[i] then
+			if numBreakableStacks[i] == 0 and self.settings.hideIfNoBreakables then
+				self.buttonFrame[i]:Hide()
+			else
+				self.buttonFrame[i]:Show()
+			end
+		end
+	end
 end
 
 function Breakables:OnEnterBreakableButton(this, breakable)
