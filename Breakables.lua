@@ -190,7 +190,7 @@ end
 function Breakables:CheckShouldFindBreakables()
 	local latestTime = -1
 	for i=0,#nextCheck do
-		if nextCheck[i] > latestTime then
+		if nextCheck[i] and nextCheck[i] > latestTime then
 			latestTime = nextCheck[i]
 		end
 	end
