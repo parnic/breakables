@@ -6,7 +6,6 @@
 ## Version: @project-version@ (Revision: @project-revision@)
 ## SavedVariables: BreakablesDB
 ## OptionalDeps: Ace3, LibBabble-Inventory-3.0
-## X-Compatible-With: 30300
 
 #@no-lib-strip@
 embeds.xml
