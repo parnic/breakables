@@ -64,7 +64,7 @@ function Breakables:OnInitialize()
 			fontSize = 7,
 		}
 	}
-	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults)
+	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults, true)
 	self.settings = self.db.profile
 
 	self:RegisterChatCommand("brk", "OnSlashCommand")
