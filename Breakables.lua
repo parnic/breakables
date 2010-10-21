@@ -53,7 +53,7 @@ function Breakables:OnInitialize()
 	self.defaults = {
 		profile = {
 			buttonFrameLeft = {100, 100},
-			buttonFrameTop = {-100, -150},
+			buttonFrameTop = {700, 650},
 			hideIfNoBreakables = true,
 			maxBreakablesToShow = 5,
 			showSoulbound = false,
@@ -407,7 +407,7 @@ function Breakables:CreateButtonFrame()
 		if not self.buttonFrame[i] then
 			self.buttonFrame[i] = CreateFrame("Button", "BreakablesButtonFrame1", self.frame, "SecureActionButtonTemplate")
 		end
-		self.buttonFrame[i]:SetPoint("TOPLEFT", UIParent, "TOPLEFT", self.settings.buttonFrameLeft[i], self.settings.buttonFrameTop[i])
+		self.buttonFrame[i]:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", self.settings.buttonFrameLeft[i], self.settings.buttonFrameTop[i])
 
 		if CanMill and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_HERB) then
 			self.buttonFrame[i].type = BREAKABLE_HERB
@@ -483,9 +483,8 @@ function Breakables:OnMouseUp(frame)
 		end
 	end
 
-	local _, _, _, xOff, yOff = frame:GetPoint(1)
-	self.settings.buttonFrameLeft[frameNum] = xOff
-	self.settings.buttonFrameTop[frameNum] = yOff
+	self.settings.buttonFrameLeft[frameNum] = frame:GetLeft()
+	self.settings.buttonFrameTop[frameNum] = frame:GetTop()
 end
 
 function Breakables:FindBreakables(bag)
