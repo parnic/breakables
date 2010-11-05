@@ -17,6 +17,7 @@ local CanDisenchant = false
 
 -- item rarity must meet or surpass this to be considered for disenchantability (is that a word?)
 local RARITY_UNCOMMON = 2
+local RARITY_HEIRLOOM = 7
 
 local IDX_LINK = 1
 local IDX_COUNT = 2
@@ -650,7 +651,8 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 
 		self.myTooltip:SetBagItem(bagId, slotId)
 
-		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and self:BreakableIsDisenchantable(itemType, itemLevel) then
+		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and itemRarity < RARITY_HEIRLOOM
+			and self:BreakableIsDisenchantable(itemType, itemLevel) then
 			local i = 1
 			local soulbound = false
 			for i=1,5 do
