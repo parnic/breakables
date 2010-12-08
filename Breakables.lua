@@ -29,6 +29,7 @@ local IDX_SUBTYPE = 7
 local IDX_LEVEL = 8
 local IDX_BREAKABLETYPE = 9
 local IDX_SOULBOUND = 10
+local IDX_NAME = 11
 
 local BREAKABLE_HERB = 1
 local BREAKABLE_ORE = 2
@@ -552,10 +553,10 @@ function Breakables:FindBreakables(bag)
 						btn:RegisterForClicks("AnyUp")
 
 						btn:SetAttribute("type", "macro")
-
---						btn:SetAttribute("type1", "item")
---						btn:SetAttribute("bag1", foundBreakables[i][IDX_BAG])
---						btn:SetAttribute("slot1", foundBreakables[i][IDX_SLOT])
+--						btn:SetAttribute("target-bag", foundBreakables[i][IDX_BAG])
+--						btn:SetAttribute("target-slot", foundBreakables[i][IDX_SLOT])
+--						btn:SetAttribute("target-item", foundBreakables[i][IDX_NAME])
+--						btn:SetAttribute("type", "spell")
 
 						if not btn.text then
 							btn.text = btn:CreateFontString()
@@ -575,6 +576,7 @@ function Breakables:FindBreakables(bag)
 
 					local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
 					btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT].."\n/script Breakables.justClicked=true")
+--					btn:SetAttribute("spell", BreakableAbilityName)
 					btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
 
 					btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
@@ -647,7 +649,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 	local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bagId, slotId)
 	if texture then
 		local itemLink = GetContainerItemLink(bagId, slotId)
-		local _, _, itemRarity, itemLevel, _, itemType, itemSubType, _, _, itemTexture = GetItemInfo(itemLink)
+		local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType, _, _, itemTexture = GetItemInfo(itemLink)
 
 		self.myTooltip:SetBagItem(bagId, slotId)
 
@@ -669,7 +671,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			local shouldHideThisItem = self.settings.hideEqManagerItems and isInEquipmentSet
 
 			if (not soulbound or self.settings.showSoulbound) and not shouldHideThisItem then
-				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound}
+				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName}
 			else
 				return nil
 			end
@@ -678,11 +680,11 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		local extraInfo = BreakablesTooltipTextLeft2:GetText()
 
 		if CanMill and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType) and extraInfo == ITEM_MILLABLE then
-			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false}
+			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false, itemName}
 		end
 
 		if CanProspect and itemSubType == ProspectingItemSubType and extraInfo == ITEM_PROSPECTABLE then
-			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false}
+			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName}
 		end
 	end
 
