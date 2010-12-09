@@ -552,11 +552,7 @@ function Breakables:FindBreakables(bag)
 						btn:EnableMouse(true)
 						btn:RegisterForClicks("AnyUp")
 
-						btn:SetAttribute("type", "macro")
---						btn:SetAttribute("target-bag", foundBreakables[i][IDX_BAG])
---						btn:SetAttribute("target-slot", foundBreakables[i][IDX_SLOT])
---						btn:SetAttribute("target-item", foundBreakables[i][IDX_NAME])
---						btn:SetAttribute("type", "spell")
+						btn:SetAttribute("type", "spell")
 
 						if not btn.text then
 							btn.text = btn:CreateFontString()
@@ -575,8 +571,8 @@ function Breakables:FindBreakables(bag)
 					end
 
 					local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
-					btn:SetAttribute("macrotext", "/cast "..BreakableAbilityName.."\n/use "..foundBreakables[i][IDX_BAG].." "..foundBreakables[i][IDX_SLOT].."\n/script Breakables.justClicked=true")
---					btn:SetAttribute("spell", BreakableAbilityName)
+					btn:SetAttribute("spell", BreakableAbilityName)
+					btn:SetAttribute("target-item", foundBreakables[i][IDX_NAME])
 					btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
 
 					btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
