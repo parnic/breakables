@@ -45,6 +45,8 @@ local buttonSize = 28
 
 local _G = _G
 
+local validGrowDirections = {L["Left"], L["Right"], L["Up"], L["Down"]}
+
 -- can be 1 or 2
 local numEligibleProfessions = 0
 
@@ -64,6 +66,7 @@ function Breakables:OnInitialize()
 			hideInCombat = false,
 			buttonScale = 1,
 			fontSize = 7,
+			growDirection = 2,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults, true)
@@ -353,6 +356,20 @@ function Breakables:GetOptions()
 				end,
 				order = 6,
 			},
+			growDirection = {
+				type = 'select',
+				name = L["Button grow direction"],
+				desc = L["This controls which direction the breakable buttons grow toward."],
+				values = validGrowDirections,
+				get = function()
+					return self.settings.growDirection
+				end,
+				set = function(info, v)
+					self.settings.growDirection = v
+					self:FindBreakables()
+				end,
+				order = 7,
+			},
 		},
 	}
 
@@ -546,7 +563,6 @@ function Breakables:FindBreakables(bag)
 
 						btn = self.breakableButtons[j][numBreakableStacks[j]]
 
-						btn:SetPoint("LEFT", numBreakableStacks[j] == 1 and self.buttonFrame[j] or self.breakableButtons[j][numBreakableStacks[j] - 1], "RIGHT")
 						btn:SetWidth(buttonSize * self.settings.buttonScale)
 						btn:SetHeight(buttonSize * self.settings.buttonScale)
 						btn:EnableMouse(true)
@@ -565,6 +581,25 @@ function Breakables:FindBreakables(bag)
 						end
 						btn.icon:SetAllPoints(btn)
 					end
+
+					local attachFrom = "LEFT"
+					local attachTo = "RIGHT"
+					if self.settings.growDirection then
+						if self.settings.growDirection == 1 then -- left
+							attachFrom = "RIGHT"
+							attachTo = "LEFT"
+						--elseif self.settings.growDirection == 2 then -- right
+						elseif self.settings.growDirection == 3 then -- up
+							attachFrom = "BOTTOM"
+							attachTo = "TOP"
+						elseif self.settings.growDirection == 4 then -- down
+							attachFrom = "TOP"
+							attachTo = "BOTTOM"
+						end
+					end
+
+					btn:ClearAllPoints()
+					btn:SetPoint(attachFrom, numBreakableStacks[j] == 1 and self.buttonFrame[j] or self.breakableButtons[j][numBreakableStacks[j] - 1], attachTo)
 
 					if not isDisenchantable then
 						btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
