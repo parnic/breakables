@@ -1,6 +1,9 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Breakables", false)
 Breakables = LibStub("AceAddon-3.0"):NewAddon("Breakables", "AceConsole-3.0", "AceEvent-3.0")
 local babbleInv = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
+local LBF = LibStub("LibButtonFacade", true)
+
+local lbfGroup
 
 local MillingId = 51005
 local MillingItemSubType = babbleInv["Herb"]
@@ -88,6 +91,27 @@ function Breakables:OnInitialize()
 	end
 
 	self:InitLDB()
+
+	if LBF then
+		LBF:RegisterSkinCallback("Breakables", self.ButtonFacadeCallback, self)
+
+		lbfGroup = LBF:Group("Breakables")
+		if lbfGroup then
+			lbfGroup:Skin(self.settings.SkinID,
+				self.settings.Gloss,
+				self.settings.Backdrop,
+				self.settings.Colors)
+		end
+	end
+end
+
+function Breakables:ButtonFacadeCallback(SkinID, Gloss, Backdrop, Group, Button, Colors)
+	if not Group then
+		self.settings.SkinID = SkinID
+		self.settings.Gloss = Gloss
+		self.settings.Backdrop = Backdrop
+		self.settings.Colors = Colors
+	end
 end
 
 function Breakables:InitLDB()
@@ -424,7 +448,7 @@ function Breakables:CreateButtonFrame()
 
 	for i=1,numEligibleProfessions do
 		if not self.buttonFrame[i] then
-			self.buttonFrame[i] = CreateFrame("Button", "BreakablesButtonFrame1", self.frame, "SecureActionButtonTemplate")
+			self.buttonFrame[i] = CreateFrame("Button", "BREAKABLES_BUTTON_FRAME"..i, self.frame, "SecureActionButtonTemplate")
 		end
 		self.buttonFrame[i]:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", self.settings.buttonFrameLeft[i], self.settings.buttonFrameTop[i])
 
@@ -436,9 +460,6 @@ function Breakables:CreateButtonFrame()
 			self.buttonFrame[i].type = BREAKABLE_ORE
 		end
 
-		if not self.buttonFrame[i].icon then
-			self.buttonFrame[i].icon = self.buttonFrame[i]:CreateTexture(nil, "BACKGROUND")
-		end
 		if self.buttonFrame[i].type then
 			self.buttonFrame[i]:SetWidth(buttonSize * self.settings.buttonScale)
 			self.buttonFrame[i]:SetHeight(buttonSize * self.settings.buttonScale)
@@ -457,10 +478,14 @@ function Breakables:CreateButtonFrame()
 			self.buttonFrame[i]:SetAttribute("type1", "spell")
 			self.buttonFrame[i]:SetAttribute("spell1", spellName)
 
-			self.buttonFrame[i].icon:SetTexture(texture)
-			self.buttonFrame[i].icon:SetAllPoints(self.buttonFrame[i])
-		else
-			self.buttonFrame[i]:SetTexture(nil)
+			if not lbfGroup then
+				self.buttonFrame[i]:SetNormalTexture(texture)
+			else
+				self.buttonFrame[i].icon = self.buttonFrame[i]:CreateTexture(self.buttonFrame[i]:GetName().."Icon", "BACKGROUND")
+				self.buttonFrame[i].icon:SetTexture(texture)
+
+				lbfGroup:AddButton(self.buttonFrame[i])
+			end
 		end
 	end
 end
@@ -556,12 +581,17 @@ function Breakables:FindBreakables(bag)
 				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL])
 				if (CanDisenchant and isDisenchantable) or foundBreakables[i][IDX_COUNT] >= 5 then
 					numBreakableStacks[j] = numBreakableStacks[j] + 1
+					local btnIdx = numBreakableStacks[j]
 
-					local btn = self.breakableButtons[j][numBreakableStacks[j]]
-					if not self.breakableButtons[j][numBreakableStacks[j]] then
-						self.breakableButtons[j][numBreakableStacks[j]] = CreateFrame("Button", nil, self.buttonFrame[j], "SecureActionButtonTemplate")
+					local btn = self.breakableButtons[j][btnIdx]
+					if not self.breakableButtons[j][btnIdx] then
+						self.breakableButtons[j][btnIdx] = CreateFrame("Button", "BREAKABLES_BUTTON"..j.."-"..btnIdx, self.buttonFrame[j], "SecureActionButtonTemplate")
 
-						btn = self.breakableButtons[j][numBreakableStacks[j]]
+						btn = self.breakableButtons[j][btnIdx]
+
+						if lbfGroup then
+							btn.icon = btn:CreateTexture(btn:GetName().."Icon", "BACKGROUND")
+						end
 
 						btn:SetWidth(buttonSize * self.settings.buttonScale)
 						btn:SetHeight(buttonSize * self.settings.buttonScale)
@@ -576,10 +606,9 @@ function Breakables:FindBreakables(bag)
 						end
 						btn.text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
 
-						if not btn.icon then
-							btn.icon = btn:CreateTexture(nil, "BACKGROUND")
+						if lbfGroup then
+							lbfGroup:AddButton(btn)
 						end
-						btn.icon:SetAllPoints(btn)
 					end
 
 					local attachFrom = "LEFT"
@@ -599,7 +628,7 @@ function Breakables:FindBreakables(bag)
 					end
 
 					btn:ClearAllPoints()
-					btn:SetPoint(attachFrom, numBreakableStacks[j] == 1 and self.buttonFrame[j] or self.breakableButtons[j][numBreakableStacks[j] - 1], attachTo)
+					btn:SetPoint(attachFrom, btnIdx == 1 and self.buttonFrame[j] or self.breakableButtons[j][btnIdx - 1], attachTo)
 
 					if not isDisenchantable then
 						btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
@@ -608,7 +637,11 @@ function Breakables:FindBreakables(bag)
 					local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
 					btn:SetAttribute("spell", BreakableAbilityName)
 					btn:SetAttribute("target-item", foundBreakables[i][IDX_NAME])
-					btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
+					if lbfGroup then
+						btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
+					else
+						btn:SetNormalTexture(foundBreakables[i][IDX_TEXTURE])
+					end
 
 					btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
 					btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
@@ -627,7 +660,6 @@ function Breakables:FindBreakables(bag)
 		if self.breakableButtons[i] and numBreakableStacks[i] < #self.breakableButtons[i] then
 			for j=numBreakableStacks[i]+1,#self.breakableButtons[i] do
 				self.breakableButtons[i][j]:Hide()
-				self.breakableButtons[i][j].icon:SetTexture(nil)
 			end
 		end
 

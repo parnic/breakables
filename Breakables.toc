@@ -5,7 +5,7 @@
 ## Notes: Tracks herbs/ore/items that can be broken into component pieces
 ## Version: @project-version@ (Revision: @project-revision@)
 ## SavedVariables: BreakablesDB
-## OptionalDeps: Ace3, LibBabble-Inventory-3.0
+## OptionalDeps: Ace3, LibBabble-Inventory-3.0, ButtonFacade
 
 #@no-lib-strip@
 embeds.xml

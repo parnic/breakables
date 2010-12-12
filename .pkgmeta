@@ -34,3 +34,4 @@ externals:
     libs/LibBabble-Inventory-3.0:
         url: svn://svn.wowace.com/wow/libbabble-inventory-3-0/mainline/trunk
         tag: latest
+    libs/LibButtonFacade: svn://svn.wowace.com/wow/buttonfacade/mainline/trunk/Libs/LibButtonFacade

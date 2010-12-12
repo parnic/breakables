@@ -10,4 +10,5 @@
   <Include file="libs\AceGUI-3.0\AceGUI-3.0.xml"/>
   <Include file="libs\AceLocale-3.0\AceLocale-3.0.xml"/>
   <Include file="libs\LibBabble-Inventory-3.0\lib.xml"/>
+  <Include file="libs\LibButtonFacade\LibButtonFacade.xml"/>
 </Ui>
