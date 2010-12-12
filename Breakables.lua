@@ -473,7 +473,7 @@ function Breakables:CreateButtonFrame()
 			self.buttonFrame[i]:SetScript("OnMouseUp", function(frame) self:OnMouseUp(frame) end)
 			self.buttonFrame[i]:SetClampedToScreen(true)
 
-			local spellName, _, texture = GetSpellInfo((self.buttonFrame[i].type == BREAKABLE_HERB and MillingId) or (self.buttonFrame[i].type == BREAKABLE_ORE and ProspectingId) or DisenchantId)
+			local spellName, _, texture = GetSpellInfo(self:GetSpellIdFromProfessionButton(self.buttonFrame[i]))
 
 			self.buttonFrame[i]:SetAttribute("type1", "spell")
 			self.buttonFrame[i]:SetAttribute("spell1", spellName)
@@ -486,8 +486,15 @@ function Breakables:CreateButtonFrame()
 
 				lbfGroup:AddButton(self.buttonFrame[i])
 			end
+
+			self.buttonFrame[i]:SetScript("OnEnter", function(this) self:OnEnterProfessionButton(this) end)
+			self.buttonFrame[i]:SetScript("OnLeave", function() self:OnLeaveProfessionButton() end)
 		end
 	end
+end
+
+function Breakables:GetSpellIdFromProfessionButton(btn)
+	return (btn.type == BREAKABLE_HERB and MillingId) or (btn.type == BREAKABLE_ORE and ProspectingId) or DisenchantId
 end
 
 function Breakables:ApplyScale()
@@ -671,6 +678,15 @@ function Breakables:FindBreakables(bag)
 			end
 		end
 	end
+end
+
+function Breakables:OnEnterProfessionButton(btn)
+	GameTooltip:SetOwner(btn, "ANCHOR_BOTTOMLEFT")
+	GameTooltip:SetSpellByID(self:GetSpellIdFromProfessionButton(btn))
+end
+
+function Breakables:OnLeaveProfessionButton()
+	GameTooltip:Hide()
 end
 
 function Breakables:OnEnterBreakableButton(this, breakable)
