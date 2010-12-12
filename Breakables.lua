@@ -708,6 +708,10 @@ end
 function Breakables:OnEnterProfessionButton(btn)
 	GameTooltip:SetOwner(btn, "ANCHOR_BOTTOMLEFT")
 	GameTooltip:SetSpellByID(self:GetSpellIdFromProfessionButton(btn))
+
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddLine(L["Hold shift and left-click to drag the Breakables bar around."], 1, 1, 1, 1)
+	GameTooltip:Show()
 end
 
 function Breakables:OnLeaveProfessionButton()
@@ -717,6 +721,10 @@ end
 function Breakables:OnEnterBreakableButton(this, breakable)
 	GameTooltip:SetOwner(this, "ANCHOR_BOTTOMLEFT")
 	GameTooltip:SetBagItem(breakable[IDX_BAG], breakable[IDX_SLOT])
+
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddLine(L["You can click on this button to break this item without having to click on the profession button first."], 1, 1, 1, 1)
+	GameTooltip:Show()
 end
 
 function Breakables:OnLeaveBreakableButton(breakable)
