@@ -163,7 +163,10 @@ function Breakables:OnEnable()
 		else
 			self:FindBreakables()
 		end
-		self.frame:SetScript("OnUpdate", function() self:CheckShouldFindBreakables() end)
+		if not self.frame.OnUpdateFunc then
+			self.frame.OnUpdateFunc = function() self:CheckShouldFindBreakables() end
+		end
+		self.frame:SetScript("OnUpdate", self.frame.OnUpdateFunc)
 	else
 		self:UnregisterAllEvents()
 	end
@@ -450,45 +453,60 @@ function Breakables:CreateButtonFrame()
 		if not self.buttonFrame[i] then
 			self.buttonFrame[i] = CreateFrame("Button", "BREAKABLES_BUTTON_FRAME"..i, self.frame, "SecureActionButtonTemplate")
 		end
-		self.buttonFrame[i]:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", self.settings.buttonFrameLeft[i], self.settings.buttonFrameTop[i])
+		local frame = self.buttonFrame[i]
+		frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", self.settings.buttonFrameLeft[i], self.settings.buttonFrameTop[i])
 
 		if CanMill and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_HERB) then
-			self.buttonFrame[i].type = BREAKABLE_HERB
+			frame.type = BREAKABLE_HERB
 		elseif CanDisenchant and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_DE) then
-			self.buttonFrame[i].type = BREAKABLE_DE
+			frame.type = BREAKABLE_DE
 		elseif CanProspect and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_ORE) then
-			self.buttonFrame[i].type = BREAKABLE_ORE
+			frame.type = BREAKABLE_ORE
 		end
 
-		if self.buttonFrame[i].type then
-			self.buttonFrame[i]:SetWidth(buttonSize * self.settings.buttonScale)
-			self.buttonFrame[i]:SetHeight(buttonSize * self.settings.buttonScale)
+		if frame.type then
+			frame:SetWidth(buttonSize * self.settings.buttonScale)
+			frame:SetHeight(buttonSize * self.settings.buttonScale)
 
-			self.buttonFrame[i]:EnableMouse(true)
-			self.buttonFrame[i]:RegisterForClicks("LeftButtonUp")
+			frame:EnableMouse(true)
+			frame:RegisterForClicks("LeftButtonUp")
 
-			self.buttonFrame[i]:SetMovable(true)
-			self.buttonFrame[i]:RegisterForDrag("LeftButton")
-			self.buttonFrame[i]:SetScript("OnMouseDown", function(frame) self:OnMouseDown(frame) end)
-			self.buttonFrame[i]:SetScript("OnMouseUp", function(frame) self:OnMouseUp(frame) end)
-			self.buttonFrame[i]:SetClampedToScreen(true)
-
-			local spellName, _, texture = GetSpellInfo(self:GetSpellIdFromProfessionButton(self.buttonFrame[i]))
-
-			self.buttonFrame[i]:SetAttribute("type1", "spell")
-			self.buttonFrame[i]:SetAttribute("spell1", spellName)
-
-			if not lbfGroup then
-				self.buttonFrame[i]:SetNormalTexture(texture)
-			else
-				self.buttonFrame[i].icon = self.buttonFrame[i]:CreateTexture(self.buttonFrame[i]:GetName().."Icon", "BACKGROUND")
-				self.buttonFrame[i].icon:SetTexture(texture)
-
-				lbfGroup:AddButton(self.buttonFrame[i])
+			if not frame.OnMouseDownFunc then
+				frame.OnMouseDownFunc = function(frame) self:OnMouseDown(frame) end
+			end
+			if not frame.OnMouseUpFunc then
+				frame.OnMouseUpFunc = function(frame) self:OnMouseUp(frame) end
 			end
 
-			self.buttonFrame[i]:SetScript("OnEnter", function(this) self:OnEnterProfessionButton(this) end)
-			self.buttonFrame[i]:SetScript("OnLeave", function() self:OnLeaveProfessionButton() end)
+			frame:SetMovable(true)
+			frame:RegisterForDrag("LeftButton")
+			frame:SetScript("OnMouseDown", frame.OnMouseDownFunc)
+			frame:SetScript("OnMouseUp", frame.OnMouseUpFunc)
+			frame:SetClampedToScreen(true)
+
+			local spellName, _, texture = GetSpellInfo(self:GetSpellIdFromProfessionButton(frame))
+
+			frame:SetAttribute("type1", "spell")
+			frame:SetAttribute("spell1", spellName)
+
+			if not lbfGroup then
+				frame:SetNormalTexture(texture)
+			else
+				frame.icon = frame:CreateTexture(frame:GetName().."Icon", "BACKGROUND")
+				frame.icon:SetTexture(texture)
+
+				lbfGroup:AddButton(frame)
+			end
+
+			if not frame.OnEnterFunc then
+				frame.OnEnterFunc = function(this) self:OnEnterProfessionButton(this) end
+			end
+			if not frame.OnLeaveFunc then
+				frame.OnLeaveFunc = function() self:OnLeaveProfessionButton() end
+			end
+
+			frame:SetScript("OnEnter", frame.OnEnterFunc)
+			frame:SetScript("OnLeave", frame.OnLeaveFunc)
 		end
 	end
 end
@@ -650,8 +668,15 @@ function Breakables:FindBreakables(bag)
 						btn:SetNormalTexture(foundBreakables[i][IDX_TEXTURE])
 					end
 
-					btn:SetScript("OnEnter", function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end)
-					btn:SetScript("OnLeave", function() self:OnLeaveBreakableButton(foundBreakables[i]) end)
+					if not btn.OnEnterFunc then
+						btn.OnEnterFunc = function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end
+					end
+					if not btn.OnLeaveFunc then
+						btn.OnLeaveFunc = function() self:OnLeaveBreakableButton(foundBreakables[i]) end
+					end
+
+					btn:SetScript("OnEnter", btn.OnEnterFunc)
+					btn:SetScript("OnLeave", btn.OnLeaveFunc)
 
 					btn:Show()
 				end
