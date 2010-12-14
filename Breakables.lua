@@ -667,12 +667,14 @@ function Breakables:FindBreakables(bag)
 					else
 						btn:SetNormalTexture(foundBreakables[i][IDX_TEXTURE])
 					end
+					btn.bag = foundBreakables[i][IDX_BAG]
+					btn.slot = foundBreakables[i][IDX_SLOT]
 
 					if not btn.OnEnterFunc then
-						btn.OnEnterFunc = function(this) self:OnEnterBreakableButton(this, foundBreakables[i]) end
+						btn.OnEnterFunc = function(this) self:OnEnterBreakableButton(this) end
 					end
 					if not btn.OnLeaveFunc then
-						btn.OnLeaveFunc = function() self:OnLeaveBreakableButton(foundBreakables[i]) end
+						btn.OnLeaveFunc = function() self:OnLeaveBreakableButton() end
 					end
 
 					btn:SetScript("OnEnter", btn.OnEnterFunc)
@@ -718,16 +720,16 @@ function Breakables:OnLeaveProfessionButton()
 	GameTooltip:Hide()
 end
 
-function Breakables:OnEnterBreakableButton(this, breakable)
+function Breakables:OnEnterBreakableButton(this)
 	GameTooltip:SetOwner(this, "ANCHOR_BOTTOMLEFT")
-	GameTooltip:SetBagItem(breakable[IDX_BAG], breakable[IDX_SLOT])
+	GameTooltip:SetBagItem(this.bag, this.slot)
 
 	GameTooltip:AddLine(" ")
 	GameTooltip:AddLine(L["You can click on this button to break this item without having to click on the profession button first."], 1, 1, 1, 1)
 	GameTooltip:Show()
 end
 
-function Breakables:OnLeaveBreakableButton(breakable)
+function Breakables:OnLeaveBreakableButton()
 	GameTooltip:Hide()
 end
 
