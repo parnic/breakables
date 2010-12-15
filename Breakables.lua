@@ -44,7 +44,7 @@ for i=0,NUM_BAG_SLOTS do
 	nextCheck[i] = -1
 end
 
-local buttonSize = 28
+local buttonSize = 45
 
 local _G = _G
 
@@ -68,7 +68,7 @@ function Breakables:OnInitialize()
 			hide = false,
 			hideInCombat = false,
 			buttonScale = 1,
-			fontSize = 7,
+			fontSize = 11,
 			growDirection = 2,
 		}
 	}
@@ -443,8 +443,9 @@ end
 
 function Breakables:CreateButtonFrame()
 	if not self.frame then
-		self.frame = CreateFrame("Frame")
+		self.frame = CreateFrame("Frame", nil, UIParent)
 	end
+	self.frame:SetScale(self.settings.buttonScale)
 	if not self.buttonFrame then
 		self.buttonFrame = {}
 	end
@@ -465,8 +466,8 @@ function Breakables:CreateButtonFrame()
 		end
 
 		if frame.type then
-			frame:SetWidth(buttonSize * self.settings.buttonScale)
-			frame:SetHeight(buttonSize * self.settings.buttonScale)
+			frame:SetWidth(buttonSize)
+			frame:SetHeight(buttonSize)
 
 			frame:EnableMouse(true)
 			frame:RegisterForClicks("LeftButtonUp")
@@ -519,16 +520,11 @@ function Breakables:ApplyScale()
 	if not self.buttonFrame then
 		return
 	end
+	self.frame:SetScale(self.settings.buttonScale)
 
 	for i=1,numEligibleProfessions do
-		-- yes, setscale exists...but it was scaling buttonFrame and breakableButtons differently for some reason. this works better.
-		self.buttonFrame[i]:SetWidth(buttonSize * self.settings.buttonScale)
-		self.buttonFrame[i]:SetHeight(buttonSize * self.settings.buttonScale)
-
 		if self.breakableButtons[i] then
 			for j=1,#self.breakableButtons[i] do
-				self.breakableButtons[i][j]:SetWidth(buttonSize * self.settings.buttonScale)
-				self.breakableButtons[i][j]:SetHeight(buttonSize * self.settings.buttonScale)
 				self.breakableButtons[i][j].text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
 			end
 		end
@@ -618,8 +614,8 @@ function Breakables:FindBreakables(bag)
 							btn.icon = btn:CreateTexture(btn:GetName().."Icon", "BACKGROUND")
 						end
 
-						btn:SetWidth(buttonSize * self.settings.buttonScale)
-						btn:SetHeight(buttonSize * self.settings.buttonScale)
+						btn:SetWidth(buttonSize)
+						btn:SetHeight(buttonSize)
 						btn:EnableMouse(true)
 						btn:RegisterForClicks("AnyUp")
 
