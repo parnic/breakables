@@ -18,6 +18,18 @@ local DisenchantId = 13262
 local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
 local CanDisenchant = false
 
+local PickLockId = 1804
+local PickableItems = {
+	16882, -- battered junkbox
+	16883, -- worn junkbox
+	16884, -- sturdy junkbox
+	16885, -- heavy junkbox
+	29569, -- strong junkbox
+	43575, -- reinforced junkbox
+	63349, -- flame-scarred junkbox
+}
+local CanPickLock = false
+
 -- item rarity must meet or surpass this to be considered for disenchantability (is that a word?)
 local RARITY_UNCOMMON = 2
 local RARITY_HEIRLOOM = 7
@@ -37,8 +49,9 @@ local IDX_NAME = 11
 local BREAKABLE_HERB = 1
 local BREAKABLE_ORE = 2
 local BREAKABLE_DE = 3
+local BREAKABLE_PICK = 4
 
-local BagUpdateCheckDelay = 1.5
+local BagUpdateCheckDelay = 1.0
 local nextCheck = {}
 for i=0,NUM_BAG_SLOTS do
 	nextCheck[i] = -1
@@ -50,7 +63,7 @@ local _G = _G
 
 local validGrowDirections = {L["Left"], L["Right"], L["Up"], L["Down"]}
 
--- can be 1 or 2
+-- can be 1, 2, or 3 (in the case of a rogue with pick lock)
 local numEligibleProfessions = 0
 
 Breakables.optionsFrame = {}
@@ -140,13 +153,14 @@ function Breakables:OnEnable()
 	CanMill = IsUsableSpell(GetSpellInfo(MillingId))
 	CanProspect = IsUsableSpell(GetSpellInfo(ProspectingId))
 	CanDisenchant = IsUsableSpell(GetSpellInfo(DisenchantId))
+	CanPickLock = IsUsableSpell(GetSpellInfo(PickLockId))
 
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), "breakables")
 	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
 
 	self:RegisterEvents()
 
-	if CanMill or CanProspect or CanDisenchant then
+	if CanMill or CanProspect or CanDisenchant or CanPickLock then
 		if CanMill then
 			numEligibleProfessions = numEligibleProfessions + 1
 		end
@@ -154,6 +168,9 @@ function Breakables:OnEnable()
 			numEligibleProfessions = numEligibleProfessions + 1
 		end
 		if CanDisenchant then
+			numEligibleProfessions = numEligibleProfessions + 1
+		end
+		if CanPickLock then
 			numEligibleProfessions = numEligibleProfessions + 1
 		end
 
@@ -198,6 +215,10 @@ function Breakables:RegisterEvents()
 
 	if CanDisenchant then
 		self:RegisterEvent("TRADE_SKILL_UPDATE", "OnTradeSkillUpdate")
+	end
+
+	if CanPickLock then
+		self:RegisterEvent("CHAT_MSG_OPENING", "OnBagItemLockPicked")
 	end
 end
 
@@ -253,6 +274,10 @@ end
 
 function Breakables:OnTradeSkillUpdate()
 	self:GetEnchantingLevel()
+end
+
+function Breakables:OnBagItemLockPicked()
+	nextCheck[1] = GetTime() + BagUpdateCheckDelay
 end
 
 function Breakables:GetEnchantingLevel()
@@ -463,6 +488,8 @@ function Breakables:CreateButtonFrame()
 			frame.type = BREAKABLE_DE
 		elseif CanProspect and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_ORE) then
 			frame.type = BREAKABLE_ORE
+		elseif CanPickLock and (i == 1 or self.buttonFrame[1].type ~= BREAKABLE_PICK) then
+			frame.type = BREAKABLE_PICK
 		end
 
 		if frame.type then
@@ -513,7 +540,10 @@ function Breakables:CreateButtonFrame()
 end
 
 function Breakables:GetSpellIdFromProfessionButton(btn)
-	return (btn.type == BREAKABLE_HERB and MillingId) or (btn.type == BREAKABLE_ORE and ProspectingId) or DisenchantId
+	return (btn.type == BREAKABLE_HERB and MillingId)
+		or (btn.type == BREAKABLE_ORE and ProspectingId)
+		or (btn.type == BREAKABLE_DE and DisenchantId)
+		or PickLockId
 end
 
 function Breakables:ApplyScale()
@@ -600,7 +630,9 @@ function Breakables:FindBreakables(bag)
 
 			if foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
 				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL])
-				if (CanDisenchant and isDisenchantable) or foundBreakables[i][IDX_COUNT] >= 5 then
+				local isLockedItem = foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_PICK
+
+				if (CanDisenchant and isDisenchantable) or (CanPickLock and isLockedItem) or (foundBreakables[i][IDX_COUNT] >= 5) then
 					numBreakableStacks[j] = numBreakableStacks[j] + 1
 					local btnIdx = numBreakableStacks[j]
 
@@ -652,12 +684,30 @@ function Breakables:FindBreakables(bag)
 					btn:SetPoint(attachFrom, btnIdx == 1 and self.buttonFrame[j] or self.breakableButtons[j][btnIdx - 1], attachTo)
 
 					if not isDisenchantable then
-						btn.text:SetText(foundBreakables[i][IDX_COUNT].." ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")")
+						local appendText = ""
+						if not isLockedItem then
+							appendText = " ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")"
+						end
+
+						btn.text:SetText(foundBreakables[i][IDX_COUNT] .. appendText)
 					end
 
-					local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId) or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId) or DisenchantId)
+					local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId)
+						or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId)
+						or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_DE and DisenchantId)
+						or PickLockId)
 					btn:SetAttribute("spell", BreakableAbilityName)
-					btn:SetAttribute("target-item", foundBreakables[i][IDX_NAME])
+
+					if isLockedItem then
+						btn:SetAttribute("target-item")
+						btn:SetAttribute("target-bag", foundBreakables[i][IDX_BAG])
+						btn:SetAttribute("target-slot", foundBreakables[i][IDX_SLOT])
+					else
+						btn:SetAttribute("target-item", foundBreakables[i][IDX_NAME])
+						btn:SetAttribute("target-bag")
+						btn:SetAttribute("target-slot")
+					end
+
 					if lbfGroup then
 						btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
 					else
@@ -672,9 +722,13 @@ function Breakables:FindBreakables(bag)
 					if not btn.OnLeaveFunc then
 						btn.OnLeaveFunc = function() self:OnLeaveBreakableButton() end
 					end
+					if not btn.PostClickedFunc then
+						btn.PostClickedFunc = function(this) self:PostClickedBreakableButton(this) end
+					end
 
 					btn:SetScript("OnEnter", btn.OnEnterFunc)
 					btn:SetScript("OnLeave", btn.OnLeaveFunc)
+					btn:SetScript("PostClick", btn.PostClickedFunc)
 
 					btn:Show()
 				end
@@ -727,6 +781,12 @@ end
 
 function Breakables:OnLeaveBreakableButton()
 	GameTooltip:Hide()
+end
+
+function Breakables:PostClickedBreakableButton(this)
+	if this.type == BREAKABLE_HERB or this.type == BREAKABLE_ORE or this.type == BREAKABLE_DE then
+		self.justClicked = true
+	end
 end
 
 function Breakables:FindBreakablesInBag(bagId)
@@ -796,9 +856,56 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		if CanProspect and itemSubType == ProspectingItemSubType and extraInfo == ITEM_PROSPECTABLE then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName}
 		end
+
+		if CanPickLock and self:ItemIsPickable(self:GetItemIdFromLink(itemLink)) and self:ItemIsLocked(bagId, slotId) then
+			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_PICK, false, itemName}
+		end
 	end
 
 	return nil
+end
+
+function Breakables:ItemIsPickable(itemId)
+	for i=1,#PickableItems do
+		if PickableItems[i] == itemId then
+			return true
+		end
+	end
+
+	return nil
+end
+
+do
+	local regions = {}
+	local tooltipBuffer = CreateFrame("GameTooltip","tooltipBuffer",nil,"GameTooltipTemplate")
+	tooltipBuffer:SetOwner(WorldFrame, "ANCHOR_NONE")
+
+	local function makeTable(t, ...)
+		wipe(t)
+		for i = 1, select("#", ...) do
+			t[i] = select(i, ...)
+		end
+	end
+
+	function Breakables:ItemIsLocked(bagId, slotId)
+		tooltipBuffer:ClearLines()
+		tooltipBuffer:SetBagItem(bagId, slotId)
+
+		-- Grab all regions, stuff em into our table
+		makeTable(regions, tooltipBuffer:GetRegions())
+
+		-- Convert FontStrings to strings, replace anything else with ""
+		for i=1, #regions do
+			local region = regions[i]
+			if region:GetObjectType() == "FontString" then
+				if region:GetText() == LOCKED then
+					return true
+				end
+			end
+		end
+
+		return false
+	end
 end
 
 function Breakables:IsInEquipmentSet(itemId)
