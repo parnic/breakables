@@ -104,18 +104,6 @@ function Breakables:OnInitialize()
 	end
 
 	self:InitLDB()
-
-	if LBF then
-		LBF:RegisterSkinCallback("Breakables", self.ButtonFacadeCallback, self)
-
-		lbfGroup = LBF:Group("Breakables")
-		if lbfGroup then
-			lbfGroup:Skin(self.settings.SkinID,
-				self.settings.Gloss,
-				self.settings.Backdrop,
-				self.settings.Colors)
-		end
-	end
 end
 
 function Breakables:ButtonFacadeCallback(SkinID, Gloss, Backdrop, Group, Button, Colors)
@@ -157,6 +145,18 @@ function Breakables:OnEnable()
 
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), "breakables")
 	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
+
+	if LBF then
+		LBF:RegisterSkinCallback("Breakables", self.ButtonFacadeCallback, self)
+
+		lbfGroup = LBF:Group("Breakables")
+		if lbfGroup then
+			lbfGroup:Skin(self.settings.SkinID,
+				self.settings.Gloss,
+				self.settings.Backdrop,
+				self.settings.Colors)
+		end
+	end
 
 	self:RegisterEvents()
 
