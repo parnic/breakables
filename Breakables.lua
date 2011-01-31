@@ -847,13 +847,26 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		local extraInfo = BreakablesTooltipTextLeft2:GetText()
+		local idx = 1
+		local millable = false
+		local prospectable = false
+		for idx=1,5 do
+			if _G["BreakablesTooltipTextLeft"..idx] then
+				if _G["BreakablesTooltipTextLeft"..idx]:GetText() == ITEM_MILLABLE then
+					millable = true
+					break
+				elseif _G["BreakablesTooltipTextLeft"..idx]:GetText() == ITEM_PROSPECTABLE then
+					prospectable = true
+					break
+				end
+			end
+		end
 
-		if CanMill and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType) and extraInfo == ITEM_MILLABLE then
+		if CanMill and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType) and millable then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false, itemName}
 		end
 
-		if CanProspect and itemSubType == ProspectingItemSubType and extraInfo == ITEM_PROSPECTABLE then
+		if CanProspect and itemSubType == ProspectingItemSubType and prospectable then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName}
 		end
 
