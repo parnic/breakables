@@ -6,6 +6,7 @@
 ## Version: @project-version@ (Revision: @project-revision@)
 ## SavedVariables: BreakablesDB
 ## OptionalDeps: Ace3, LibBabble-Inventory-3.0, ButtonFacade
+## X-Compatible-With: 40300
 
 #@no-lib-strip@
 embeds.xml
