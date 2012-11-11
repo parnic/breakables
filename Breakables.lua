@@ -27,6 +27,7 @@ local PickableItems = {
 	29569, -- strong junkbox
 	43575, -- reinforced junkbox
 	63349, -- flame-scarred junkbox
+	88165, -- vine-cracked junkbox
 }
 local CanPickLock = false
 
@@ -862,11 +863,11 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		if CanMill and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType) and millable then
+		if CanMill --[[and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType)]] and millable then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false, itemName}
 		end
 
-		if CanProspect and itemSubType == ProspectingItemSubType and prospectable then
+		if CanProspect --[[and itemSubType == ProspectingItemSubType]] and prospectable then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName}
 		end
 
