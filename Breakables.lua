@@ -843,8 +843,8 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			and self:BreakableIsDisenchantable(itemType, itemLevel) then
 			local i = 1
 			local soulbound = false
-			for i=1,5 do
-				if _G["BreakablesTooltipTextLeft"..i]:GetText() == ITEM_SOULBOUND then
+			for i=1,15 do
+				if _G["BreakablesTooltipTextLeft"..i] and _G["BreakablesTooltipTextLeft"..i]:GetText() == ITEM_SOULBOUND then
 					soulbound = true
 					break
 				end
