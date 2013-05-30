@@ -28,6 +28,21 @@ local PickableItems = {
 	43575, -- reinforced junkbox
 	63349, -- flame-scarred junkbox
 	88165, -- vine-cracked junkbox
+	4632, -- ornate bronze lockbox
+	4633, -- heavy bronze lockbox
+	4634, -- iron lockbox
+	4636, -- strong iron lockbox
+	4637, -- steel lockbox
+	4638, -- reinforced steel lockbox
+	5758, -- mithril lockbox
+	5759, -- throium lockbox
+	5760, -- eternium lockbox
+	31952, -- khorium lockbox
+	43622, -- froststeel lockbox
+	43624, -- titanium lockbox
+	45986, -- tiny titanium lockbox
+	68729, -- elementium lockbox
+	88567, -- ghost iron lockbox
 }
 local CanPickLock = false
 
