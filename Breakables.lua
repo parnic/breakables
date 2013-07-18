@@ -17,6 +17,7 @@ local CanProspect = false
 local DisenchantId = 13262
 local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
 local CanDisenchant = false
+local EnchantingProfessionId = 333
 
 local PickLockId = 1804
 local PickableItems = {
@@ -159,6 +160,8 @@ function Breakables:OnEnable()
 	CanDisenchant = IsUsableSpell(GetSpellInfo(DisenchantId))
 	CanPickLock = IsUsableSpell(GetSpellInfo(PickLockId))
 
+	self.EnchantingLevel = 0
+
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), "breakables")
 	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
 
@@ -185,6 +188,7 @@ function Breakables:OnEnable()
 		end
 		if CanDisenchant then
 			numEligibleProfessions = numEligibleProfessions + 1
+			self:GetEnchantingLevel()
 		end
 		if CanPickLock then
 			numEligibleProfessions = numEligibleProfessions + 1
@@ -296,12 +300,24 @@ function Breakables:OnBagItemLockPicked()
 	nextCheck[1] = GetTime() + BagUpdateCheckDelay
 end
 
-function Breakables:GetEnchantingLevel()
-	local skillName, skillType, numAvailable, isExpanded = GetTradeSkillInfo(1)
+function Breakables:FindLevelOfProfessionIndex(idx)
+	if idx ~= nil then
+		local name, texture, rank, maxRank, numSpells, spelloffset, skillLine = GetProfessionInfo(idx)
+		return skillLine, rank
+	end
+end
 
-	if skillName == "Enchant" then
-		local _, rank, maxRank = GetTradeSkillLine()
-		self.settings.EnchantingLevel = rank
+function Breakables:GetEnchantingLevel()
+	local prof1, prof2 = GetProfessions()
+
+	local skillId, rank = self:FindLevelOfProfessionIndex(prof1)
+	if skillId ~= nil and skillId == EnchantingProfessionId then
+		self.EnchantingLevel = rank
+	else
+		skillId, rank = self:FindLevelOfProfessionIndex(prof2)
+		if skillId ~= nil and skillId == EnchantingProfessionId then
+			self.EnchantingLevel = rank
+		end
 	end
 end
 
@@ -989,6 +1005,8 @@ function Breakables:BreakableIsDisenchantable(itemType, itemLevel)
 		if DisenchantTypes[i] == itemType then
 			-- todo: figure out if the iLevel works with our enchanting skill level.
 			-- formula (from http://www.wowwiki.com/Disenchanting): 5*ceiling(iLevel,5)-100
+			-- For most of the range, this is equivalent to 5*ceiling(iLevel,5)-100 = 5*ceiling(req. level,5)-75; that is, round up the required level to the next multiple of 5, multiply by 5, and subtract 75 to find the minimum enchanting skill necessary to disenchant an item.
+			-- return self.EnchantingLevel >= 5*ceil(itemLevel, 5) - 100
 			return true
 		end
 	end
