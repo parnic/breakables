@@ -860,9 +860,12 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			local i = 1
 			local soulbound = false
 			for i=1,15 do
-				if _G["BreakablesTooltipTextLeft"..i] and _G["BreakablesTooltipTextLeft"..i]:GetText() == ITEM_SOULBOUND then
-					soulbound = true
-					break
+				if _G["BreakablesTooltipTextLeft"..i] then
+					local textLine = _G["BreakablesTooltipTextLeft"..i]:GetText()
+					if textLine == ITEM_SOULBOUND or textLine == ITEM_ACCOUNTBOUND or textLine == ITEM_BNETACCOUNTBOUND then
+						soulbound = true
+						break
+					end
 				end
 			end
 
