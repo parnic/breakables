@@ -296,7 +296,6 @@ function Breakables:OnLeaveCombat()
 end
 
 function Breakables:OnTradeSkillUpdate()
-	print("Breakables:OnTradeSkillUpdate")
 	self:GetEnchantingLevel()
 end
 
@@ -496,6 +495,22 @@ function Breakables:GetOptions()
 				return not self.settings.showSoulbound
 			end,
 			order = 21,
+		}
+		opts.args.hideTabards = {
+			type = "toggle",
+			name = L["Hide Tabards"],
+			desc = L["Whether or not to hide tabards from the disenchantable items list."],
+			get = function(info)
+				return self.settings.hideTabards
+			end,
+			set = function(info, v)
+				self.settings.hideTabards = v
+				if info.uiType == "cmd" then
+					print("|cff33ff99Breakables|r: set |cffffff78hideTabards|r to " .. tostring(self.settings.hideTabards))
+				end
+				self:FindBreakables()
+			end,
+			order = 22,
 		}
 	end
 
@@ -855,7 +870,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 	local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bagId, slotId)
 	if texture then
 		local itemLink = GetContainerItemLink(bagId, slotId)
-		local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType, _, _, itemTexture = GetItemInfo(itemLink)
+		local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType, _, equipSlot, itemTexture, vendorPrice = GetItemInfo(itemLink)
 
 		self.myTooltip:SetBagItem(bagId, slotId)
 
@@ -877,7 +892,13 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			if self.settings.hideEqManagerItems then
 				isInEquipmentSet = self:IsInEquipmentSet(self:GetItemIdFromLink(itemLink))
 			end
-			local shouldHideThisItem = self.settings.hideEqManagerItems and isInEquipmentSet
+
+			local isTabard = false
+			if self.settings.hideTabards then
+				isTabard = equipSlot == "INVTYPE_TABARD"
+			end
+
+			local shouldHideThisItem = (self.settings.hideEqManagerItems and isInEquipmentSet) or (self.settings.hideTabards and isTabard)
 
 			if (not soulbound or self.settings.showSoulbound) and not shouldHideThisItem then
 				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName, itemRarity}
