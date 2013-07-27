@@ -49,6 +49,8 @@ local CanPickLock = false
 
 -- item rarity must meet or surpass this to be considered for disenchantability (is that a word?)
 local RARITY_UNCOMMON = 2
+local RARITY_RARE = 3
+local RARITY_EPIC = 4
 local RARITY_HEIRLOOM = 7
 
 local IDX_LINK = 1
@@ -62,6 +64,7 @@ local IDX_LEVEL = 8
 local IDX_BREAKABLETYPE = 9
 local IDX_SOULBOUND = 10
 local IDX_NAME = 11
+local IDX_RARITY = 12
 
 local BREAKABLE_HERB = 1
 local BREAKABLE_ORE = 2
@@ -293,6 +296,7 @@ function Breakables:OnLeaveCombat()
 end
 
 function Breakables:OnTradeSkillUpdate()
+	print("Breakables:OnTradeSkillUpdate")
 	self:GetEnchantingLevel()
 end
 
@@ -661,7 +665,7 @@ function Breakables:FindBreakables(bag)
 			end
 
 			if foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
-				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL])
+				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL], foundBreakables[i][IDX_RARITY])
 				local isLockedItem = foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_PICK
 
 				if (CanDisenchant and isDisenchantable) or (CanPickLock and isLockedItem) or (foundBreakables[i][IDX_COUNT] >= 5) then
@@ -856,7 +860,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		self.myTooltip:SetBagItem(bagId, slotId)
 
 		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and itemRarity < RARITY_HEIRLOOM
-			and self:BreakableIsDisenchantable(itemType, itemLevel) then
+			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity) then
 			local i = 1
 			local soulbound = false
 			for i=1,15 do
@@ -876,7 +880,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			local shouldHideThisItem = self.settings.hideEqManagerItems and isInEquipmentSet
 
 			if (not soulbound or self.settings.showSoulbound) and not shouldHideThisItem then
-				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName}
+				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName, itemRarity}
 			else
 				return nil
 			end
@@ -898,15 +902,15 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		end
 
 		if CanMill --[[and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType)]] and millable then
-			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false, itemName}
+			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false, itemName, itemRarity}
 		end
 
 		if CanProspect --[[and itemSubType == ProspectingItemSubType]] and prospectable then
-			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName}
+			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName, itemRarity}
 		end
 
 		if CanPickLock and self:ItemIsPickable(self:GetItemIdFromLink(itemLink)) and self:ItemIsLocked(bagId, slotId) then
-			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_PICK, false, itemName}
+			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_PICK, false, itemName, itemRarity}
 		end
 	end
 
@@ -1003,13 +1007,93 @@ function Breakables:SortBreakables(foundBreakables)
 	end
 end
 
-function Breakables:BreakableIsDisenchantable(itemType, itemLevel)
+function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity)
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType then
-			-- todo: figure out if the iLevel works with our enchanting skill level.
-			-- formula (from http://www.wowwiki.com/Disenchanting): 5*ceiling(iLevel,5)-100
-			-- For most of the range, this is equivalent to 5*ceiling(iLevel,5)-100 = 5*ceiling(req. level,5)-75; that is, round up the required level to the next multiple of 5, multiply by 5, and subtract 75 to find the minimum enchanting skill necessary to disenchant an item.
-			-- return self.EnchantingLevel >= 5*ceil(itemLevel, 5) - 100
+			-- this is awful. is there an easier way? taken from www.wowpedia.org/Disenchanting
+			if itemRarity == RARITY_UNCOMMON then
+				if itemLevel <= 20 then
+					return self.EnchantingLevel >= 1
+				elseif itemLevel <= 25 then
+					return self.EnchantingLevel >= 25
+				elseif itemLevel <= 30 then
+					return self.EnchantingLevel >= 50
+				elseif itemLevel <= 35 then
+					return self.EnchantingLevel >= 75
+				elseif itemLevel <= 40 then
+					return self.EnchantingLevel >= 100
+				elseif itemLevel <= 45 then
+					return self.EnchantingLevel >= 125
+				elseif itemLevel <= 50 then
+					return self.EnchantingLevel >= 150
+				elseif itemLevel <= 55 then
+					return self.EnchantingLevel >= 175
+				elseif itemLevel <= 60 then
+					return self.EnchantingLevel >= 200
+				elseif itemLevel <= 99 then
+					return self.EnchantingLevel >= 225
+				elseif itemLevel <= 120 then
+					return self.EnchantingLevel >= 275
+				elseif itemLevel <= 150 then
+					return self.EnchantingLevel >= 325
+				elseif itemLevel <= 182 then
+					return self.EnchantingLevel >= 350
+				elseif itemLevel <= 318 then
+					return self.EnchantingLevel >= 425
+				elseif itemLevel <= 437 then
+					return self.EnchantingLevel >= 475
+				else
+					return self.EnchantingLevel >= 475
+				end
+			elseif itemRarity == RARITY_RARE then
+				if itemLevel <= 25 then
+					return self.EnchantingLevel >= 25
+				elseif itemLevel <= 30 then
+					return self.EnchantingLevel >= 50
+				elseif itemLevel <= 35 then
+					return self.EnchantingLevel >= 75
+				elseif itemLevel <= 40 then
+					return self.EnchantingLevel >= 100
+				elseif itemLevel <= 45 then
+					return self.EnchantingLevel >= 125
+				elseif itemLevel <= 50 then
+					return self.EnchantingLevel >= 150
+				elseif itemLevel <= 55 then
+					return self.EnchantingLevel >= 175
+				elseif itemLevel <= 60 then
+					return self.EnchantingLevel >= 200
+				elseif itemLevel <= 97 then
+					return self.EnchantingLevel >= 225
+				elseif itemLevel <= 115 then
+					return self.EnchantingLevel >= 275
+				elseif itemLevel <= 200 then
+					return self.EnchantingLevel >= 325
+				elseif itemLevel <= 346 then
+					return self.EnchantingLevel >= 450
+				elseif itemLevel <= 424 then
+					return self.EnchantingLevel >= 525
+				elseif itemLevel <= 463 then
+					return self.EnchantingLevel >= 550
+				else
+					return self.EnchantingLevel >= 550
+				end
+			elseif itemRarity == RARITY_EPIC then
+				if itemLevel <= 95 then
+					return self.EnchantingLevel >= 225
+				elseif itemLevel <= 164 then
+					return self.EnchantingLevel >= 300
+				elseif itemLevel <= 277 then
+					return self.EnchantingLevel >= 375
+				elseif itemLevel <= 416 then
+					return self.EnchantingLevel >= 475
+				elseif itemLevel <= 575 then
+					return self.EnchantingLevel >= 575
+				else
+					return self.EnchantingLevel >= 575
+				end
+			else
+				return false
+			end
 			return true
 		end
 	end
