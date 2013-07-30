@@ -297,6 +297,7 @@ end
 
 function Breakables:OnTradeSkillUpdate()
 	self:GetEnchantingLevel()
+	self:FindBreakables()
 end
 
 function Breakables:OnBagItemLockPicked()
