@@ -1,7 +1,7 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("Breakables", false)
 Breakables = LibStub("AceAddon-3.0"):NewAddon("Breakables", "AceConsole-3.0", "AceEvent-3.0")
 local babbleInv = LibStub("LibBabble-Inventory-3.0"):GetLookupTable()
-local LBF = LibStub("LibButtonFacade", true)
+local LBF = LibStub("Masque", true)
 
 local lbfGroup
 
@@ -128,7 +128,7 @@ function Breakables:OnInitialize()
 	self:InitLDB()
 end
 
-function Breakables:ButtonFacadeCallback(SkinID, Gloss, Backdrop, Group, Button, Colors)
+function Breakables:ButtonFacadeCallback(Group, SkinID, Gloss, Backdrop, Colors, Disabled)
 	if not Group then
 		self.settings.SkinID = SkinID
 		self.settings.Gloss = Gloss
@@ -171,14 +171,11 @@ function Breakables:OnEnable()
 	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
 
 	if LBF then
-		LBF:RegisterSkinCallback("Breakables", self.ButtonFacadeCallback, self)
+		LBF:Register("Breakables", self.ButtonFacadeCallback, self)
 
 		lbfGroup = LBF:Group("Breakables")
 		if lbfGroup then
-			lbfGroup:Skin(self.settings.SkinID,
-				self.settings.Gloss,
-				self.settings.Backdrop,
-				self.settings.Colors)
+			lbfGroup:ReSkin()
 		end
 	end
 
