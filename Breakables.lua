@@ -912,7 +912,8 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		local prospectable = false
 		for idx=1,5 do
 			if _G["BreakablesTooltipTextLeft"..idx] then
-				if _G["BreakablesTooltipTextLeft"..idx]:GetText() == ITEM_MILLABLE then
+				if _G["BreakablesTooltipTextLeft"..idx]:GetText() == ITEM_MILLABLE
+					or _G["BreakablesTooltipTextLeft"..idx]:GetText() == MillingItemSubType then
 					millable = true
 					break
 				elseif _G["BreakablesTooltipTextLeft"..idx]:GetText() == ITEM_PROSPECTABLE then
