@@ -10,6 +10,16 @@ local MillingItemSubType = babbleInv["Herb"]
 local MillingItemSecondarySubType = babbleInv["Other"]
 local CanMill = false
 
+local AdditionalMillableItems= {
+	-- WoD herbs
+	109124,
+	109125,
+	109126,
+	109127,
+	109128,
+	109129,
+}
+
 local ProspectingId = 31252
 local ProspectingItemSubType = babbleInv["Metal & Stone"]
 local CanProspect = false
@@ -922,7 +932,16 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		if CanMill and (itemSubType == MillingItemSubType --[[or itemSubType == MillingItemSecondarySubType)]] or millable) then
+		local itemId = self:GetItemIdFromLink(itemLink)
+		if CanMill and not millable then
+			for i=1,#AdditionalMillableItems do
+				if AdditionalMillableItems[i] == itemId then
+					millable = true
+				end
+			end
+		end
+
+		if CanMill --[[and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType)]] and millable then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false, itemName, itemRarity}
 		end
 
@@ -930,7 +949,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName, itemRarity}
 		end
 
-		if CanPickLock and self:ItemIsPickable(self:GetItemIdFromLink(itemLink)) and self:ItemIsLocked(bagId, slotId) then
+		if CanPickLock and self:ItemIsPickable(itemId) and self:ItemIsLocked(bagId, slotId) then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_PICK, false, itemName, itemRarity}
 		end
 	end
