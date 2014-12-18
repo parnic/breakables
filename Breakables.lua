@@ -10,7 +10,7 @@ local MillingItemSubType = babbleInv["Herb"]
 local MillingItemSecondarySubType = babbleInv["Other"]
 local CanMill = false
 
-local AdditionalMillableItems= {
+local AdditionalMillableItems = {
 	-- WoD herbs
 	109124,
 	109125,
@@ -18,6 +18,10 @@ local AdditionalMillableItems= {
 	109127,
 	109128,
 	109129,
+}
+
+local UnMillableItems = {
+	109119, -- WoD True Iron Ore
 }
 
 local ProspectingId = 31252
@@ -937,6 +941,14 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			for i=1,#AdditionalMillableItems do
 				if AdditionalMillableItems[i] == itemId then
 					millable = true
+				end
+			end
+		end
+
+		if CanMill and millable then
+			for i=1,#UnMillableItems do
+				if UnMillableItems[i] == itemId then
+					millable = false
 				end
 			end
 		end
