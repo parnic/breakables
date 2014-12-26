@@ -913,6 +913,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 
 			local shouldHideThisItem = (self.settings.hideEqManagerItems and isInEquipmentSet) or (self.settings.hideTabards and isTabard)
+				or equipSlot == nil or equipSlot == ""
 
 			if (not soulbound or self.settings.showSoulbound) and not shouldHideThisItem then
 				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName, itemRarity}
