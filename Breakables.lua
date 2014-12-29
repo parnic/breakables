@@ -20,7 +20,7 @@ local AdditionalMillableItems = {
 	109129,
 }
 
-local UnMillableItems = {
+local UnProspectableItems = {
 	109119, -- WoD True Iron Ore
 }
 
@@ -946,10 +946,10 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		if CanMill and millable then
-			for i=1,#UnMillableItems do
-				if UnMillableItems[i] == itemId then
-					millable = false
+		if CanProspect and prospectable then
+			for i=1,#UnProspectableItems do
+				if UnProspectableItems[i] == itemId then
+					prospectable = false
 				end
 			end
 		end
