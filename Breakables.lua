@@ -271,6 +271,7 @@ function Breakables:OnItemReceived(event, bag)
 	if self.justClicked then
 		self:FindBreakables()
 		self.justClicked = false
+		self:OnLeaveProfessionButton()
 	elseif not bag or bag >= 0 then
 		nextCheck[bag] = GetTime() + BagUpdateCheckDelay
 	end
