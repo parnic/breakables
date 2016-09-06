@@ -18,6 +18,13 @@ local AdditionalMillableItems = {
 	109127,
 	109128,
 	109129,
+	-- Legion herbs
+	124101,
+	124102,
+	124103,
+	124104,
+	124105,
+	124106,
 }
 
 local UnProspectableItems = {
