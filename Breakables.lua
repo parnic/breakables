@@ -25,6 +25,25 @@ local AdditionalMillableItems = {
 	124104,
 	124105,
 	124106,
+	128304,
+}
+
+local MassMilling = {
+	-- wod
+	[109124] = 190381,
+	[109125] = 190382,
+	[109126] = 190383,
+	[109127] = 190384,
+	[109128] = 190385,
+	[109129] = 190386,
+	-- legion
+	[124101] = 209658,
+	[124102] = 209659,
+	[124103] = 209660,
+	[124104] = 209661,
+	[124105] = 209662,
+	[124106] = 209664,
+	[128304] = 210116,
 }
 
 local UnProspectableItems = {
@@ -585,7 +604,7 @@ function Breakables:CreateButtonFrame()
 			frame:SetScript("OnMouseUp", frame.OnMouseUpFunc)
 			frame:SetClampedToScreen(true)
 
-			local spellName, _, texture = GetSpellInfo(self:GetSpellIdFromProfessionButton(frame))
+			local spellName, _, texture = GetSpellInfo(self:GetSpellIdFromProfessionButton(frame.type))
 
 			frame:SetAttribute("type1", "spell")
 			frame:SetAttribute("spell1", spellName)
@@ -612,10 +631,16 @@ function Breakables:CreateButtonFrame()
 	end
 end
 
-function Breakables:GetSpellIdFromProfessionButton(btn)
-	return (btn.type == BREAKABLE_HERB and MillingId)
-		or (btn.type == BREAKABLE_ORE and ProspectingId)
-		or (btn.type == BREAKABLE_DE and DisenchantId)
+function Breakables:GetSpellIdFromProfessionButton(itemType, itemId)
+	if itemType == BREAKABLE_HERB and itemId ~= nil then
+		if MassMilling[itemId] ~= nil then
+			return MassMilling[itemId]
+		end
+	end
+
+	return (itemType == BREAKABLE_HERB and MillingId)
+		or (itemType == BREAKABLE_ORE and ProspectingId)
+		or (itemType == BREAKABLE_DE and DisenchantId)
 		or PickLockId
 end
 
@@ -765,10 +790,11 @@ function Breakables:FindBreakables(bag)
 						btn.text:SetText(foundBreakables[i][IDX_COUNT] .. appendText)
 					end
 
-					local BreakableAbilityName = GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId)
-						or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId)
-						or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_DE and DisenchantId)
-						or PickLockId)
+					local BreakableAbilityName = GetSpellInfo(self:GetSpellIdFromProfessionButton(foundBreakables[i][IDX_BREAKABLETYPE], self:GetItemIdFromLink(foundBreakables[i][IDX_LINK])))
+						--GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId)
+						--or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId)
+						--or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_DE and DisenchantId)
+						--or PickLockId)
 					btn:SetAttribute("spell", BreakableAbilityName)
 
 					if isLockedItem then
@@ -832,7 +858,7 @@ end
 
 function Breakables:OnEnterProfessionButton(btn)
 	GameTooltip:SetOwner(btn, "ANCHOR_BOTTOMLEFT")
-	GameTooltip:SetSpellByID(self:GetSpellIdFromProfessionButton(btn))
+	GameTooltip:SetSpellByID(self:GetSpellIdFromProfessionButton(btn.type))
 
 	GameTooltip:AddLine(" ")
 	GameTooltip:AddLine(L["Hold shift and left-click to drag the Breakables bar around."], 1, 1, 1, 1)
