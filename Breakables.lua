@@ -28,6 +28,12 @@ local AdditionalMillableItems = {
 	128304,
 }
 
+local AdditionalProspectableItems = {
+	-- Legion ore
+	123918,
+	123919,
+}
+
 local MassMilling = {
 	-- wod
 	[109124] = 190381,
@@ -980,10 +986,19 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		if CanProspect and prospectable then
-			for i=1,#UnProspectableItems do
-				if UnProspectableItems[i] == itemId then
-					prospectable = false
+		if CanProspect then
+			if not prospectable then
+				for i=1,#AdditionalProspectableItems do
+					if AdditionalProspectableItems[i] == itemId then
+						prospectable = true
+					end
+				end
+			end
+			if prospectable then
+				for i=1,#UnProspectableItems do
+					if UnProspectableItems[i] == itemId then
+						prospectable = false
+					end
 				end
 			end
 		end
