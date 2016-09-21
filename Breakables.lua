@@ -639,7 +639,7 @@ end
 
 function Breakables:GetSpellIdFromProfessionButton(itemType, itemId)
 	if itemType == BREAKABLE_HERB and itemId ~= nil then
-		if MassMilling[itemId] ~= nil and IsSpellKnown(MassMilling[itemId]) then
+		if MassMilling[itemId] ~= nil and IsPlayerSpell(MassMilling[itemId]) then
 			return MassMilling[itemId]
 		end
 	end
