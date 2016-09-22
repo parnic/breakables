@@ -803,15 +803,15 @@ function Breakables:FindBreakables(bag)
 						--or PickLockId)
 					btn:SetAttribute("spell", BreakableAbilityName)
 
-					if isLockedItem then
-						btn:SetAttribute("target-item")
+					--if isLockedItem then
+						--btn:SetAttribute("target-item")
 						btn:SetAttribute("target-bag", foundBreakables[i][IDX_BAG])
 						btn:SetAttribute("target-slot", foundBreakables[i][IDX_SLOT])
-					else
+					--[[else
 						btn:SetAttribute("target-item", foundBreakables[i][IDX_NAME])
 						btn:SetAttribute("target-bag")
 						btn:SetAttribute("target-slot")
-					end
+					end]]
 
 					if lbfGroup then
 						btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
