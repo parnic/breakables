@@ -1087,6 +1087,11 @@ function Breakables:MergeBreakables(foundBreakable, breakableList)
 	for n=1,#breakableList do
 		local listItemId = self:GetItemIdFromLink(breakableList[n][IDX_LINK])
 		if foundItemId == listItemId then
+			-- always prefer the larger stack
+			if foundBreakable[IDX_COUNT] > breakableList[n][IDX_COUNT] then
+				breakableList[n][IDX_BAG] = foundBreakable[IDX_BAG]
+				breakableList[n][IDX_SLOT] = foundBreakable[IDX_SLOT]
+			end
 			breakableList[n][IDX_COUNT] = breakableList[n][IDX_COUNT] + foundBreakable[IDX_COUNT]
 			return true
 		end
