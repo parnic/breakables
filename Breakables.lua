@@ -1117,6 +1117,13 @@ end
 function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity)
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType then
+			-- account for WoD and higher no longer needing specific ilvl. numbers from http://wow.gamepedia.com/Item_level
+			if (itemRarity == RARITY_UNCOMMON and itemLevel >= 483)
+				or (itemRarity == RARITY_RARE and itemLevel >= 515)
+				or (itemRarity >= RARITY_EPIC and itemLevel >= 640) then
+				return true
+			end
+
 			-- this is awful. is there an easier way? taken from www.wowpedia.org/Disenchanting
 			if itemRarity == RARITY_UNCOMMON then
 				if itemLevel <= 20 then
