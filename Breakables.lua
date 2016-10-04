@@ -119,7 +119,7 @@ local BREAKABLE_ORE = 2
 local BREAKABLE_DE = 3
 local BREAKABLE_PICK = 4
 
-local BagUpdateCheckDelay = 1.0
+local BagUpdateCheckDelay = 0.1
 local nextCheck = {}
 for i=0,NUM_BAG_SLOTS do
 	nextCheck[i] = -1
