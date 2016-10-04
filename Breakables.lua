@@ -52,6 +52,16 @@ local MassMilling = {
 	[128304] = 210116,
 }
 
+local HerbCombineItems = {
+	-- MoP
+	97619, -- torn green tea leaf
+	97620, -- rain poppy petal
+	97621, -- silkweed stem
+	97622, -- snow lily petal
+	97623, -- fool's cap spores
+	97624, -- desecrated herb pod
+}
+
 local UnProspectableItems = {
 	109119, -- WoD True Iron Ore
 }
@@ -59,6 +69,12 @@ local UnProspectableItems = {
 local ProspectingId = 31252
 local ProspectingItemSubType = babbleInv["Metal & Stone"]
 local CanProspect = false
+
+local OreCombineItems = {
+	-- MoP
+	97512, -- ghost iron nugget
+	97546, -- kyparite fragment
+}
 
 local DisenchantId = 13262
 local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
@@ -118,6 +134,7 @@ local BREAKABLE_HERB = 1
 local BREAKABLE_ORE = 2
 local BREAKABLE_DE = 3
 local BREAKABLE_PICK = 4
+local BREAKABLE_COMBINE = 5
 
 local BagUpdateCheckDelay = 0.1
 local nextCheck = {}
@@ -644,6 +661,10 @@ function Breakables:GetSpellIdFromProfessionButton(itemType, itemId)
 		end
 	end
 
+	if itemType == BREAKABLE_COMBINE then
+		return nil
+	end
+
 	return (itemType == BREAKABLE_HERB and MillingId)
 		or (itemType == BREAKABLE_ORE and ProspectingId)
 		or (itemType == BREAKABLE_DE and DisenchantId)
@@ -732,7 +753,7 @@ function Breakables:FindBreakables(bag)
 				numBreakableStacks[j] = 0
 			end
 
-			if foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
+			if (foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_COMBINE and foundBreakables[i][IDX_COUNT] >= 10)) and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
 				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL], foundBreakables[i][IDX_RARITY])
 				local isLockedItem = foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_PICK
 
@@ -790,7 +811,11 @@ function Breakables:FindBreakables(bag)
 					if not isDisenchantable then
 						local appendText = ""
 						if not isLockedItem then
-							appendText = " ("..(floor(foundBreakables[i][IDX_COUNT]/5))..")"
+							local breakStackSize = 5
+							if foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_COMBINE then
+								breakStackSize = 10
+							end
+							appendText = " ("..(floor(foundBreakables[i][IDX_COUNT]/breakStackSize))..")"
 						end
 
 						btn.text:SetText(foundBreakables[i][IDX_COUNT] .. appendText)
@@ -807,6 +832,9 @@ function Breakables:FindBreakables(bag)
 
 						btn:SetAttribute("target-bag", foundBreakables[i][IDX_BAG])
 						btn:SetAttribute("target-slot", foundBreakables[i][IDX_SLOT])
+					else
+						btn:SetAttribute("type", "item")
+						btn:SetAttribute("item", "item:" .. self:GetItemIdFromLink(foundBreakables[i][IDX_LINK]))
 					end
 
 					if lbfGroup then
@@ -859,12 +887,15 @@ function Breakables:FindBreakables(bag)
 end
 
 function Breakables:OnEnterProfessionButton(btn)
-	GameTooltip:SetOwner(btn, "ANCHOR_BOTTOMLEFT")
-	GameTooltip:SetSpellByID(self:GetSpellIdFromProfessionButton(btn.type))
+	local spellId = self:GetSpellIdFromProfessionButton(btn.type)
+	if spellId then
+		GameTooltip:SetOwner(btn, "ANCHOR_BOTTOMLEFT")
+		GameTooltip:SetSpellByID(spellId)
 
-	GameTooltip:AddLine(" ")
-	GameTooltip:AddLine(L["Hold shift and left-click to drag the Breakables bar around."], 1, 1, 1, 1)
-	GameTooltip:Show()
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddLine(L["Hold shift and left-click to drag the Breakables bar around."], 1, 1, 1, 1)
+		GameTooltip:Show()
+	end
 end
 
 function Breakables:OnLeaveProfessionButton()
@@ -885,7 +916,7 @@ function Breakables:OnLeaveBreakableButton()
 end
 
 function Breakables:PostClickedBreakableButton(this)
-	if this.type == BREAKABLE_HERB or this.type == BREAKABLE_ORE or this.type == BREAKABLE_DE then
+	if this.type == BREAKABLE_HERB or this.type == BREAKABLE_ORE or this.type == BREAKABLE_DE or this.type == BREAKABLE_COMBINE then
 		self.justClicked = true
 	end
 end
@@ -999,12 +1030,28 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		if CanMill --[[and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType)]] and millable then
-			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false, itemName, itemRarity}
+		if CanMill --[[and (itemSubType == MillingItemSubType or itemSubType == MillingItemSecondarySubType)]] then
+			if millable then
+				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_HERB, false, itemName, itemRarity}
+			else
+				for i=1,#HerbCombineItems do
+					if HerbCombineItems[i] == itemId then
+						return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_COMBINE, false, itemName, itemRarity}
+					end
+				end
+			end
 		end
 
-		if CanProspect --[[and itemSubType == ProspectingItemSubType]] and prospectable then
-			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName, itemRarity}
+		if CanProspect --[[and itemSubType == ProspectingItemSubType]] then
+			if prospectable then
+				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_ORE, false, itemName, itemRarity}
+			else
+				for i=1,#OreCombineItems do
+					if OreCombineItems[i] == itemId then
+						return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_COMBINE, false, itemName, itemRarity}
+					end
+				end
+			end
 		end
 
 		if CanPickLock and self:ItemIsPickable(itemId) and self:ItemIsLocked(bagId, slotId) then
