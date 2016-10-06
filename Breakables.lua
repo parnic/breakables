@@ -60,6 +60,13 @@ local HerbCombineItems = {
 	97622, -- snow lily petal
 	97623, -- fool's cap spores
 	97624, -- desecrated herb pod
+	-- WoD
+	109624, -- broken frostweed stem
+	109625, -- broken fireweed stem
+	109626, -- gorgrond flytrap ichor
+	109627, -- starflower petal
+	109628, -- nagrand arrowbloom petal
+	109629, -- talador orchid petal
 }
 
 local UnProspectableItems = {
@@ -74,6 +81,9 @@ local OreCombineItems = {
 	-- MoP
 	97512, -- ghost iron nugget
 	97546, -- kyparite fragment
+	-- WoD
+	109991, -- true iron nugget
+	109992, -- blackrock fragment
 }
 
 local DisenchantId = 13262
