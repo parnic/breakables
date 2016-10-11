@@ -310,12 +310,20 @@ function Breakables:RegisterEvents()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEnterCombat")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnLeaveCombat")
 
+	self:RegisterEvent("MODIFIER_STATE_CHANGED", "FindBreakables")
+
 	if CanDisenchant then
 		self:RegisterEvent("TRADE_SKILL_UPDATE", "OnTradeSkillUpdate")
 	end
 
 	if CanPickLock then
 		self:RegisterEvent("CHAT_MSG_OPENING", "OnBagItemLockPicked")
+	end
+end
+
+function Breakables:OnModifierChanged()
+	if showingTooltip ~= nil and not self.bCombat then
+		self:OnEnterBreakableButton(showingTooltip)
 	end
 end
 
