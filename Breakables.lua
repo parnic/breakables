@@ -161,6 +161,8 @@ local validGrowDirections = {L["Left"], L["Right"], L["Up"], L["Down"]}
 -- can be 1, 2, or 3 (in the case of a rogue with pick lock)
 local numEligibleProfessions = 0
 
+local showingTooltip = nil
+
 Breakables.optionsFrame = {}
 Breakables.justClicked = false
 
@@ -894,6 +896,10 @@ function Breakables:FindBreakables(bag)
 			end
 		end
 	end
+
+	if showingTooltip ~= nil then
+		self:OnEnterBreakableButton(showingTooltip)
+	end
 end
 
 function Breakables:OnEnterProfessionButton(btn)
@@ -919,10 +925,12 @@ function Breakables:OnEnterBreakableButton(this)
 	GameTooltip:AddLine(" ")
 	GameTooltip:AddLine(L["You can click on this button to break this item without having to click on the profession button first."], 1, 1, 1, 1)
 	GameTooltip:Show()
+	showingTooltip = this
 end
 
 function Breakables:OnLeaveBreakableButton()
 	GameTooltip:Hide()
+	showingTooltip = nil
 end
 
 function Breakables:PostClickedBreakableButton(this)
