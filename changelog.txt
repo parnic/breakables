@@ -1,3 +1,8 @@
+v1.4.4:
+- Cap the disenchantable item rarity for Legion items at Epic (so we don't show the player's artifact weapon as disenchantable).
+- Automatically update the tooltip when the breakable list is updated while the player is hovering over a breakable item button.
+- Update the tooltip when the player presses Shift so that disenchantable items show what the player currently has equipped to compare against quickly.
+
 v1.4.3:
 - Fixed up Mass Milling support.
 - Fixed the mod accidentally trying to break the wrong stack of something if, for example, you had a smaller stack placed in front of a larger stack in your bags.
