@@ -1173,7 +1173,7 @@ function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity)
 			-- account for WoD and higher no longer needing specific ilvl. numbers from http://wow.gamepedia.com/Item_level
 			if (itemRarity == RARITY_UNCOMMON and itemLevel >= 483)
 				or (itemRarity == RARITY_RARE and itemLevel >= 515)
-				or (itemRarity >= RARITY_EPIC and itemLevel >= 640) then
+				or (itemRarity == RARITY_EPIC and itemLevel >= 640) then
 				return true
 			end
 
