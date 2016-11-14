@@ -81,6 +81,7 @@ local OreCombineItems = {
 	-- MoP
 	97512, -- ghost iron nugget
 	97546, -- kyparite fragment
+	90407, -- sparkling shard
 	-- WoD
 	109991, -- true iron nugget
 	109992, -- blackrock fragment
