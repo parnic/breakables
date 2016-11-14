@@ -775,7 +775,7 @@ function Breakables:FindBreakables(bag)
 			end
 
 			if (foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_COMBINE and foundBreakables[i][IDX_COUNT] >= 10)) and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
-				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL], foundBreakables[i][IDX_RARITY])
+				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL], foundBreakables[i][IDX_RARITY], foundBreakables[i][IDX_LINK])
 				local isLockedItem = foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_PICK
 
 				if (CanDisenchant and isDisenchantable) or (CanPickLock and isLockedItem) or (foundBreakables[i][IDX_COUNT] >= 5) then
@@ -983,7 +983,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		self.myTooltip:SetBagItem(bagId, slotId)
 
 		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and itemRarity < RARITY_HEIRLOOM
-			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity) then
+			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink) then
 			local i = 1
 			local soulbound = false
 			for i=1,15 do
@@ -1007,7 +1007,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 
 			local shouldHideThisItem = (self.settings.hideEqManagerItems and isInEquipmentSet) or (self.settings.hideTabards and isTabard)
-				or equipSlot == nil or equipSlot == ""
+				or equipSlot == nil or (equipSlot == "" and not IsArtifactRelicItem(itemLink))
 
 			if (not soulbound or self.settings.showSoulbound) and not shouldHideThisItem then
 				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName, itemRarity}
@@ -1184,9 +1184,9 @@ function Breakables:SortBreakables(foundBreakables)
 	end
 end
 
-function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity)
+function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink)
 	for i=1,#DisenchantTypes do
-		if DisenchantTypes[i] == itemType then
+		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
 			-- account for WoD and higher no longer needing specific ilvl. numbers from http://wow.gamepedia.com/Item_level
 			if (itemRarity == RARITY_UNCOMMON and itemLevel >= 483)
 				or (itemRarity == RARITY_RARE and itemLevel >= 515)
