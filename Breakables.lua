@@ -422,6 +422,20 @@ local function GetIgnoreListOptions()
 	return ret
 end
 
+local function IsIgnoringAnything()
+	if Breakables.settings.ignoreList == nil then
+		return false
+	end
+
+	for k,v in pairs(Breakables.settings.ignoreList) do
+		if v ~= nil then
+			return true
+		end
+	end
+
+	return false
+end
+
 function Breakables:GetOptions()
 	local opts = {
 		name = L["Breakables"],
@@ -570,6 +584,7 @@ function Breakables:GetOptions()
 					return L["Are you sure you want to remove this item from the ignore list?"]
 				end,
 				values = GetIgnoreListOptions,
+				hidden = function() return not IsIgnoringAnything() end,
 				order = 30,
 			},
 			clearIgnoreList = {
@@ -584,19 +599,7 @@ function Breakables:GetOptions()
 				confirm = function()
 					return L["Are you sure you want to clear the ignore list?"]
 				end,
-				disabled = function()
-					if Breakables.settings.ignoreList == nil then
-						return true
-					end
-
-					for k,v in pairs(Breakables.settings.ignoreList) do
-						if v ~= nil then
-							return false
-						end
-					end
-
-					return true
-				end,
+				hidden = function() return not IsIgnoringAnything() end,
 				order = 31,
 			},
 		},
