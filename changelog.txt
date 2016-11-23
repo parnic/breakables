@@ -1,6 +1,7 @@
 v1.4.6:
 - Added MoP Sparkling Shard as a combinable object.
 - Added support for registering artifact relics as disenchantable.
+- Added an ignore feature so certain items can be set to never show up as breakable.
 
 v1.4.5:
 - Updated TOC for 7.1

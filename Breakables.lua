@@ -409,6 +409,19 @@ function Breakables:GetEnchantingLevel()
 	end
 end
 
+local function GetIgnoreListOptions()
+	local ret = {}
+
+	if Breakables.settings.ignoreList ~= nil then
+		for k,v in pairs(Breakables.settings.ignoreList) do
+			local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(k)
+			ret[k] = ("|T%s:0|t %s"):format(texture, name)
+		end
+	end
+
+	return ret
+end
+
 function Breakables:GetOptions()
 	local opts = {
 		name = L["Breakables"],
@@ -541,6 +554,50 @@ function Breakables:GetOptions()
 					self:FindBreakables()
 				end,
 				order = 7,
+			},
+			ignoreList = {
+				type = 'multiselect',
+				name = L["Ignore list"],
+				desc = L["Items that have been right-clicked to exclude from the breakable list. Un-check the box to remove the item from the ignore list."],
+				get = function(info, key)
+					return true
+				end,
+				set = function(info, key)
+					Breakables.settings.ignoreList[key] = nil
+					Breakables:FindBreakables()
+				end,
+				confirm = function()
+					return L["Are you sure you want to remove this item from the ignore list?"]
+				end,
+				values = GetIgnoreListOptions,
+				order = 30,
+			},
+			clearIgnoreList = {
+				type = 'execute',
+				func = function()
+					for k,v in pairs(Breakables.settings.ignoreList) do
+						Breakables.settings.ignoreList[k] = nil
+					end
+					Breakables:FindBreakables()
+				end,
+				name = L["Clear ignore list"],
+				confirm = function()
+					return L["Are you sure you want to clear the ignore list?"]
+				end,
+				disabled = function()
+					if Breakables.settings.ignoreList == nil then
+						return true
+					end
+
+					for k,v in pairs(Breakables.settings.ignoreList) do
+						if v ~= nil then
+							return false
+						end
+					end
+
+					return true
+				end,
+				order = 31,
 			},
 		},
 	}
@@ -728,6 +785,18 @@ function Breakables:OnMouseUp(frame)
 	self.settings.buttonFrameTop[frameNum] = frame:GetTop()
 end
 
+local function IgnoreFunc(self, button)
+	if button == "RightButton" and not InCombatLockdown() then
+		if Breakables.settings.ignoreList == nil then
+			Breakables.settings.ignoreList = {}
+		end
+
+		Breakables.settings.ignoreList[self.itemId] = true
+		Breakables:FindBreakables()
+		LibStub("AceConfigRegistry-3.0"):NotifyChange("Breakables")
+	end
+end
+
 function Breakables:FindBreakables(bag)
 	if self.settings.hide then
 		return
@@ -797,7 +866,7 @@ function Breakables:FindBreakables(bag)
 						btn:EnableMouse(true)
 						btn:RegisterForClicks("AnyUp")
 
-						btn:SetAttribute("type", "spell")
+						btn:SetAttribute("type1", "spell")
 
 						if not btn.text then
 							btn.text = btn:CreateFontString()
@@ -805,10 +874,14 @@ function Breakables:FindBreakables(bag)
 						end
 						btn.text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
 
+						btn:HookScript("OnClick", IgnoreFunc)
+
 						if lbfGroup then
 							lbfGroup:AddButton(btn)
 						end
 					end
+
+					btn.itemId = self:GetItemIdFromLink(foundBreakables[i][IDX_LINK])
 
 					local attachFrom = "LEFT"
 					local attachTo = "RIGHT"
@@ -848,13 +921,13 @@ function Breakables:FindBreakables(bag)
 						--or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_DE and DisenchantId)
 						--or PickLockId)
 					if BreakableAbilityName then
-						btn:SetAttribute("type", "spell")
+						btn:SetAttribute("type1", "spell")
 						btn:SetAttribute("spell", BreakableAbilityName)
 
 						btn:SetAttribute("target-bag", foundBreakables[i][IDX_BAG])
 						btn:SetAttribute("target-slot", foundBreakables[i][IDX_SLOT])
 					else
-						btn:SetAttribute("type", "item")
+						btn:SetAttribute("type1", "item")
 						btn:SetAttribute("item", "item:" .. self:GetItemIdFromLink(foundBreakables[i][IDX_LINK]))
 					end
 
@@ -933,6 +1006,8 @@ function Breakables:OnEnterBreakableButton(this)
 
 	GameTooltip:AddLine(" ")
 	GameTooltip:AddLine(L["You can click on this button to break this item without having to click on the profession button first."], 1, 1, 1, 1)
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddLine(L["You can right-click on this button to ignore this item. Items can be unignored from the options screen."], 1, 1, 1, 1)
 	GameTooltip:Show()
 	showingTooltip = this
 end
@@ -978,6 +1053,10 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 	local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bagId, slotId)
 	if texture then
 		local itemLink = GetContainerItemLink(bagId, slotId)
+		if self.settings.ignoreList and self.settings.ignoreList[self:GetItemIdFromLink(itemLink)] then
+			return nil
+		end
+
 		local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType, _, equipSlot, itemTexture, vendorPrice = GetItemInfo(itemLink)
 
 		self.myTooltip:SetBagItem(bagId, slotId)
