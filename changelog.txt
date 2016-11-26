@@ -1,3 +1,6 @@
+v1.4.7:
+- Fixed up milling herbs that the player knows Mass Milling for. Since Mass Mill is a profession ability and not a player ability/"spell", the addon can't currently automatically cast Mass Milling.
+
 v1.4.6:
 - Added MoP Sparkling Shard as a combinable object.
 - Added support for registering artifact relics as disenchantable.
