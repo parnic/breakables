@@ -181,6 +181,7 @@ function Breakables:OnInitialize()
 			buttonScale = 1,
 			fontSize = 11,
 			growDirection = 2,
+			ignoreList = {},
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults, true)
@@ -412,21 +413,15 @@ end
 local function GetIgnoreListOptions()
 	local ret = {}
 
-	if Breakables.settings.ignoreList ~= nil then
-		for k,v in pairs(Breakables.settings.ignoreList) do
-			local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(k)
-			ret[k] = ("|T%s:0|t %s"):format(texture, name)
-		end
+	for k,v in pairs(Breakables.settings.ignoreList) do
+		local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(k)
+		ret[k] = ("|T%s:0|t %s"):format(texture, name)
 	end
 
 	return ret
 end
 
 local function IsIgnoringAnything()
-	if Breakables.settings.ignoreList == nil then
-		return false
-	end
-
 	for k,v in pairs(Breakables.settings.ignoreList) do
 		if v ~= nil then
 			return true
@@ -790,10 +785,6 @@ end
 
 local function IgnoreFunc(self, button)
 	if button == "RightButton" and not InCombatLockdown() then
-		if Breakables.settings.ignoreList == nil then
-			Breakables.settings.ignoreList = {}
-		end
-
 		Breakables.settings.ignoreList[self.itemId] = true
 		Breakables:FindBreakables()
 		LibStub("AceConfigRegistry-3.0"):NotifyChange("Breakables")
@@ -1056,7 +1047,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 	local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bagId, slotId)
 	if texture then
 		local itemLink = GetContainerItemLink(bagId, slotId)
-		if self.settings.ignoreList and self.settings.ignoreList[self:GetItemIdFromLink(itemLink)] then
+		if self.settings.ignoreList[self:GetItemIdFromLink(itemLink)] then
 			return nil
 		end
 
