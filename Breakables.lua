@@ -1231,10 +1231,8 @@ function Breakables:GetItemIdFromLink(itemLink)
 end
 
 function Breakables:MergeBreakables(foundBreakable, breakableList)
-	local foundItemId = self:GetItemIdFromLink(foundBreakable[IDX_LINK])
 	for n=1,#breakableList do
-		local listItemId = self:GetItemIdFromLink(breakableList[n][IDX_LINK])
-		if foundItemId == listItemId then
+		if foundBreakable[IDX_LINK] == breakableList[n][IDX_LINK] then
 			-- always prefer the larger stack
 			if foundBreakable[IDX_COUNT] > breakableList[n][IDX_COUNT] then
 				breakableList[n][IDX_BAG] = foundBreakable[IDX_BAG]
