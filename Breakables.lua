@@ -415,7 +415,9 @@ local function GetIgnoreListOptions()
 
 	for k,v in pairs(Breakables.settings.ignoreList) do
 		local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(k)
-		ret[k] = ("|T%s:0|t %s"):format(texture, name)
+		if texture ~= nil and name ~= nil then
+			ret[k] = ("|T%s:0|t %s"):format(texture, name)
+		end
 	end
 
 	return ret
