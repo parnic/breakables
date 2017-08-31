@@ -1,4 +1,4 @@
-## Interface: 70200
+## Interface: 70300
 ## Author: Parnic
 ## Name: Breakables
 ## Title: Breakables |cff7fff7f-Ace3-|r
@@ -6,7 +6,7 @@
 ## Version: @project-version@ (Revision: @project-revision@)
 ## SavedVariables: BreakablesDB
 ## OptionalDeps: Ace3, LibBabble-Inventory-3.0, Masque
-## X-Compatible-With: 60200
+## X-Compatible-With: 70200
 
 #@no-lib-strip@
 embeds.xml
