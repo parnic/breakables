@@ -1,3 +1,6 @@
+v1.4.9.1:
+- Added 7.3 herbs and ore
+
 v1.4.9:
 - Updated TOC for 7.3
 
