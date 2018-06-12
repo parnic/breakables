@@ -122,6 +122,7 @@ local PickableItems = {
 	68729, -- elementium lockbox
 	88567, -- ghost iron lockbox
 	116920, -- true steel lockbox
+	121331, -- leystone lockbox
 }
 local CanPickLock = false
 
