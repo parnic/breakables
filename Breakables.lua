@@ -5,6 +5,8 @@ local LBF = LibStub("Masque", true)
 
 local lbfGroup
 
+local WowVer = select(4, GetBuildInfo())
+
 local MillingId = 51005
 local MillingItemSubType = babbleInv["Herb"]
 local MillingItemSecondarySubType = babbleInv["Other"]
@@ -330,7 +332,7 @@ function Breakables:RegisterEvents()
 
 	self:RegisterEvent("MODIFIER_STATE_CHANGED", "FindBreakables")
 
-	if CanDisenchant then
+	if CanDisenchant and WowVer < 80000 then
 		self:RegisterEvent("TRADE_SKILL_UPDATE", "OnTradeSkillUpdate")
 	end
 
@@ -1224,13 +1226,26 @@ do
 end
 
 function Breakables:IsInEquipmentSet(itemId)
-	for setIdx=1, GetNumEquipmentSets() do
-		local set = GetEquipmentSetInfo(setIdx)
-		local itemArray = GetEquipmentSetItemIDs(set)
+	if WowVer < 80000 then
+		for setIdx=1, GetNumEquipmentSets() do
+			local set = GetEquipmentSetInfo(setIdx)
+			local itemArray = GetEquipmentSetItemIDs(set)
 
-		for i=1, EQUIPPED_LAST do
-			if itemArray[i] and itemArray[i] == itemId then
-				return true
+			for i=1, EQUIPPED_LAST do
+				if itemArray[i] and itemArray[i] == itemId then
+					return true
+				end
+			end
+		end
+	else
+		local sets = C_EquipmentSet.GetEquipmentSetIDs()
+		for k, v in ipairs(sets) do
+			local itemArray = C_EquipmentSet.GetItemIDs(v)
+
+			for i=1, EQUIPPED_LAST do
+				if itemArray[i] and itemArray[i] == itemId then
+					return true
+				end
 			end
 		end
 	end
@@ -1276,6 +1291,11 @@ end
 function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink)
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
+				-- temp hack for bfa until disenchant item level scales are identified
+			if WowVer >= 80000 then
+				return true
+			end
+
 			-- account for WoD and higher no longer needing specific ilvl. numbers from http://wow.gamepedia.com/Item_level
 			if (itemRarity == RARITY_UNCOMMON and itemLevel >= 483)
 				or (itemRarity == RARITY_RARE and itemLevel >= 515)
