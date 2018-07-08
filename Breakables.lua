@@ -27,6 +27,14 @@ local AdditionalMillableItems = {
 	124106,
 	128304,
 	151565,
+	-- BfA herbs
+	152505,
+	152506,
+	152507,
+	152508,
+	152509,
+	152510,
+	152511,
 }
 
 local AdditionalProspectableItems = {
@@ -34,6 +42,10 @@ local AdditionalProspectableItems = {
 	123918,
 	123919,
 	151564,
+	-- BfA ore
+	152512,
+	152513,
+	152579,
 }
 
 local MassMilling = {
