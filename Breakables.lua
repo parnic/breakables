@@ -109,6 +109,10 @@ local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
 local CanDisenchant = false
 local EnchantingProfessionId = 333
 
+local AdditionalDisenchantableItems = {
+	137195, -- highmountain armor
+}
+
 local PickLockId = 1804
 local PickableItems = {
 	16882, -- battered junkbox
@@ -1067,7 +1071,8 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 	local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bagId, slotId)
 	if texture then
 		local itemLink = GetContainerItemLink(bagId, slotId)
-		if self.settings.ignoreList[self:GetItemIdFromLink(itemLink)] then
+		local itemId = self:GetItemIdFromLink(itemLink)
+		if self.settings.ignoreList[itemId] then
 			return nil
 		end
 
@@ -1076,7 +1081,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		self.myTooltip:SetBagItem(bagId, slotId)
 
 		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and itemRarity < RARITY_HEIRLOOM
-			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink) then
+			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId) then
 			local i = 1
 			local soulbound = false
 			for i=1,15 do
@@ -1091,7 +1096,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 
 			local isInEquipmentSet = false
 			if self.settings.hideEqManagerItems then
-				isInEquipmentSet = self:IsInEquipmentSet(self:GetItemIdFromLink(itemLink))
+				isInEquipmentSet = self:IsInEquipmentSet(itemId)
 			end
 
 			local isTabard = false
@@ -1124,7 +1129,6 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		local itemId = self:GetItemIdFromLink(itemLink)
 		if CanMill and not millable then
 			for i=1,#AdditionalMillableItems do
 				if AdditionalMillableItems[i] == itemId then
@@ -1288,7 +1292,7 @@ function Breakables:SortBreakables(foundBreakables)
 	end
 end
 
-function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink)
+function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId)
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
 				-- temp hack for bfa until disenchant item level scales are identified
@@ -1387,6 +1391,12 @@ function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, i
 			else
 				return false
 			end
+			return true
+		end
+	end
+
+	for i=1,#AdditionalDisenchantableItems do
+		if AdditionalDisenchantableItems[i] == itemId then
 			return true
 		end
 	end
