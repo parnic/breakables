@@ -1,3 +1,6 @@
+v1.6:
+- Updated TOC for 8.2
+
 v1.5.1:
 - Updated TOC for 8.1
 - Added Highmountain Armor as a disenchantable item
