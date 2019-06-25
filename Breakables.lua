@@ -408,7 +408,7 @@ function Breakables:OnTradeSkillUpdate()
 end
 
 function Breakables:OnBagItemLockPicked()
-	nextCheck[1] = GetTime() + BagUpdateCheckDelay
+	self:FindBreakables()
 end
 
 function Breakables:FindLevelOfProfessionIndex(idx)
