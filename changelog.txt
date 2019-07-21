@@ -1,3 +1,6 @@
+v1.6.1:
+- Added patch 8.2's new herb and ore
+
 v1.6:
 - Updated TOC for 8.2
 

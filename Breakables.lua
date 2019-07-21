@@ -37,6 +37,7 @@ local AdditionalMillableItems = {
 	152509,
 	152510,
 	152511,
+	168487,
 }
 
 local AdditionalProspectableItems = {
@@ -48,6 +49,7 @@ local AdditionalProspectableItems = {
 	152512,
 	152513,
 	152579,
+	168185,
 }
 
 local MassMilling = {
