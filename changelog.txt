@@ -1,3 +1,6 @@
+v1.6.2:
+- Added 8.2's lockboxes
+
 v1.6.1:
 - Added patch 8.2's new herb and ore
 
