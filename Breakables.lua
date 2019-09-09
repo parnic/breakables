@@ -6,6 +6,7 @@ local LBF = LibStub("Masque", true)
 local lbfGroup
 
 local WowVer = select(4, GetBuildInfo())
+local IsClassic = WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local MillingId = 51005
 local MillingItemSubType = babbleInv["Herb"]
@@ -422,15 +423,17 @@ function Breakables:FindLevelOfProfessionIndex(idx)
 end
 
 function Breakables:GetEnchantingLevel()
-	local prof1, prof2 = GetProfessions()
+	if GetProfessions then
+		local prof1, prof2 = GetProfessions()
 
-	local skillId, rank = self:FindLevelOfProfessionIndex(prof1)
-	if skillId ~= nil and skillId == EnchantingProfessionId then
-		self.EnchantingLevel = rank
-	else
-		skillId, rank = self:FindLevelOfProfessionIndex(prof2)
+		local skillId, rank = self:FindLevelOfProfessionIndex(prof1)
 		if skillId ~= nil and skillId == EnchantingProfessionId then
 			self.EnchantingLevel = rank
+		else
+			skillId, rank = self:FindLevelOfProfessionIndex(prof2)
+			if skillId ~= nil and skillId == EnchantingProfessionId then
+				self.EnchantingLevel = rank
+			end
 		end
 	end
 end
@@ -644,41 +647,45 @@ function Breakables:GetOptions()
 			end,
 			order = 20,
 		}
-		opts.args.hideEqManagerItems = {
-			type = "toggle",
-			name = L["Hide Eq. Mgr items"],
-			desc = L["Whether or not to hide items that are part of an equipment set in the game's equipment manager."],
-			get = function(info)
-				return self.settings.hideEqManagerItems
-			end,
-			set = function(info, v)
-				self.settings.hideEqManagerItems = v
-				if info.uiType == "cmd" then
-					print("|cff33ff99Breakables|r: set |cffffff78hideEqManagerItems|r to " .. tostring(self.settings.hideEqManagerItems))
-				end
-				self:FindBreakables()
-			end,
-			hidden = function()
-				return not self.settings.showSoulbound
-			end,
-			order = 21,
-		}
-		opts.args.hideTabards = {
-			type = "toggle",
-			name = L["Hide Tabards"],
-			desc = L["Whether or not to hide tabards from the disenchantable items list."],
-			get = function(info)
-				return self.settings.hideTabards
-			end,
-			set = function(info, v)
-				self.settings.hideTabards = v
-				if info.uiType == "cmd" then
-					print("|cff33ff99Breakables|r: set |cffffff78hideTabards|r to " .. tostring(self.settings.hideTabards))
-				end
-				self:FindBreakables()
-			end,
-			order = 22,
-		}
+		if GetNumEquipmentSets or C_EquipmentSet then
+			opts.args.hideEqManagerItems = {
+				type = "toggle",
+				name = L["Hide Eq. Mgr items"],
+				desc = L["Whether or not to hide items that are part of an equipment set in the game's equipment manager."],
+				get = function(info)
+					return self.settings.hideEqManagerItems
+				end,
+				set = function(info, v)
+					self.settings.hideEqManagerItems = v
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78hideEqManagerItems|r to " .. tostring(self.settings.hideEqManagerItems))
+					end
+					self:FindBreakables()
+				end,
+				hidden = function()
+					return not self.settings.showSoulbound
+				end,
+				order = 21,
+			}
+		end
+		if WowVer >= 80000 then
+			opts.args.hideTabards = {
+				type = "toggle",
+				name = L["Hide Tabards"],
+				desc = L["Whether or not to hide tabards from the disenchantable items list."],
+				get = function(info)
+					return self.settings.hideTabards
+				end,
+				set = function(info, v)
+					self.settings.hideTabards = v
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78hideTabards|r to " .. tostring(self.settings.hideTabards))
+					end
+					self:FindBreakables()
+				end,
+				order = 22,
+			}
+		end
 	end
 
 	return opts
@@ -1233,7 +1240,7 @@ do
 end
 
 function Breakables:IsInEquipmentSet(itemId)
-	if WowVer < 80000 then
+	if WowVer < 80000 and GetNumEquipmentSets then
 		for setIdx=1, GetNumEquipmentSets() do
 			local set = GetEquipmentSetInfo(setIdx)
 			local itemArray = GetEquipmentSetItemIDs(set)
@@ -1244,7 +1251,7 @@ function Breakables:IsInEquipmentSet(itemId)
 				end
 			end
 		end
-	else
+	elseif C_EquipmentSet then
 		local sets = C_EquipmentSet.GetEquipmentSetIDs()
 		for k, v in ipairs(sets) do
 			local itemArray = C_EquipmentSet.GetItemIDs(v)
@@ -1298,8 +1305,8 @@ end
 function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId)
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
-				-- temp hack for bfa until disenchant item level scales are identified
-			if WowVer >= 80000 then
+			-- temp hack for bfa until disenchant item level scales are identified. and for classic until finding the profession level api
+			if WowVer >= 80000 or IsClassic then
 				return true
 			end
 
