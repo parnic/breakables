@@ -1,5 +1,8 @@
-v1.6.3:
+v1.6.4:
 - Updated TOC for 8.3
+
+v1.6.3:
+- (Classic) Made all items display as disenchantable whether you have the skill for it or not. I have not yet found the correct way to access the player's Enchanting profession level to check against item level for disenchant validity.
 
 v1.6.2:
 - Added 8.2's lockboxes
