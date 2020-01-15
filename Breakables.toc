@@ -1,4 +1,4 @@
-## Interface: 80200
+## Interface: 80300
 ## Author: Parnic
 ## Name: Breakables
 ## Title: Breakables |cff7fff7f-Ace3-|r
@@ -6,7 +6,7 @@
 ## Version: @project-version@ (Revision: @project-revision@)
 ## SavedVariables: BreakablesDB
 ## OptionalDeps: Ace3, LibBabble-Inventory-3.0, Masque
-## X-Compatible-With: 70300
+## X-Compatible-With: 80200
 
 #@no-lib-strip@
 embeds.xml
