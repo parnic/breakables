@@ -39,6 +39,13 @@ local AdditionalMillableItems = {
 	152510,
 	152511,
 	168487,
+	-- Shadowlands herbs
+	168586, -- rising glory
+	168589, -- marrowroot
+	170554, -- vigil's torch
+	168583, -- widowbloom
+	169701, -- death blossom
+	171315, -- nightshade
 }
 
 local AdditionalProspectableItems = {
@@ -51,6 +58,13 @@ local AdditionalProspectableItems = {
 	152513,
 	152579,
 	168185,
+	-- Shadowlands ore
+	171828, -- laestrite
+	171833, -- elethium
+	171829, -- solenium
+	171830, -- oxxein
+	171831, -- phaedrum
+	171832, -- sinvyr
 }
 
 local MassMilling = {
@@ -70,6 +84,13 @@ local MassMilling = {
 	[124106] = 209664,
 	[128304] = 210116,
 	[151565] = 247861,
+	-- shadowlands
+	[168586] = 311417,
+	[168589] = 311416,
+	[170554] = 311414,
+	[168583] = 311415,
+	[169701] = 311413,
+	[171315] = 311418,
 }
 
 local HerbCombineItems = {
@@ -87,6 +108,13 @@ local HerbCombineItems = {
 	109627, -- starflower petal
 	109628, -- nagrand arrowbloom petal
 	109629, -- talador orchid petal
+	-- shadowlands
+	169550, -- rising glory petal
+	168591, -- marrowroot petal
+	169699, -- vigil's torch petal
+	169698, -- widowbloom petal
+	169700, -- death blossom petal
+	169697, -- nightshade petal
 }
 
 local UnProspectableItems = {
@@ -145,6 +173,11 @@ local PickableItems = {
 	116920, -- true steel lockbox
 	121331, -- leystone lockbox
 	169475, -- barnacled lockbox
+	-- shadowlands
+	179311, -- venthyr
+	180532, -- maldraxxi
+	180533, -- kyrian
+	180522, -- night fae
 }
 local CanPickLock = false
 
