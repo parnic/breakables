@@ -1,3 +1,7 @@
+v1.7.0:
+- Added Shadowlands herbs, ore, and lockboxes
+- Updated TOC for 9.0
+
 v1.6.4:
 - Updated TOC for 8.3
 
