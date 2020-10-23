@@ -39,3 +39,5 @@ ignore:
     - readme.md
 
 manual-changelog: changelog.txt
+
+enable-nolib-creation: yes
