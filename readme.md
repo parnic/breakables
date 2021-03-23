@@ -14,7 +14,6 @@ Typing */brk* will open the configuration settings (or you can get to it from Bl
 * **Max number to display**: this controls the highest number of items that you will see next to your profession button. If this is 5 but you have 10 breakable items in your bags, you will only see 5 at a time.
 * **Show soulbound items**: aimed at enchanters, this controls whether or not you will see items that are soulbound as breakable items or not.
 
-
 ### **Known issues**
+
 * If you have more than 5 of a breakable item but split into stacks all smaller than 5, the game will say you do not have enough items to break. The default UI now has a built-in button to compress stacks that should solve this issue.
-* If you know Mass Milling for a specific type of herb, the current alpha will try to use this ability and fail. I am in the process of leveling a scribe up high enough to debug this problem.
