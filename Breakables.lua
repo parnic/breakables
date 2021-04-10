@@ -5,6 +5,13 @@ local LBF = LibStub("Masque", true)
 
 local lbfGroup
 
+local IsArtifactRelicItem = IsArtifactRelicItem
+if not IsArtifactRelicItem then
+	IsArtifactRelicItem = function()
+		return false
+	end
+end
+
 local WowVer = select(4, GetBuildInfo())
 local IsClassic = WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 

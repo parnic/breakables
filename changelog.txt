@@ -1,3 +1,6 @@
+v1.7.4:
+- Fix an issue when IsArtifactRelicItem is not defined
+
 v1.7.3:
 - Add option to suppress tooltips by request
 - Updated Classic TOC to 1.13.6
