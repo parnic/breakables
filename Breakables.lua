@@ -241,6 +241,8 @@ function Breakables:OnInitialize()
 			fontSize = 11,
 			growDirection = 2,
 			ignoreList = {},
+			showTooltipForBreakables = true,
+			showTooltipForProfession = true,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("BreakablesDB", self.defaults, true)
@@ -626,6 +628,36 @@ function Breakables:GetOptions()
 					self:FindBreakables()
 				end,
 				order = 7,
+			},
+			showTooltipForBreakables = {
+				type = "toggle",
+				name = L["Show tooltip on breakables"],
+				desc = L["Whether or not to show an item tooltip when hovering over a breakable item button."],
+				get = function(info)
+					return self.settings.showTooltipForBreakables
+				end,
+				set = function(info, v)
+					self.settings.showTooltipForBreakables = v
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78showTooltipForBreakables|r to " .. tostring(self.settings.showTooltipForBreakables))
+					end
+				end,
+				order = 8,
+			},
+			showTooltipForProfession = {
+				type = "toggle",
+				name = L["Show tooltip on profession"],
+				desc = L["Whether or not to show an item tooltip when hovering over a profession button on the Breakables bar."],
+				get = function(info)
+					return self.settings.showTooltipForProfession
+				end,
+				set = function(info, v)
+					self.settings.showTooltipForProfession = v
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78showTooltipForProfession|r to " .. tostring(self.settings.showTooltipForProfession))
+					end
+				end,
+				order = 9,
 			},
 			ignoreList = {
 				type = 'multiselect',
@@ -1047,7 +1079,7 @@ end
 
 function Breakables:OnEnterProfessionButton(btn)
 	local spellId = self:GetSpellIdFromProfessionButton(btn.type)
-	if spellId then
+	if spellId and self.settings.showTooltipForProfession then
 		GameTooltip:SetOwner(btn, "ANCHOR_BOTTOMLEFT")
 		GameTooltip:SetSpellByID(spellId)
 
@@ -1062,20 +1094,24 @@ function Breakables:OnLeaveProfessionButton()
 end
 
 function Breakables:OnEnterBreakableButton(this)
-	GameTooltip:SetOwner(this, "ANCHOR_BOTTOMLEFT")
-	GameTooltip:SetBagItem(this.bag, this.slot)
+	if self.settings.showTooltipForBreakables then
+		GameTooltip:SetOwner(this, "ANCHOR_BOTTOMLEFT")
+		GameTooltip:SetBagItem(this.bag, this.slot)
 
-	GameTooltip:AddLine(" ")
-	GameTooltip:AddLine(L["You can click on this button to break this item without having to click on the profession button first."], 1, 1, 1, 1)
-	GameTooltip:AddLine(" ")
-	GameTooltip:AddLine(L["You can right-click on this button to ignore this item. Items can be unignored from the options screen."], 1, 1, 1, 1)
-	GameTooltip:Show()
-	showingTooltip = this
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddLine(L["You can click on this button to break this item without having to click on the profession button first."], 1, 1, 1, 1)
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddLine(L["You can right-click on this button to ignore this item. Items can be unignored from the options screen."], 1, 1, 1, 1)
+		GameTooltip:Show()
+		showingTooltip = this
+	end
 end
 
 function Breakables:OnLeaveBreakableButton()
-	GameTooltip:Hide()
-	showingTooltip = nil
+	if showingTooltip then
+		GameTooltip:Hide()
+		showingTooltip = nil
+	end
 end
 
 function Breakables:PostClickedBreakableButton(this)
