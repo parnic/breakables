@@ -1,3 +1,7 @@
+v1.7.3:
+- Add option to suppress tooltips by request
+- Updated Classic TOC to 1.13.6
+
 v1.7.2:
 - Updated TOC for 9.0.5
 
