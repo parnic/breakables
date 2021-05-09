@@ -14,6 +14,7 @@ end
 
 local WowVer = select(4, GetBuildInfo())
 local IsClassic = WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassicBC = WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 
 local MillingId = 51005
 local MillingItemSubType = babbleInv["Herb"]
@@ -1382,7 +1383,7 @@ function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, i
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
 			-- temp hack for bfa until disenchant item level scales are identified. and for classic until finding the profession level api
-			if WowVer >= 80000 or IsClassic then
+			if WowVer >= 80000 or IsClassic or IsClassicBC then
 				return true
 			end
 
