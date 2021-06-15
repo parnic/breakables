@@ -1,5 +1,6 @@
-vNext:
+v1.8.0:
 - Classic-BC support
+- Added option to hide during pet battles, by request.
 
 v1.7.4:
 - Fix an issue when IsArtifactRelicItem is not defined

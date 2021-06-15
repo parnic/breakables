@@ -245,6 +245,7 @@ function Breakables:OnInitialize()
 			hideEqManagerItems = true,
 			hide = false,
 			hideInCombat = false,
+			hideInPetBattle = true,
 			buttonScale = 1,
 			fontSize = 11,
 			growDirection = 2,
@@ -390,6 +391,11 @@ function Breakables:RegisterEvents()
 	if CanPickLock then
 		self:RegisterEvent("CHAT_MSG_OPENING", "OnBagItemLockPicked")
 	end
+
+	if UnitCanPetBattle then
+		self:RegisterEvent("PET_BATTLE_OPENING_START", "PetBattleStarted")
+		self:RegisterEvent("PET_BATTLE_OVER", "PetBattleEnded")
+	end
 end
 
 function Breakables:OnModifierChanged()
@@ -456,6 +462,16 @@ end
 
 function Breakables:OnBagItemLockPicked()
 	self:FindBreakables()
+end
+
+function Breakables:PetBattleStarted()
+	if self.settings.hideInPetBattle then
+		self:ToggleButtonFrameVisibility(false)
+	end
+end
+
+function Breakables:PetBattleEnded()
+	self:ToggleButtonFrameVisibility(true)
 end
 
 function Breakables:FindLevelOfProfessionIndex(idx)
@@ -759,6 +775,24 @@ function Breakables:GetOptions()
 				order = 22,
 			}
 		end
+	end
+
+	if UnitCanPetBattle then
+		opts.args.hideInPetBattle = {
+			type = "toggle",
+			name = L["Hide during pet battles"],
+			desc = L["Whether or not to hide the breakables bar when you enter a pet battle."],
+			get = function(info)
+				return self.settings.hideInPetBattle
+			end,
+			set = function(info, v)
+				self.settings.hideInPetBattle = v
+				if info.uiType == "cmd" then
+					print("|cff33ff99Breakables|r: set |cffffff78hideInPetBattle|r to " .. tostring(self.settings.hideInPetBattle))
+				end
+			end,
+			order = 3.5,
+		}
 	end
 
 	return opts
