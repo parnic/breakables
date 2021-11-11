@@ -1,3 +1,6 @@
+v1.8.2:
+- Updated TOCs for 9.1.5, Classic, and BCC
+
 v1.8.1:
 - Updated TOC for 9.1
 

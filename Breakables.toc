@@ -1,7 +1,7 @@
-## Interface: 90100
-## Interface-Retail: 90100
-## Interface-Classic: 11306
-## Interface-BCC: 20501
+## Interface: 90105
+## Interface-Retail: 90105
+## Interface-Classic: 11401
+## Interface-BCC: 20502
 ## Author: Parnic
 ## Name: Breakables
 ## Title: Breakables |cff7fff7f-Ace3-|r
