@@ -54,6 +54,7 @@ local AdditionalMillableItems = {
 	168583, -- widowbloom
 	169701, -- death blossom
 	171315, -- nightshade
+	187699, -- first flower, 9.2.0
 }
 
 local AdditionalProspectableItems = {
@@ -73,6 +74,7 @@ local AdditionalProspectableItems = {
 	171830, -- oxxein
 	171831, -- phaedrum
 	171832, -- sinvyr
+	187700, -- progenium ore, 9.2.0
 }
 
 local MassMilling = {
@@ -99,6 +101,7 @@ local MassMilling = {
 	[168583] = 311415,
 	[169701] = 311413,
 	[171315] = 311418,
+	[187699] = 359490,
 }
 
 local HerbCombineItems = {
@@ -186,6 +189,7 @@ local PickableItems = {
 	180532, -- maldraxxi
 	180533, -- kyrian
 	180522, -- night fae
+	186161, -- stygian lockbox, 9.1.0
 }
 local CanPickLock = false
 
