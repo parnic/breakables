@@ -1,3 +1,7 @@
+v1.8.4:
+
+- Updated TOCs
+
 v1.8.3:
 - Updated TOCs, added 9.1 and 9.2 herbs, ore, and lockboxes
 
