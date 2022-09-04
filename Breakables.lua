@@ -13,8 +13,27 @@ if not IsArtifactRelicItem then
 end
 
 local WowVer = select(4, GetBuildInfo())
-local IsClassic = WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-local IsClassicBC = WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+local IsClassic = false
+local IsClassicBC = false
+local IsClassicWrath = false
+if GetClassicExpansionLevel then
+	IsClassic = GetClassicExpansionLevel() == 0
+	IsClassicBC = GetClassicExpansionLevel() == 1
+	IsClassicWrath = GetClassicExpansionLevel() == 2
+else
+	IsClassic = WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+	IsClassicBC = false
+	IsClassicWrath = false
+	if WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+		if not LE_EXPANSION_LEVEL_CURRENT or LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_BURNING_CRUSADE then
+			IsClassicBC = true
+		elseif LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_WRATH_OF_THE_LICH_KING then
+			IsClassicWrath = true
+		end
+	elseif WOW_PROJECT_WRATH_CLASSIC and WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
+		IsClassicWrath = true
+	end
+end
 
 local MillingId = 51005
 local MillingItemSubType = babbleInv["Herb"]
