@@ -1,3 +1,7 @@
+v1.8.6:
+
+- Improve enchanting level detection for Wrath Classic
+
 v1.8.5:
 
 - Wrath Classic compatibility
