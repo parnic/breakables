@@ -517,6 +517,14 @@ function Breakables:GetEnchantingLevel()
 				self.EnchantingLevel = rank
 			end
 		end
+	elseif GetSkillLineInfo then
+		for i=1,100 do
+			local skillName, header, isExpanded, skillRank, numTempPoints, skillModifier, skillMaxRank, isAbandonable, stepCost, rankCost, minLevel, skillCostType = GetSkillLineInfo(i)
+			if skillName == babbleInv["Enchanting"] then
+				self.EnchantingLevel = skillRank
+				break
+			end
+		end
 	end
 end
 
