@@ -521,6 +521,7 @@ function Breakables:GetEnchantingLevel()
 		for i=1,100 do
 			local skillName, header, isExpanded, skillRank, numTempPoints, skillModifier, skillMaxRank, isAbandonable, stepCost, rankCost, minLevel, skillCostType = GetSkillLineInfo(i)
 			if skillName == babbleInv["Enchanting"] then
+				print("found enchanting, setting level to "..skillRank)
 				self.EnchantingLevel = skillRank
 				break
 			end
@@ -1447,8 +1448,13 @@ end
 function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId)
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
-			-- temp hack for bfa until disenchant item level scales are identified. and for classic until finding the profession level api
-			if WowVer >= 80000 or IsClassic or IsClassicBC then
+			-- bfa+ no longer has skill level requirements for disenchanting
+			if WowVer >= 80000 then
+				return true
+			end
+
+			-- if we couldn't figure out the player's enchanting skill level, err on the side of showing stuff
+			if self.EnchantingLevel == 0 then
 				return true
 			end
 
