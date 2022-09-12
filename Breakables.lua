@@ -811,6 +811,25 @@ function Breakables:GetOptions()
 				order = 22,
 			}
 		end
+
+		if not IgnoreEnchantingSkillLevelForDisenchant then
+			opts.args.ignoreEnchantingSkillLevel = {
+				type = "toggle",
+				name = L["Ignore Enchanting skill level"],
+				desc = L["If checked, items won't be hidden if Breakables thinks you don't have the appropriate skill level to disenchant it."],
+				get = function(info)
+					return self.settings.ignoreEnchantingSkillLevel
+				end,
+				set = function(info, v)
+					self.settings.ignoreEnchantingSkillLevel = v
+					self:FindBreakables()
+					if info.uiType == "cmd" then
+						print("|cff33ff99Breakables|r: set |cffffff78ignoreEnchantingSkillLevel|r to " .. tostring(self.settings.ignoreEnchantingSkillLevel))
+					end
+				end,
+				order = 10,
+			}
+		end
 	end
 
 	if UnitCanPetBattle then
@@ -1454,6 +1473,10 @@ function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, i
 		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
 			-- bfa+ no longer has skill level requirements for disenchanting
 			if IgnoreEnchantingSkillLevelForDisenchant then
+				return true
+			end
+
+			if self.settings.ignoreEnchantingSkillLevel then
 				return true
 			end
 
