@@ -35,6 +35,11 @@ else
 	end
 end
 
+local ShouldHookTradeskillUpdate = WowVer < 80000
+local ShouldShowTabardControls = WowVer >= 80000
+local UseNonNativeEqManagerChecks = WowVer < 80000
+local IgnoreEnchantingSkillLevelForDisenchant = WowVer >= 80000
+
 local MillingId = 51005
 local MillingItemSubType = babbleInv["Herb"]
 local MillingItemSecondarySubType = babbleInv["Other"]
@@ -407,7 +412,7 @@ function Breakables:RegisterEvents()
 
 	self:RegisterEvent("MODIFIER_STATE_CHANGED", "FindBreakables")
 
-	if CanDisenchant and WowVer < 80000 then
+	if CanDisenchant and ShouldHookTradeskillUpdate then
 		self:RegisterEvent("TRADE_SKILL_UPDATE", "OnTradeSkillUpdate")
 	end
 
@@ -788,7 +793,7 @@ function Breakables:GetOptions()
 				order = 21,
 			}
 		end
-		if WowVer >= 80000 then
+		if ShouldShowTabardControls then
 			opts.args.hideTabards = {
 				type = "toggle",
 				name = L["Hide Tabards"],
@@ -1382,7 +1387,7 @@ do
 end
 
 function Breakables:IsInEquipmentSet(itemId)
-	if WowVer < 80000 and GetNumEquipmentSets then
+	if UseNonNativeEqManagerChecks and GetNumEquipmentSets then
 		for setIdx=1, GetNumEquipmentSets() do
 			local set = GetEquipmentSetInfo(setIdx)
 			local itemArray = GetEquipmentSetItemIDs(set)
@@ -1448,7 +1453,7 @@ function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, i
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
 			-- bfa+ no longer has skill level requirements for disenchanting
-			if WowVer >= 80000 then
+			if IgnoreEnchantingSkillLevelForDisenchant then
 				return true
 			end
 
