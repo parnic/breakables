@@ -1,6 +1,7 @@
 v1.8.6:
 
 - Improve enchanting level detection for Wrath Classic
+- Add option to ignore enchanting skill level for showing disenchantable items
 
 v1.8.5:
 

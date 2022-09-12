@@ -816,7 +816,7 @@ function Breakables:GetOptions()
 			opts.args.ignoreEnchantingSkillLevel = {
 				type = "toggle",
 				name = L["Ignore Enchanting skill level"],
-				desc = L["If checked, items won't be hidden if Breakables thinks you don't have the appropriate skill level to disenchant it."],
+				desc = L["Whether or not items should be shown when Breakables thinks you don't have the appropriate skill level to disenchant it."],
 				get = function(info)
 					return self.settings.ignoreEnchantingSkillLevel
 				end,
