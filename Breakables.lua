@@ -243,6 +243,7 @@ local BREAKABLE_PICK = 4
 local BREAKABLE_COMBINE = 5
 
 local BagUpdateCheckDelay = 0.1
+local PickLockFinishedDelay = 1
 local nextCheck = {}
 for i=0,NUM_BAG_SLOTS do
 	nextCheck[i] = -1
@@ -261,6 +262,10 @@ local showingTooltip = nil
 
 Breakables.optionsFrame = {}
 Breakables.justClicked = false
+Breakables.justClickedBag = -1
+Breakables.justClickedSlot = -1
+Breakables.justPickedBag = -1
+Breakables.justPickedSlot = -1
 
 function Breakables:OnInitialize()
 	self.defaults = {
@@ -417,7 +422,7 @@ function Breakables:RegisterEvents()
 	end
 
 	if CanPickLock then
-		self:RegisterEvent("CHAT_MSG_OPENING", "OnBagItemLockPicked")
+		self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", "OnSpellCastSucceeded")
 	end
 
 	if UnitCanPetBattle then
@@ -488,8 +493,16 @@ function Breakables:OnTradeSkillUpdate()
 	self:FindBreakables()
 end
 
-function Breakables:OnBagItemLockPicked()
+function Breakables:OnSpellCastSucceeded(evt, unit, guid, spell)
+	if spell ~= PickLockId then
+		return
+	end
+
+	self.justPickedBag = self.justClickedBag
+	self.justPickedSlot = self.justClickedSlot
+
 	self:FindBreakables()
+	nextCheck[0] = GetTime() + PickLockFinishedDelay
 end
 
 function Breakables:PetBattleStarted()
@@ -1212,6 +1225,9 @@ function Breakables:OnLeaveBreakableButton()
 end
 
 function Breakables:PostClickedBreakableButton(this)
+	self.justClickedBag = this.bag
+	self.justClickedSlot = this.slot
+
 	if this.type == BREAKABLE_HERB or this.type == BREAKABLE_ORE or this.type == BREAKABLE_DE or this.type == BREAKABLE_COMBINE then
 		self.justClicked = true
 	end
@@ -1225,12 +1241,17 @@ function Breakables:FindBreakablesInBag(bagId)
 		for slotId=1,GetContainerNumSlots(bagId) do
 			local found = self:FindBreakablesInSlot(bagId, slotId)
 			if found then
-				local addedToExisting = self:MergeBreakables(found, foundBreakables)
+				if bagId ~= self.justPickedBag or slotId ~= self.justPickedSlot then
+					local addedToExisting = self:MergeBreakables(found, foundBreakables)
 
-				if not addedToExisting then
-					foundBreakables[i] = found
-					i = i + 1
+					if not addedToExisting then
+						foundBreakables[i] = found
+						i = i + 1
+					end
 				end
+			elseif bagId == self.justPickedBag and slotId == self.justPickedSlot then
+				self.justPickedBag = -1
+				self.justPickedSlot = -1
 			end
 		end
 	end
