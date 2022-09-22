@@ -17,6 +17,7 @@
 ## OptionalDeps: Ace3, LibBabble-Inventory-3.0, Masque
 ## X-Curse-Project-ID: 16629
 ## X-WoWI-ID: 17929
+## X-Wago-ID: rkGrlA6y
 
 #@no-lib-strip@
 embeds.xml
