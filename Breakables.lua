@@ -412,7 +412,7 @@ function Breakables:SetupButtons()
 		end
 		self.frame:SetScript("OnUpdate", self.frame.OnUpdateFunc)
 	else
-		self:ToggleButtonFrameVisibility(false)
+		self:CreateButtonFrame()
 	end
 end
 
