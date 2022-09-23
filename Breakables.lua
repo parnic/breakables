@@ -932,7 +932,7 @@ function Breakables:CreateButtonFrame()
 			frame:SetHeight(buttonSize)
 
 			frame:EnableMouse(true)
-			frame:RegisterForClicks("LeftButtonUp")
+			frame:RegisterForClicks("LeftButtonUp", "LeftButtonDown")
 
 			if not frame.OnMouseDownFunc then
 				frame.OnMouseDownFunc = function(frame) self:OnMouseDown(frame) end
@@ -1106,7 +1106,7 @@ function Breakables:FindBreakables(bag)
 						btn:SetWidth(buttonSize)
 						btn:SetHeight(buttonSize)
 						btn:EnableMouse(true)
-						btn:RegisterForClicks("AnyUp")
+						btn:RegisterForClicks("LeftButtonUp", "LeftButtonDown")
 
 						btn:SetAttribute("type1", "spell")
 
