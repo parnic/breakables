@@ -1,3 +1,8 @@
+v1.9.0:
+
+- Handle gaining and losing a Breakable skill without requiring a UI reload
+- Update TOC, fix button clicking bug for 10.0
+
 v1.8.7:
 
 - Improve reliability of UI updates after picking lockboxes. There's no good game event for "locked item opened", so this uses some best-guess heuristics to make it function as expected in most cases.
