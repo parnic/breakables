@@ -37,6 +37,7 @@ externals:
 
 ignore:
     - readme.md
+    - FUNDING.yml
 
 manual-changelog: changelog.txt
 
