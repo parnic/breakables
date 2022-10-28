@@ -1106,7 +1106,7 @@ function Breakables:FindBreakables(bag)
 						btn:SetWidth(buttonSize)
 						btn:SetHeight(buttonSize)
 						btn:EnableMouse(true)
-						btn:RegisterForClicks("LeftButtonUp", "LeftButtonDown")
+						btn:RegisterForClicks("AnyUp", "AnyDown")
 
 						btn:SetAttribute("type1", "spell")
 
