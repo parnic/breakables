@@ -609,214 +609,239 @@ function Breakables:GetOptions()
 				name = L["Welcome"],
 				order = 0,
 			},
-			hideAlways = {
-				type = "toggle",
-				name = L["Hide bar"],
-				desc = L["This will completely hide the breakables bar whether you have anything to break down or not. Note that you can toggle this in a macro using the /breakables command as well."],
-				get = function(info)
-					return self.settings.hide
-				end,
-				set = function(info, v)
-					self.settings.hide = v
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.hide))
-					end
-					self:ToggleButtonFrameVisibility(not v)
-					if not v then
-						self:FindBreakables()
-					end
-				end,
-				order = 1
+			mainSettings = {
+				name = L["Settings"],
+				type = "group",
+				order = 1,
+				args = {
+					hideAlways = {
+						type = "toggle",
+						name = L["Hide bar"],
+						desc = L["This will completely hide the breakables bar whether you have anything to break down or not. Note that you can toggle this in a macro using the /breakables command as well."],
+						get = function(info)
+							return self.settings.hide
+						end,
+						set = function(info, v)
+							self.settings.hide = v
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.hide))
+							end
+							self:ToggleButtonFrameVisibility(not v)
+							if not v then
+								self:FindBreakables()
+							end
+						end,
+						order = 1
+					},
+					hideNoBreakables = {
+						type = "toggle",
+						name = L["Hide if no breakables"],
+						desc = L["Whether or not to hide the action bar if no breakables are present in your bags"],
+						get = function(info)
+							return self.settings.hideIfNoBreakables
+						end,
+						set = function(info, v)
+							self.settings.hideIfNoBreakables = v
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78hideIfNoBreakables|r to " .. tostring(self.settings.hideIfNoBreakables))
+							end
+							self:FindBreakables()
+						end,
+						order = 2,
+					},
+					hideInCombat = {
+						type = "toggle",
+						name = L["Hide during combat"],
+						desc = L["Whether or not to hide the breakables bar when you enter combat and show it again when leaving combat."],
+						get = function(info)
+							return self.settings.hideInCombat
+						end,
+						set = function(info, v)
+							self.settings.hideInCombat = v
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78hideInCombat|r to " .. tostring(self.settings.hideInCombat))
+							end
+						end,
+						order = 3,
+					},
+					maxBreakables = {
+						type = 'range',
+						name = L["Max number to display"],
+						desc = L["How many breakable buttons to display next to the profession button at maximum"],
+						min = 1,
+						max = 50,
+						step = 1,
+						get = function(info)
+							return self.settings.maxBreakablesToShow
+						end,
+						set = function(info, v)
+							self.settings.maxBreakablesToShow = v
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.maxBreakablesToShow))
+							end
+							self:FindBreakables()
+						end,
+						order = 4,
+					},
+					buttonScale = {
+						type = 'range',
+						name = L["Button scale"],
+						desc = L["This will scale the size of each button up or down."],
+						min = 0.1,
+						max = 2,
+						step = 0.01,
+						get = function(info)
+							return self.settings.buttonScale
+						end,
+						set = function(info, v)
+							self.settings.buttonScale = v
+							Breakables:ApplyScale()
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78buttonScale|r to " .. tostring(self.settings.buttonScale))
+							end
+						end,
+						order = 5,
+					},
+					fontSize = {
+						type = 'range',
+						name = L["Font size"],
+						desc = L["This sets the size of the text that shows how many items you have to break."],
+						min = 4,
+						max = 90,
+						step = 1,
+						get = function(info)
+							return self.settings.fontSize
+						end,
+						set = function(info, v)
+							self.settings.fontSize = v
+							Breakables:ApplyScale()
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78fontSize|r to " .. tostring(self.settings.fontSize))
+							end
+						end,
+						order = 6,
+					},
+					growDirection = {
+						type = 'select',
+						name = L["Button grow direction"],
+						desc = L["This controls which direction the breakable buttons grow toward."],
+						values = validGrowDirections,
+						get = function()
+							return self.settings.growDirection
+						end,
+						set = function(info, v)
+							self.settings.growDirection = v
+							self:FindBreakables()
+						end,
+						order = 7,
+					},
+					showTooltipForBreakables = {
+						type = "toggle",
+						name = L["Show tooltip on breakables"],
+						desc = L["Whether or not to show an item tooltip when hovering over a breakable item button."],
+						get = function(info)
+							return self.settings.showTooltipForBreakables
+						end,
+						set = function(info, v)
+							self.settings.showTooltipForBreakables = v
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78showTooltipForBreakables|r to " .. tostring(self.settings.showTooltipForBreakables))
+							end
+						end,
+						order = 8,
+					},
+					showTooltipForProfession = {
+						type = "toggle",
+						name = L["Show tooltip on profession"],
+						desc = L["Whether or not to show an item tooltip when hovering over a profession button on the Breakables bar."],
+						get = function(info)
+							return self.settings.showTooltipForProfession
+						end,
+						set = function(info, v)
+							self.settings.showTooltipForProfession = v
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78showTooltipForProfession|r to " .. tostring(self.settings.showTooltipForProfession))
+							end
+						end,
+						order = 9,
+					},
+					ignoreList = {
+						type = 'multiselect',
+						name = L["Ignore list"],
+						desc = L["Items that have been right-clicked to exclude from the breakable list. Un-check the box to remove the item from the ignore list."],
+						get = function(info, key)
+							return true
+						end,
+						set = function(info, key)
+							Breakables.settings.ignoreList[key] = nil
+							Breakables:FindBreakables()
+						end,
+						confirm = function()
+							return L["Are you sure you want to remove this item from the ignore list?"]
+						end,
+						values = GetIgnoreListOptions,
+						hidden = function() return not IsIgnoringAnything() end,
+						order = 30,
+					},
+					clearIgnoreList = {
+						type = 'execute',
+						func = function()
+							for k,v in pairs(Breakables.settings.ignoreList) do
+								Breakables.settings.ignoreList[k] = nil
+							end
+							Breakables:FindBreakables()
+						end,
+						name = L["Clear ignore list"],
+						confirm = function()
+							return L["Are you sure you want to clear the ignore list?"]
+						end,
+						hidden = function() return not IsIgnoringAnything() end,
+						order = 31,
+					},
+					showSoulbound = {
+						type = "toggle",
+						name = L["Show soulbound items"],
+						desc = L["Whether or not to display soulbound items as breakables."],
+						get = function(info)
+							return self.settings.showSoulbound
+						end,
+						set = function(info, v)
+							self.settings.showSoulbound = v
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78showSoulbound|r to " .. tostring(self.settings.showSoulbound))
+							end
+							self:FindBreakables()
+						end,
+						hidden = function()
+							return not CanDisenchant
+						end,
+						order = 20,
+					},
+				},
 			},
-			hideNoBreakables = {
-				type = "toggle",
-				name = L["Hide if no breakables"],
-				desc = L["Whether or not to hide the action bar if no breakables are present in your bags"],
-				get = function(info)
-					return self.settings.hideIfNoBreakables
-				end,
-				set = function(info, v)
-					self.settings.hideIfNoBreakables = v
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78hideIfNoBreakables|r to " .. tostring(self.settings.hideIfNoBreakables))
-					end
-					self:FindBreakables()
-				end,
+			reset = {
+				name = L["Reset"],
+				type = "group",
 				order = 2,
-			},
-			hideInCombat = {
-				type = "toggle",
-				name = L["Hide during combat"],
-				desc = L["Whether or not to hide the breakables bar when you enter combat and show it again when leaving combat."],
-				get = function(info)
-					return self.settings.hideInCombat
-				end,
-				set = function(info, v)
-					self.settings.hideInCombat = v
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78hideInCombat|r to " .. tostring(self.settings.hideInCombat))
-					end
-				end,
-				order = 3,
-			},
-			maxBreakables = {
-				type = 'range',
-				name = L["Max number to display"],
-				desc = L["How many breakable buttons to display next to the profession button at maximum"],
-				min = 1,
-				max = 50,
-				step = 1,
-				get = function(info)
-					return self.settings.maxBreakablesToShow
-				end,
-				set = function(info, v)
-					self.settings.maxBreakablesToShow = v
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.maxBreakablesToShow))
-					end
-					self:FindBreakables()
-				end,
-				order = 4,
-			},
-			buttonScale = {
-				type = 'range',
-				name = L["Button scale"],
-				desc = L["This will scale the size of each button up or down."],
-				min = 0.1,
-				max = 2,
-				step = 0.01,
-				get = function(info)
-					return self.settings.buttonScale
-				end,
-				set = function(info, v)
-					self.settings.buttonScale = v
-					Breakables:ApplyScale()
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78buttonScale|r to " .. tostring(self.settings.buttonScale))
-					end
-				end,
-				order = 5,
-			},
-			fontSize = {
-				type = 'range',
-				name = L["Font size"],
-				desc = L["This sets the size of the text that shows how many items you have to break."],
-				min = 4,
-				max = 90,
-				step = 1,
-				get = function(info)
-					return self.settings.fontSize
-				end,
-				set = function(info, v)
-					self.settings.fontSize = v
-					Breakables:ApplyScale()
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78fontSize|r to " .. tostring(self.settings.fontSize))
-					end
-				end,
-				order = 6,
-			},
-			growDirection = {
-				type = 'select',
-				name = L["Button grow direction"],
-				desc = L["This controls which direction the breakable buttons grow toward."],
-				values = validGrowDirections,
-				get = function()
-					return self.settings.growDirection
-				end,
-				set = function(info, v)
-					self.settings.growDirection = v
-					self:FindBreakables()
-				end,
-				order = 7,
-			},
-			showTooltipForBreakables = {
-				type = "toggle",
-				name = L["Show tooltip on breakables"],
-				desc = L["Whether or not to show an item tooltip when hovering over a breakable item button."],
-				get = function(info)
-					return self.settings.showTooltipForBreakables
-				end,
-				set = function(info, v)
-					self.settings.showTooltipForBreakables = v
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78showTooltipForBreakables|r to " .. tostring(self.settings.showTooltipForBreakables))
-					end
-				end,
-				order = 8,
-			},
-			showTooltipForProfession = {
-				type = "toggle",
-				name = L["Show tooltip on profession"],
-				desc = L["Whether or not to show an item tooltip when hovering over a profession button on the Breakables bar."],
-				get = function(info)
-					return self.settings.showTooltipForProfession
-				end,
-				set = function(info, v)
-					self.settings.showTooltipForProfession = v
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78showTooltipForProfession|r to " .. tostring(self.settings.showTooltipForProfession))
-					end
-				end,
-				order = 9,
-			},
-			ignoreList = {
-				type = 'multiselect',
-				name = L["Ignore list"],
-				desc = L["Items that have been right-clicked to exclude from the breakable list. Un-check the box to remove the item from the ignore list."],
-				get = function(info, key)
-					return true
-				end,
-				set = function(info, key)
-					Breakables.settings.ignoreList[key] = nil
-					Breakables:FindBreakables()
-				end,
-				confirm = function()
-					return L["Are you sure you want to remove this item from the ignore list?"]
-				end,
-				values = GetIgnoreListOptions,
-				hidden = function() return not IsIgnoringAnything() end,
-				order = 30,
-			},
-			clearIgnoreList = {
-				type = 'execute',
-				func = function()
-					for k,v in pairs(Breakables.settings.ignoreList) do
-						Breakables.settings.ignoreList[k] = nil
-					end
-					Breakables:FindBreakables()
-				end,
-				name = L["Clear ignore list"],
-				confirm = function()
-					return L["Are you sure you want to clear the ignore list?"]
-				end,
-				hidden = function() return not IsIgnoringAnything() end,
-				order = 31,
-			},
-			showSoulbound = {
-				type = "toggle",
-				name = L["Show soulbound items"],
-				desc = L["Whether or not to display soulbound items as breakables."],
-				get = function(info)
-					return self.settings.showSoulbound
-				end,
-				set = function(info, v)
-					self.settings.showSoulbound = v
-					if info.uiType == "cmd" then
-						print("|cff33ff99Breakables|r: set |cffffff78showSoulbound|r to " .. tostring(self.settings.showSoulbound))
-					end
-					self:FindBreakables()
-				end,
-				hidden = function()
-					return not CanDisenchant
-				end,
-				order = 20,
+				args = {
+					resetPlacement = {
+						type = "execute",
+						name = L["Reset placement"],
+						desc = L["Resets where the buttons are placed on the screen to the default location."],
+						func = function()
+							self.settings.buttonFrameLeft = self.defaults.profile.buttonFrameLeft
+							self.settings.buttonFrameTop = self.defaults.profile.buttonFrameTop
+							self:CreateButtonFrame()
+						end,
+						order = 30,
+					},
+				},
 			},
 		},
 	}
 
 	if GetNumEquipmentSets or C_EquipmentSet then
-		opts.args.hideEqManagerItems = {
+		opts.args.mainSettings.args.hideEqManagerItems = {
 			type = "toggle",
 			name = L["Hide Eq. Mgr items"],
 			desc = L["Whether or not to hide items that are part of an equipment set in the game's equipment manager."],
@@ -838,7 +863,7 @@ function Breakables:GetOptions()
 	end
 
 	if ShouldShowTabardControls then
-		opts.args.hideTabards = {
+		opts.args.mainSettings.args.hideTabards = {
 			type = "toggle",
 			name = L["Hide Tabards"],
 			desc = L["Whether or not to hide tabards from the disenchantable items list."],
@@ -857,7 +882,7 @@ function Breakables:GetOptions()
 	end
 
 	if not IgnoreEnchantingSkillLevelForDisenchant then
-		opts.args.ignoreEnchantingSkillLevel = {
+		opts.args.mainSettings.args.ignoreEnchantingSkillLevel = {
 			type = "toggle",
 			name = L["Ignore Enchanting skill level"],
 			desc = L["Whether or not items should be shown when Breakables thinks you don't have the appropriate skill level to disenchant it."],
@@ -876,7 +901,7 @@ function Breakables:GetOptions()
 	end
 
 	if UnitCanPetBattle then
-		opts.args.hideInPetBattle = {
+		opts.args.mainSettings.args.hideInPetBattle = {
 			type = "toggle",
 			name = L["Hide during pet battles"],
 			desc = L["Whether or not to hide the breakables bar when you enter a pet battle."],
