@@ -12,10 +12,16 @@ if not IsArtifactRelicItem then
 		return false
 	end
 end
-if C_Container then
+if C_Container.GetBagName then
 	GetBagName = C_Container.GetBagName
+end
+if C_Container.GetContainerNumSlots then
 	GetContainerNumSlots = C_Container.GetContainerNumSlots
+end
+if C_Container.GetContainerItemInfo then
 	GetContainerItemInfo = C_Container.GetContainerItemInfo
+end
+if C_Container.GetContainerItemLink then
 	GetContainerItemLink = C_Container.GetContainerItemLink
 end
 
