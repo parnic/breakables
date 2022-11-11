@@ -5,11 +5,18 @@ local LBF = LibStub("Masque", true)
 
 local lbfGroup
 
-local IsArtifactRelicItem = IsArtifactRelicItem
+local IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink =
+	IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink
 if not IsArtifactRelicItem then
 	IsArtifactRelicItem = function()
 		return false
 	end
+end
+if C_Container then
+	GetBagName = C_Container.GetBagName
+	GetContainerNumSlots = C_Container.GetContainerNumSlots
+	GetContainerItemInfo = C_Container.GetContainerItemInfo
+	GetContainerItemLink = C_Container.GetContainerItemLink
 end
 
 local WowVer = select(4, GetBuildInfo())
