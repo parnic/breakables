@@ -1,6 +1,8 @@
 v1.9.2:
 
 - Dragonflight/10.0.2 compatibility
+- Add ability to reset placement of the bar in case it gets lost somehow.
+- Shuffled settings into their own categories to make accidental resets unlikely.
 
 v1.9.1:
 
