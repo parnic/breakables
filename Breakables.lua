@@ -1059,8 +1059,8 @@ function Breakables:OnMouseUp(frame)
 	self.settings.buttonFrameTop[frameNum] = frame:GetTop()
 end
 
-local function IgnoreFunc(self, button)
-	if button == "RightButton" and not InCombatLockdown() then
+local function IgnoreFunc(self, button, isDown)
+	if button == "RightButton" and isDown and not InCombatLockdown() then
 		Breakables.settings.ignoreList[self.itemId] = true
 		Breakables:FindBreakables()
 		LibStub("AceConfigRegistry-3.0"):NotifyChange("Breakables")

@@ -3,6 +3,7 @@ v1.9.2:
 - Dragonflight/10.0.2 compatibility
 - Add ability to reset placement of the bar in case it gets lost somehow.
 - Shuffled settings into their own categories to make accidental resets unlikely.
+- Fix items being added to the ignore list both on press and release. This would frequently mean that two items would get ignored instead of just the one you wanted to click on.
 
 v1.9.1:
 
