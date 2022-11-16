@@ -27,6 +27,11 @@ if C_Container then
 	end
 end
 
+local EQUIPPED_LAST = EQUIPPED_LAST
+if not EQUIPPED_LAST then
+	EQUIPPED_LAST = INVSLOT_LAST_EQUIPPED
+end
+
 local WowVer = select(4, GetBuildInfo())
 local IsClassic = false
 local IsClassicBC = false
