@@ -20,7 +20,14 @@ if C_Container then
 		GetContainerNumSlots = C_Container.GetContainerNumSlots
 	end
 	if C_Container.GetContainerItemInfo then
-		GetContainerItemInfo = C_Container.GetContainerItemInfo
+		GetContainerItemInfo = function(bagId, slotId)
+			local info = C_Container.GetContainerItemInfo(bagId, slotId)
+			if not info then
+				return nil
+			end
+
+			return info.iconFileID, info.stackCount
+		end
 	end
 	if C_Container.GetContainerItemLink then
 		GetContainerItemLink = C_Container.GetContainerItemLink
@@ -1349,7 +1356,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		self.myTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 	end
 
-	local texture, itemCount, locked, quality, readable = GetContainerItemInfo(bagId, slotId)
+	local texture, itemCount = GetContainerItemInfo(bagId, slotId)
 	if texture then
 		local itemLink = GetContainerItemLink(bagId, slotId)
 		local itemId = self:GetItemIdFromLink(itemLink)
