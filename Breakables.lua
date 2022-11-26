@@ -651,7 +651,7 @@ function Breakables:GetOptions()
 						set = function(info, v)
 							self.settings.hide = v
 							if info.uiType == "cmd" then
-								print("|cff33ff99Breakables|r: set |cffffff78maxBreakables|r to " .. tostring(self.settings.hide))
+								print("|cff33ff99Breakables|r: set |cffffff78hideAlways|r to " .. tostring(self.settings.hide))
 							end
 							self:ToggleButtonFrameVisibility(not v)
 							if not v then
@@ -670,7 +670,7 @@ function Breakables:GetOptions()
 						set = function(info, v)
 							self.settings.hideIfNoBreakables = v
 							if info.uiType == "cmd" then
-								print("|cff33ff99Breakables|r: set |cffffff78hideIfNoBreakables|r to " .. tostring(self.settings.hideIfNoBreakables))
+								print("|cff33ff99Breakables|r: set |cffffff78hideNoBreakables|r to " .. tostring(self.settings.hideIfNoBreakables))
 							end
 							self:FindBreakables()
 						end,
@@ -759,6 +759,9 @@ function Breakables:GetOptions()
 						set = function(info, v)
 							self.settings.growDirection = v
 							self:FindBreakables()
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78growDirection|r to " .. tostring(self.settings.growDirection))
+							end
 						end,
 						order = 7,
 					},
@@ -855,10 +858,13 @@ function Breakables:GetOptions()
 						type = "execute",
 						name = L["Reset placement"],
 						desc = L["Resets where the buttons are placed on the screen to the default location."],
-						func = function()
+						func = function(info)
 							self.settings.buttonFrameLeft = self.defaults.profile.buttonFrameLeft
 							self.settings.buttonFrameTop = self.defaults.profile.buttonFrameTop
 							self:CreateButtonFrame()
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: reset placement of button")
+							end
 						end,
 						order = 30,
 					},
