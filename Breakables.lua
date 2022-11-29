@@ -241,6 +241,8 @@ local PickableItems = {
 	180533, -- kyrian
 	180522, -- night fae
 	186161, -- stygian lockbox, 9.1.0
+	-- dragonflight
+	190954, -- serevite lockbox
 }
 local CanPickLock = false
 
