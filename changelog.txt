@@ -1,3 +1,8 @@
+v1.9.7:
+
+- Add Dragonflight lockboxes.
+- Hide lockboxes that can't be picked because the player's level is too low, where we can detect it (10.0+, toggleable with an option).
+
 v1.9.6:
 
 - Fix lockboxes in 10.0.2
