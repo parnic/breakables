@@ -1514,16 +1514,10 @@ function Breakables:PlayerHasSkillToPickItem(bagId, slotId)
 	end
 
 	TooltipUtil.SurfaceArgs(tooltipData)
-	local inspectNextLine = false
 	for _, line in ipairs(tooltipData.lines) do
 		TooltipUtil.SurfaceArgs(line)
-		if inspectNextLine then
-			inspectNextLine = false
-			if line.leftColor and line.leftColor.r == 1 then
-				return false
-			end
-		elseif line.leftText == LOCKED then
-			inspectNextLine = true
+		if line.leftText == LOCKED then
+			return not (line.leftColor and line.leftColor.r == 1 and line.leftColor.g < 0.2 and line.leftColor.b < 0.2)
 		end
 	end
 
