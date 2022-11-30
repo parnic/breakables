@@ -797,6 +797,25 @@ function Breakables:GetOptions()
 						end,
 						order = 9,
 					},
+					showNonUnlockableItems = {
+						type = 'toggle',
+						name = L['Show high-level lockboxes'],
+						desc = L['If checked, a lockbox that is too high level for the player to pick will still be shown in the list, otherwise it will be hidden.'],
+						get = function(info)
+							return self.settings.showNonUnlockableItems
+						end,
+						set = function(info, v)
+							self.settings.showNonUnlockableItems = v
+							self:FindBreakables()
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78showNonUnlockableItems|r to " .. tostring(self.settings.showNonUnlockableItems))
+							end
+						end,
+						hidden = function()
+							return not CanPickLock or not C_TooltipInfo
+						end,
+						order = 10,
+					},
 					ignoreList = {
 						type = 'multiselect',
 						name = L["Ignore list"],
@@ -1474,12 +1493,39 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		if CanPickLock and self:ItemIsPickable(itemId) and self:ItemIsLocked(bagId, slotId) then
+		if CanPickLock and self:ItemIsPickable(itemId) and self:ItemIsLocked(bagId, slotId) and self:PlayerHasSkillToPickItem(bagId, slotId) then
 			return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_PICK, false, itemName, itemRarity}
 		end
 	end
 
 	return nil
+end
+
+function Breakables:PlayerHasSkillToPickItem(bagId, slotId)
+	if not C_TooltipInfo or self.settings.showNonUnlockableItems then
+		return true
+	end
+
+	local tooltipData = C_TooltipInfo.GetBagItem(bagId, slotId)
+	if not tooltipData then
+		return true
+	end
+
+	TooltipUtil.SurfaceArgs(tooltipData)
+	local inspectNextLine = false
+	for _, line in ipairs(tooltipData.lines) do
+		TooltipUtil.SurfaceArgs(line)
+		if inspectNextLine then
+			inspectNextLine = false
+			if line.leftColor and line.leftColor.r == 1 then
+				return false
+			end
+		elseif line.leftText == LOCKED then
+			inspectNextLine = true
+		end
+	end
+
+	return true
 end
 
 function Breakables:ItemIsPickable(itemId)
