@@ -471,6 +471,8 @@ function Breakables:RegisterEvents()
 
 	self:RegisterEvent("MODIFIER_STATE_CHANGED", "FindBreakables")
 	self:RegisterEvent("SPELLS_CHANGED", "OnSpellsChanged")
+	-- this will show lockboxes if the player gains a level that then enables opening that box
+	self:RegisterEvent("PLAYER_LEVEL_UP", "FindBreakables")
 
 	if ShouldHookTradeskillUpdate then
 		self:RegisterEvent("TRADE_SKILL_UPDATE", "OnTradeSkillUpdate")
