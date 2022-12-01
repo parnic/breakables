@@ -204,6 +204,16 @@ local EnchantingProfessionId = 333
 
 local AdditionalDisenchantableItems = {
 	137195, -- highmountain armor
+	-- dragonflight
+	-- specialization items (Mystics)
+	200939, -- Chromatic Pocketwatch
+	200940, -- Everflowing Inkwell
+	200941, -- Seal of Order
+	200942, -- Vibrant Emulsion
+	200943, -- Whispering Band
+	200945, -- Valiant Hammer
+	200946, -- Thunderous Blade
+	200947, -- Carving of Awakening
 }
 
 local PickLockId = 1804
