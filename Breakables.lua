@@ -1382,8 +1382,45 @@ function Breakables:FindBreakablesInBag(bagId)
 	return foundBreakables
 end
 
+function Breakables:ScanForTooltipLine(tooltipData, ...)
+	if tooltipData then
+		for _, line in ipairs(tooltipData.lines) do
+			if not line then
+				return false
+			end
+			if not line.leftText then
+				return false
+			end
+
+			for j=1,select('#', ...) do
+				if line.leftText == select(j, ...) then
+					return true
+				end
+			end
+		end
+
+		return false
+	end
+
+	for i=1,15 do
+		local leftText = _G["BreakablesTooltipTextLeft"..i]
+		local textLine = leftText and leftText:GetText() or nil
+		if not textLine then
+			return false
+		end
+
+		for j=1,select('#', ...) do
+			if textLine == select(j, ...) then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
 function Breakables:FindBreakablesInSlot(bagId, slotId)
-	if not self.myTooltip then
+	if not C_TooltipInfo and not self.myTooltip then
 		self.myTooltip = CreateFrame("GameTooltip", "BreakablesTooltip", nil, "GameTooltipTemplate")
 		self.myTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 	end
@@ -1398,21 +1435,20 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 
 		local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType, _, equipSlot, itemTexture, vendorPrice = GetItemInfo(itemLink)
 
-		self.myTooltip:SetBagItem(bagId, slotId)
+		local tooltipData
+		if C_TooltipInfo then
+			tooltipData = C_TooltipInfo.GetBagItem(bagId, slotId)
+			TooltipUtil.SurfaceArgs(tooltipData)
+			for _, line in ipairs(tooltipData.lines) do
+				TooltipUtil.SurfaceArgs(line)
+			end
+		else
+			self.myTooltip:SetBagItem(bagId, slotId)
+		end
 
 		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and itemRarity < RARITY_HEIRLOOM
 			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId) then
-			local i = 1
-			local soulbound = false
-			for i=1,15 do
-				if _G["BreakablesTooltipTextLeft"..i] then
-					local textLine = _G["BreakablesTooltipTextLeft"..i]:GetText()
-					if textLine == ITEM_SOULBOUND or textLine == ITEM_ACCOUNTBOUND or textLine == ITEM_BNETACCOUNTBOUND then
-						soulbound = true
-						break
-					end
-				end
-			end
+			local soulbound = self:ScanForTooltipLine(tooltipData, ITEM_SOULBOUND, ITEM_ACCOUNTBOUND, ITEM_BNETACCOUNTBOUND)
 
 			local isInEquipmentSet = false
 			if self.settings.hideEqManagerItems then
@@ -1434,20 +1470,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
-		local idx = 1
-		local millable = false
-		local prospectable = false
-		for idx=1,5 do
-			if _G["BreakablesTooltipTextLeft"..idx] then
-				if _G["BreakablesTooltipTextLeft"..idx]:GetText() == ITEM_MILLABLE then
-					millable = true
-					break
-				elseif _G["BreakablesTooltipTextLeft"..idx]:GetText() == ITEM_PROSPECTABLE then
-					prospectable = true
-					break
-				end
-			end
-		end
+		local millable = self:ScanForTooltipLine(tooltipData, ITEM_MILLABLE)
 
 		if CanMill and not millable then
 			for i=1,#AdditionalMillableItems do
@@ -1457,7 +1480,9 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			end
 		end
 
+		local prospectable
 		if CanProspect then
+			prospectable = self:ScanForTooltipLine(tooltipData, ITEM_PROSPECTABLE)
 			if not prospectable then
 				for i=1,#AdditionalProspectableItems do
 					if AdditionalProspectableItems[i] == itemId then
