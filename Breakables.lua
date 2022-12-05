@@ -514,7 +514,14 @@ function Breakables:OnItemReceived(event, bag)
 	end
 end
 
+local STATE_IDLE, STATE_SCANNING = 0, 1
+local currState = STATE_IDLE
 function Breakables:CheckShouldFindBreakables()
+	if currState == STATE_SCANNING then
+		self:FindBreakables()
+		return
+	end
+
 	local latestTime = -1
 	for i=0,#nextCheck do
 		if nextCheck[i] and nextCheck[i] > latestTime then
@@ -523,10 +530,10 @@ function Breakables:CheckShouldFindBreakables()
 	end
 
 	if latestTime > 0 and latestTime <= GetTime() then
-		self:FindBreakables()
 		for i=0,#nextCheck do
 			nextCheck[i] = -1
 		end
+		self:FindBreakables()
 	end
 end
 
@@ -1119,28 +1126,30 @@ local function IgnoreFunc(self, button, isDown)
 	end
 end
 
-function Breakables:FindBreakables(bag)
-	if self.settings.hide then
-		return
-	end
+do
+	local bagId = 0
+	local updatefunc
+	function Breakables:FindBreakables()
+		if self.settings.hide then
+			return
+		end
 
-	if not canBreakSomething() then
-		return
-	end
+		if not canBreakSomething() then
+			return
+		end
 
-	if self.bCombat then
-		self.bPendingUpdate = true
-		return
-	end
+		if self.bCombat then
+			self.bPendingUpdate = true
+			return
+		end
 
-	local foundBreakables = {}
-	local i=1
-	local numBreakableStacks = {}
+		currState = STATE_SCANNING
+		local foundBreakables = {}
+		local i=1
+		local numBreakableStacks = {}
 
-	for bagId=0,NUM_BAG_SLOTS do
-		-- this is where i tried to throttle updates...can't just yet since the full breakables list is rebuilt every time this function is called
-		-- consider ways of caching off the last-known state of all breakables
-		--if bag == nil or bag == bagId then
+		local maxTime = GetTimePreciseSec() + 0.01
+		while bagId <= NUM_BAG_SLOTS do
 			local found = self:FindBreakablesInBag(bagId)
 			for n=1,#found do
 				local addedToExisting = self:MergeBreakables(found[n], foundBreakables)
@@ -1150,163 +1159,172 @@ function Breakables:FindBreakables(bag)
 					i = i + 1
 				end
 			end
-		--end
-	end
 
-	self:SortBreakables(foundBreakables)
+			bagId = bagId + 1
 
-	if not self.breakableButtons then
-		self.breakableButtons = {}
-	end
-
-	for i=1,#foundBreakables do
-		for j=1,numEligibleProfessions do
-			if not self.breakableButtons[j] then
-				self.breakableButtons[j] = {}
+			if maxTime < GetTimePreciseSec() then
+				return
 			end
+		end
 
-			if not numBreakableStacks[j] then
-				numBreakableStacks[j] = 0
-			end
+		bagId = 0
+		currState = STATE_IDLE
 
-			if (foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_COMBINE and foundBreakables[i][IDX_COUNT] >= 10)) and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
-				local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL], foundBreakables[i][IDX_RARITY], foundBreakables[i][IDX_LINK])
-				local isLockedItem = foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_PICK
+		self:SortBreakables(foundBreakables)
 
-				if (CanDisenchant and isDisenchantable) or (CanPickLock and isLockedItem) or (foundBreakables[i][IDX_COUNT] >= 5) then
-					numBreakableStacks[j] = numBreakableStacks[j] + 1
-					local btnIdx = numBreakableStacks[j]
+		if not self.breakableButtons then
+			self.breakableButtons = {}
+		end
 
-					local btn = self.breakableButtons[j][btnIdx]
-					if not self.breakableButtons[j][btnIdx] then
-						self.breakableButtons[j][btnIdx] = CreateFrame("Button", "BREAKABLES_BUTTON"..j.."-"..btnIdx, self.buttonFrame[j], "SecureActionButtonTemplate")
+		for i=1,#foundBreakables do
+			for j=1,numEligibleProfessions do
+				if not self.breakableButtons[j] then
+					self.breakableButtons[j] = {}
+				end
 
-						btn = self.breakableButtons[j][btnIdx]
+				if not numBreakableStacks[j] then
+					numBreakableStacks[j] = 0
+				end
 
-						if lbfGroup then
-							btn.icon = btn:CreateTexture(btn:GetName().."Icon", "BACKGROUND")
-						end
+				if (foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_COMBINE and foundBreakables[i][IDX_COUNT] >= 10)) and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
+					local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL], foundBreakables[i][IDX_RARITY], foundBreakables[i][IDX_LINK])
+					local isLockedItem = foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_PICK
 
-						btn:SetWidth(buttonSize)
-						btn:SetHeight(buttonSize)
-						btn:EnableMouse(true)
-						btn:RegisterForClicks("AnyUp", "AnyDown")
+					if (CanDisenchant and isDisenchantable) or (CanPickLock and isLockedItem) or (foundBreakables[i][IDX_COUNT] >= 5) then
+						numBreakableStacks[j] = numBreakableStacks[j] + 1
+						local btnIdx = numBreakableStacks[j]
 
-						btn:SetAttribute("type1", "spell")
+						local btn = self.breakableButtons[j][btnIdx]
+						if not self.breakableButtons[j][btnIdx] then
+							self.breakableButtons[j][btnIdx] = CreateFrame("Button", "BREAKABLES_BUTTON"..j.."-"..btnIdx, self.buttonFrame[j], "SecureActionButtonTemplate")
 
-						if not btn.text then
-							btn.text = btn:CreateFontString()
-							btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
-						end
-						btn.text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
+							btn = self.breakableButtons[j][btnIdx]
 
-						btn:HookScript("OnClick", IgnoreFunc)
-
-						if lbfGroup then
-							lbfGroup:AddButton(btn)
-						end
-					end
-
-					btn.itemId = self:GetItemIdFromLink(foundBreakables[i][IDX_LINK])
-
-					local attachFrom = "LEFT"
-					local attachTo = "RIGHT"
-					if self.settings.growDirection then
-						if self.settings.growDirection == 1 then -- left
-							attachFrom = "RIGHT"
-							attachTo = "LEFT"
-						--elseif self.settings.growDirection == 2 then -- right
-						elseif self.settings.growDirection == 3 then -- up
-							attachFrom = "BOTTOM"
-							attachTo = "TOP"
-						elseif self.settings.growDirection == 4 then -- down
-							attachFrom = "TOP"
-							attachTo = "BOTTOM"
-						end
-					end
-
-					btn:ClearAllPoints()
-					btn:SetPoint(attachFrom, btnIdx == 1 and self.buttonFrame[j] or self.breakableButtons[j][btnIdx - 1], attachTo)
-
-					if not isDisenchantable then
-						local appendText = ""
-						if not isLockedItem then
-							local breakStackSize = 5
-							if foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_COMBINE then
-								breakStackSize = 10
+							if lbfGroup then
+								btn.icon = btn:CreateTexture(btn:GetName().."Icon", "BACKGROUND")
 							end
-							appendText = " ("..(floor(foundBreakables[i][IDX_COUNT]/breakStackSize))..")"
+
+							btn:SetWidth(buttonSize)
+							btn:SetHeight(buttonSize)
+							btn:EnableMouse(true)
+							btn:RegisterForClicks("AnyUp", "AnyDown")
+
+							btn:SetAttribute("type1", "spell")
+
+							if not btn.text then
+								btn.text = btn:CreateFontString()
+								btn.text:SetPoint("BOTTOM", btn, "BOTTOM", 0, 2)
+							end
+							btn.text:SetFont(NumberFont_Outline_Med:GetFont(), self.settings.fontSize, "OUTLINE")
+
+							btn:HookScript("OnClick", IgnoreFunc)
+
+							if lbfGroup then
+								lbfGroup:AddButton(btn)
+							end
 						end
 
-						btn.text:SetText(foundBreakables[i][IDX_COUNT] .. appendText)
-					end
+						btn.itemId = self:GetItemIdFromLink(foundBreakables[i][IDX_LINK])
 
-					local BreakableAbilityName = GetSpellInfo(self:GetSpellIdFromProfessionButton(foundBreakables[i][IDX_BREAKABLETYPE], self:GetItemIdFromLink(foundBreakables[i][IDX_LINK])))
-						--GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId)
-						--or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId)
-						--or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_DE and DisenchantId)
-						--or PickLockId)
-					if BreakableAbilityName then
-						btn:SetAttribute("type1", "spell")
-						btn:SetAttribute("spell", BreakableAbilityName)
+						local attachFrom = "LEFT"
+						local attachTo = "RIGHT"
+						if self.settings.growDirection then
+							if self.settings.growDirection == 1 then -- left
+								attachFrom = "RIGHT"
+								attachTo = "LEFT"
+							--elseif self.settings.growDirection == 2 then -- right
+							elseif self.settings.growDirection == 3 then -- up
+								attachFrom = "BOTTOM"
+								attachTo = "TOP"
+							elseif self.settings.growDirection == 4 then -- down
+								attachFrom = "TOP"
+								attachTo = "BOTTOM"
+							end
+						end
 
-						btn:SetAttribute("target-bag", foundBreakables[i][IDX_BAG])
-						btn:SetAttribute("target-slot", foundBreakables[i][IDX_SLOT])
-					else
-						btn:SetAttribute("type1", "item")
-						btn:SetAttribute("item", "item:" .. self:GetItemIdFromLink(foundBreakables[i][IDX_LINK]))
-					end
+						btn:ClearAllPoints()
+						btn:SetPoint(attachFrom, btnIdx == 1 and self.buttonFrame[j] or self.breakableButtons[j][btnIdx - 1], attachTo)
 
-					if lbfGroup then
-						btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
-					else
-						btn:SetNormalTexture(foundBreakables[i][IDX_TEXTURE])
-					end
-					btn.bag = foundBreakables[i][IDX_BAG]
-					btn.slot = foundBreakables[i][IDX_SLOT]
+						if not isDisenchantable then
+							local appendText = ""
+							if not isLockedItem then
+								local breakStackSize = 5
+								if foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_COMBINE then
+									breakStackSize = 10
+								end
+								appendText = " ("..(floor(foundBreakables[i][IDX_COUNT]/breakStackSize))..")"
+							end
 
-					if not btn.OnEnterFunc then
-						btn.OnEnterFunc = function(this) self:OnEnterBreakableButton(this) end
-					end
-					if not btn.OnLeaveFunc then
-						btn.OnLeaveFunc = function() self:OnLeaveBreakableButton() end
-					end
-					if not btn.PostClickedFunc then
-						btn.PostClickedFunc = function(this) self:PostClickedBreakableButton(this) end
-					end
+							btn.text:SetText(foundBreakables[i][IDX_COUNT] .. appendText)
+						end
 
-					btn:SetScript("OnEnter", btn.OnEnterFunc)
-					btn:SetScript("OnLeave", btn.OnLeaveFunc)
-					btn:SetScript("PostClick", btn.PostClickedFunc)
+						local BreakableAbilityName = GetSpellInfo(self:GetSpellIdFromProfessionButton(foundBreakables[i][IDX_BREAKABLETYPE], self:GetItemIdFromLink(foundBreakables[i][IDX_LINK])))
+							--GetSpellInfo((foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_HERB and MillingId)
+							--or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_ORE and ProspectingId)
+							--or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_DE and DisenchantId)
+							--or PickLockId)
+						if BreakableAbilityName then
+							btn:SetAttribute("type1", "spell")
+							btn:SetAttribute("spell", BreakableAbilityName)
 
-					btn:Show()
+							btn:SetAttribute("target-bag", foundBreakables[i][IDX_BAG])
+							btn:SetAttribute("target-slot", foundBreakables[i][IDX_SLOT])
+						else
+							btn:SetAttribute("type1", "item")
+							btn:SetAttribute("item", "item:" .. self:GetItemIdFromLink(foundBreakables[i][IDX_LINK]))
+						end
+
+						if lbfGroup then
+							btn.icon:SetTexture(foundBreakables[i][IDX_TEXTURE])
+						else
+							btn:SetNormalTexture(foundBreakables[i][IDX_TEXTURE])
+						end
+						btn.bag = foundBreakables[i][IDX_BAG]
+						btn.slot = foundBreakables[i][IDX_SLOT]
+
+						if not btn.OnEnterFunc then
+							btn.OnEnterFunc = function(this) self:OnEnterBreakableButton(this) end
+						end
+						if not btn.OnLeaveFunc then
+							btn.OnLeaveFunc = function() self:OnLeaveBreakableButton() end
+						end
+						if not btn.PostClickedFunc then
+							btn.PostClickedFunc = function(this) self:PostClickedBreakableButton(this) end
+						end
+
+						btn:SetScript("OnEnter", btn.OnEnterFunc)
+						btn:SetScript("OnLeave", btn.OnLeaveFunc)
+						btn:SetScript("PostClick", btn.PostClickedFunc)
+
+						btn:Show()
+					end
 				end
 			end
 		end
-	end
 
-	for i=1,numEligibleProfessions do
-		if not numBreakableStacks[i] then
-			numBreakableStacks[i] = 0
-		end
+		for i=1,numEligibleProfessions do
+			if not numBreakableStacks[i] then
+				numBreakableStacks[i] = 0
+			end
 
-		if self.breakableButtons[i] and numBreakableStacks[i] < #self.breakableButtons[i] then
-			for j=numBreakableStacks[i]+1,#self.breakableButtons[i] do
-				self.breakableButtons[i][j]:Hide()
+			if self.breakableButtons[i] and numBreakableStacks[i] < #self.breakableButtons[i] then
+				for j=numBreakableStacks[i]+1,#self.breakableButtons[i] do
+					self.breakableButtons[i][j]:Hide()
+				end
+			end
+
+			if self.buttonFrame[i] then
+				if numBreakableStacks[i] == 0 and self.settings.hideIfNoBreakables then
+					self.buttonFrame[i]:Hide()
+				else
+					self.buttonFrame[i]:Show()
+				end
 			end
 		end
 
-		if self.buttonFrame[i] then
-			if numBreakableStacks[i] == 0 and self.settings.hideIfNoBreakables then
-				self.buttonFrame[i]:Hide()
-			else
-				self.buttonFrame[i]:Show()
-			end
+		if showingTooltip ~= nil then
+			self:OnEnterBreakableButton(showingTooltip)
 		end
-	end
-
-	if showingTooltip ~= nil then
-		self:OnEnterBreakableButton(showingTooltip)
 	end
 end
 

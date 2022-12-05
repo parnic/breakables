@@ -2,6 +2,7 @@ v1.9.8:
 
 - Add Dragonflight Mystic disenchantable items.
 - Fix microstutter every time a modifier key, such as Alt, was pressed.
+- Improve performance when scanning for new breakables (such as when items enter/leave bags, a lockbox is clicked, etc.).
 
 v1.9.7:
 
