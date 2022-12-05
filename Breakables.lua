@@ -479,7 +479,6 @@ function Breakables:RegisterEvents()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEnterCombat")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnLeaveCombat")
 
-	self:RegisterEvent("MODIFIER_STATE_CHANGED", "FindBreakables")
 	self:RegisterEvent("SPELLS_CHANGED", "OnSpellsChanged")
 	-- this will show lockboxes if the player gains a level that then enables opening that box
 	self:RegisterEvent("PLAYER_LEVEL_UP", "FindBreakables")
@@ -493,12 +492,6 @@ function Breakables:RegisterEvents()
 	if UnitCanPetBattle then
 		self:RegisterEvent("PET_BATTLE_OPENING_START", "PetBattleStarted")
 		self:RegisterEvent("PET_BATTLE_OVER", "PetBattleEnded")
-	end
-end
-
-function Breakables:OnModifierChanged()
-	if showingTooltip ~= nil and not self.bCombat then
-		self:OnEnterBreakableButton(showingTooltip)
 	end
 end
 

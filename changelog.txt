@@ -1,3 +1,8 @@
+v1.9.8:
+
+- Add Dragonflight Mystic disenchantable items.
+- Fix microstutter every time a modifier key, such as Alt, was pressed.
+
 v1.9.7:
 
 - Add Dragonflight lockboxes.
