@@ -1129,6 +1129,7 @@ end
 do
 	local bagId = 0
 	local updatefunc
+	local foundBreakables = {}
 	function Breakables:FindBreakables()
 		if self.settings.hide then
 			return
@@ -1143,9 +1144,14 @@ do
 			return
 		end
 
+		if currState ~= STATE_SCANNING then
+			local count = #foundBreakables
+			for i=0, count do
+				foundBreakables[i]=nil
+			end
+		end
 		currState = STATE_SCANNING
-		local foundBreakables = {}
-		local i=1
+		local i=#foundBreakables + 1
 		local numBreakableStacks = {}
 
 		local maxTime = GetTimePreciseSec() + 0.01

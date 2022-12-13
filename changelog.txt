@@ -1,3 +1,7 @@
+v1.9.9
+
+- Fix issue with not updating or showing items in some cases.
+
 v1.9.8:
 
 - Add Dragonflight Mystic disenchantable items.
