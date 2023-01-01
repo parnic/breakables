@@ -1487,7 +1487,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			local shouldHideThisItem = (self.settings.hideEqManagerItems and isInEquipmentSet) or (self.settings.hideTabards and isTabard)
 				or equipSlot == nil or (equipSlot == "" and not IsArtifactRelicItem(itemLink))
 
-			if (not soulbound or self.settings.showSoulbound) and not shouldHideThisItem then
+			if self:IsForcedDisenchantable(itemId) or ((not soulbound or self.settings.showSoulbound) and not shouldHideThisItem) then
 				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName, itemRarity}
 			else
 				return nil
@@ -1683,6 +1683,10 @@ function Breakables:SortBreakables(foundBreakables)
 end
 
 function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId)
+	if not itemId and itemLink then
+		itemId = self:GetItemIdFromLink(itemLink)
+	end
+
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType or IsArtifactRelicItem(itemLink) then
 			-- bfa+ no longer has skill level requirements for disenchanting
@@ -1794,6 +1798,10 @@ function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, i
 		end
 	end
 
+	return self:IsForcedDisenchantable(itemId)
+end
+
+function Breakables:IsForcedDisenchantable(itemId)
 	for i=1,#AdditionalDisenchantableItems do
 		if AdditionalDisenchantableItems[i] == itemId then
 			return true
