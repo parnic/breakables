@@ -199,7 +199,7 @@ local OreCombineItems = {
 
 local DisenchantId = 13262
 local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
-local DisenchantEquipSlots = {"INVTYPE_PROFESSION_GEAR"}
+local DisenchantEquipSlots = {"INVTYPE_PROFESSION_GEAR", "INVTYPE_PROFESSION_TOOL"}
 local CanDisenchant = false
 local EnchantingProfessionId = 333
 

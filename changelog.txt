@@ -1,3 +1,7 @@
+v1.9.12:
+
+- Add detection of Dragonflight profession tools as disenchantable.
+
 v1.9.11:
 
 - Add detection of Dragonflight profession gear as disenchantable.
