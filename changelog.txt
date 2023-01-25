@@ -1,3 +1,7 @@
+v1.9.13:
+
+- Updated TOCs for 10.0.5
+
 v1.9.12:
 
 - Add detection of Dragonflight profession tools as disenchantable.
