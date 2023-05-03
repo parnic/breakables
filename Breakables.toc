@@ -1,5 +1,5 @@
-## Interface: 100007
-## Interface-Retail: 100007
+## Interface: 100100
+## Interface-Retail: 100100
 ## Interface-Classic: 11403
 ## Interface-BCC: 20504
 ## Interface-Wrath: 30401
@@ -14,6 +14,7 @@
 # ## Version: @project-version@
 #@end-non-debug@
 ## SavedVariables: BreakablesDB
+## IconTexture: Interface\Icons\ability_warrior_sunder
 ## OptionalDeps: Ace3, LibBabble-Inventory-3.0, Masque
 ## X-Curse-Project-ID: 16629
 ## X-WoWI-ID: 17929
