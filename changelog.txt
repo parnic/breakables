@@ -1,3 +1,7 @@
+v1.9.16:
+
+- Update TOC for Wrath Classic 3.4.2
+
 v1.9.15:
 
 - Updated TOCs for 10.1.0
