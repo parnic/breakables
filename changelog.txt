@@ -1,3 +1,7 @@
+v1.9.17:
+
+- Update Dragonflight TOC for 10.1.5
+
 v1.9.16:
 
 - Update TOC for Wrath Classic 3.4.2
