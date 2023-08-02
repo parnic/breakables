@@ -1120,11 +1120,32 @@ function Breakables:OnMouseUp(frame)
 	self.settings.buttonFrameTop[frameNum] = frame:GetTop()
 end
 
-local function IgnoreFunc(self, button, isDown)
-	if button == "RightButton" and isDown and not InCombatLockdown() then
-		Breakables.settings.ignoreList[self.itemId] = true
+StaticPopupDialogs["BREAKABLES_CONFIRM_IGNORE"] = {
+	text = L["This will add the chosen item to the ignore list so it no longer appears as breakable. Items can be removed from the ignore list in the Breakables settings.\n\nWould you like to ignore this item?"],
+	button1 = YES,
+	OnShow = function(self)
+		self:SetFrameStrata("TOOLTIP")
+	end,
+	OnHide = function(self)
+		self:SetFrameStrata("DIALOG")
+	end,
+	OnAccept = function(self, data)
+		Breakables.settings.ignoreList[data] = true
 		Breakables:FindBreakables()
 		LibStub("AceConfigRegistry-3.0"):NotifyChange("Breakables")
+	end,
+	button2 = NO,
+	timeout = 0,
+	whileDead = 1,
+	hideOnEscape = 0
+}
+
+local function IgnoreFunc(self, button, isDown)
+	if button == "RightButton" and isDown and not InCombatLockdown() then
+		local dlg = StaticPopup_Show("BREAKABLES_CONFIRM_IGNORE")
+		if dlg then
+			dlg.data = self.itemId
+		end
 	end
 end
 
