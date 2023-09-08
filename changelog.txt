@@ -1,3 +1,8 @@
+v1.9.19:
+
+- Update Dragonflight TOC for 10.1.7
+- Update Classic-era TOC for 1.14.4
+
 v1.9.18:
 
 - Added a confirmation dialog when ignoring breakables, and updated the description to mention the ignore feature.
