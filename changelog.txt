@@ -1,3 +1,7 @@
+v1.9.24:
+
+- Update TOCs
+
 v1.9.23:
 
 - Update Dragonflight TOC for 10.2.5
