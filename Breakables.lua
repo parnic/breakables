@@ -43,14 +43,17 @@ local WowVer = select(4, GetBuildInfo())
 local IsClassic = false
 local IsClassicBC = false
 local IsClassicWrath = false
+local IsClassicCataclysm = false
 if GetClassicExpansionLevel then
 	IsClassic = GetClassicExpansionLevel() == 0
 	IsClassicBC = GetClassicExpansionLevel() == 1
 	IsClassicWrath = GetClassicExpansionLevel() == 2
+	IsClassicCataclysm = GetClassicExpansionLevel() == 3
 else
 	IsClassic = WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 	IsClassicBC = false
 	IsClassicWrath = false
+	IsClassicCataclysm = false
 	if WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
 		if not LE_EXPANSION_LEVEL_CURRENT or LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_BURNING_CRUSADE then
 			IsClassicBC = true
@@ -59,6 +62,8 @@ else
 		end
 	elseif WOW_PROJECT_WRATH_CLASSIC and WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
 		IsClassicWrath = true
+	elseif WOW_PROJECT_CATACLYSM_CLASSIC and WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
+		IsClassicCataclysm = true
 	end
 end
 
