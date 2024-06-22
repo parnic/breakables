@@ -508,7 +508,11 @@ function Breakables:OnDisable()
 end
 
 function Breakables:OnSlashCommand(input)
-	InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
+	if InterfaceOptionsFrame_OpenToCategory then
+		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
+	else
+		Settings.OpenToCategory("Breakables")
+	end
 end
 
 function Breakables:OnItemReceived(event, bag)
