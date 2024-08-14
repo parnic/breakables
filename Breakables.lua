@@ -34,6 +34,25 @@ if C_Container then
 	end
 end
 
+local GetSpellInfo = GetSpellInfo
+if not GetSpellInfo and C_Spell and C_Spell.GetSpellInfo then
+	GetSpellInfo = function(id)
+		if not id then
+			return nil
+		end
+
+		local info = C_Spell.GetSpellInfo(id)
+		if info then
+			return info.name, nil, info.iconID
+		end
+	end
+end
+
+local IsUsableSpell = IsUsableSpell
+if not IsUsableSpell and C_Spell and C_Spell.IsSpellUsable then
+	IsUsableSpell = C_Spell.IsSpellUsable
+end
+
 local EQUIPPED_LAST = EQUIPPED_LAST
 if not EQUIPPED_LAST then
 	EQUIPPED_LAST = INVSLOT_LAST_EQUIPPED

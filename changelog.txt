@@ -1,3 +1,7 @@
+v1.10.2:
+
+- Fix error from 11.0.2
+
 v1.10.1:
 
 - Update Classic-era TOC for 1.15.3
