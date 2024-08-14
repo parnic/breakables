@@ -1,3 +1,7 @@
+v1.10.3:
+
+- Fix another error from 11.0.2
+
 v1.10.2:
 
 - Fix error from 11.0.2

@@ -1513,9 +1513,11 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		local tooltipData
 		if C_TooltipInfo then
 			tooltipData = C_TooltipInfo.GetBagItem(bagId, slotId)
-			TooltipUtil.SurfaceArgs(tooltipData)
-			for _, line in ipairs(tooltipData.lines) do
-				TooltipUtil.SurfaceArgs(line)
+			if TooltipUtil and TooltipUtil.SurfaceArgs then
+				TooltipUtil.SurfaceArgs(tooltipData)
+				for _, line in ipairs(tooltipData.lines) do
+					TooltipUtil.SurfaceArgs(line)
+				end
 			end
 		else
 			self.myTooltip:SetBagItem(bagId, slotId)
@@ -1616,9 +1618,13 @@ function Breakables:PlayerHasSkillToPickItem(bagId, slotId)
 		return true
 	end
 
-	TooltipUtil.SurfaceArgs(tooltipData)
+	if TooltipUtil and TooltipUtil.SurfaceArgs then
+		TooltipUtil.SurfaceArgs(tooltipData)
+	end
 	for _, line in ipairs(tooltipData.lines) do
-		TooltipUtil.SurfaceArgs(line)
+		if TooltipUtil and TooltipUtil.SurfaceArgs then
+			TooltipUtil.SurfaceArgs(line)
+		end
 		if line.leftText == LOCKED then
 			return not (line.leftColor and line.leftColor.r == 1 and line.leftColor.g < 0.2 and line.leftColor.b < 0.2)
 		end
