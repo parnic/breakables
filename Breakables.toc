@@ -3,7 +3,7 @@
 ## Interface-Classic: 11503
 ## Interface-BCC: 20504
 ## Interface-Wrath: 30403
-## Interface-Cata: 40400
+## Interface-Cata: 40401
 ## Author: Parnic
 ## Name: Breakables
 ## Title: Breakables |cff7fff7f-Ace3-|r
