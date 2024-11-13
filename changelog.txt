@@ -1,3 +1,9 @@
+v1.10.4:
+
+- Update Cataclysm Classic TOC to 4.4.1
+- Update Classic-era TOC for 1.15.4
+- Update TWW TOC for 11.0.5
+
 v1.10.3:
 
 - Fix another error from 11.0.2
