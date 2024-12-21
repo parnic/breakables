@@ -1,3 +1,7 @@
+v1.10.5:
+
+- Update TOCs
+
 v1.10.4:
 
 - Update Cataclysm Classic TOC to 4.4.1
