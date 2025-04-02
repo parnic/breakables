@@ -1,3 +1,7 @@
+v1.10.7:
+
+- Update TOCs
+
 v1.10.6:
 
 - Update TOCs
