@@ -1705,7 +1705,12 @@ function Breakables:IsInEquipmentSet(itemId)
 end
 
 function Breakables:GetItemIdFromLink(itemLink)
-	local _, foundItemId = strsplit(":", itemLink)
+	local _, num1, num2 = strsplit(":", itemLink)
+	local foundItemId = num1
+	-- support new item link format that adds a new : section in front
+	if not tonumber(foundItemId) then
+		foundItemId = num2
+	end
 	return tonumber(foundItemId)
 end
 
@@ -1730,7 +1735,7 @@ function Breakables:SortBreakables(foundBreakables)
 		local iId = self:GetItemIdFromLink(foundBreakables[i][IDX_LINK])
 		for j=i,#foundBreakables do
 			local jId = self:GetItemIdFromLink(foundBreakables[j][IDX_LINK])
-			if iId < jId then
+			if iId > jId then
 				local temp = foundBreakables[i]
 				foundBreakables[i] = foundBreakables[j]
 				foundBreakables[j] = temp

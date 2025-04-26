@@ -1,3 +1,8 @@
+v1.10.8:
+
+- Support WoW 11.1.5 (fixes #15)
+- Update TOC
+
 v1.10.7:
 
 - Update TOCs
