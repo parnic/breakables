@@ -5,8 +5,8 @@ local LBF = LibStub("Masque", true)
 
 local lbfGroup
 
-local IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink =
-	IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink
+local IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink
+	= IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink
 if not IsArtifactRelicItem then
 	IsArtifactRelicItem = function()
 		return false
@@ -51,6 +51,11 @@ end
 local IsUsableSpell = IsUsableSpell
 if not IsUsableSpell and C_Spell and C_Spell.IsSpellUsable then
 	IsUsableSpell = C_Spell.IsSpellUsable
+end
+
+local IsPlayerSpell = IsPlayerSpell
+if not IsPlayerSpell and C_SpellBook then
+	IsPlayerSpell = C_SpellBook.IsSpellKnown
 end
 
 local EQUIPPED_LAST = EQUIPPED_LAST

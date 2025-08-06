@@ -1,3 +1,8 @@
+v1.10.11:
+
+- Support WoW 11.2.0
+- Update TWW TOC to 11.2.0
+
 v1.10.10:
 
 - Support Mists of Pandaria Classic 5.5.0
