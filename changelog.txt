@@ -1,3 +1,7 @@
+v1.10.12:
+
+- Update TOCs
+
 v1.10.11:
 
 - Support WoW 11.2.0
