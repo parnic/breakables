@@ -434,7 +434,7 @@ function Breakables:OnEnable()
 	self.EnchantingLevel = 0
 
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Breakables", self:GetOptions(), "breakables")
-	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
+	self.optionsFrame, self.settingsCategoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Breakables")
 
 	if LBF then
 		LBF:Register("Breakables", self.ButtonFacadeCallback, self)
@@ -535,7 +535,7 @@ function Breakables:OnSlashCommand(input)
 	if InterfaceOptionsFrame_OpenToCategory then
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
 	else
-		Settings.OpenToCategory("Breakables")
+		Settings.OpenToCategory(self.settingsCategoryID)
 	end
 end
 
