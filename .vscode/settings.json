@@ -1,0 +1,38 @@
+{
+    "Lua.runtime.version": "Lua 5.1",
+    "Lua.runtime.builtin": {
+        "basic": "disable",
+        "debug": "disable",
+        "io": "disable",
+        "math": "disable",
+        "os": "disable",
+        "package": "disable",
+        "string": "disable",
+        "table": "disable",
+        "utf8": "disable"
+    },
+    "Lua.workspace.library": [
+        "~\\.vscode\\extensions\\ketho.wow-api-0.21.0\\Annotations\\Core"
+    ],
+    "Lua.type.weakUnionCheck": true,
+    "Lua.diagnostics.globals": [
+        "NUM_BAG_SLOTS",
+        "StaticPopupDialogs",
+        "INVSLOT_LAST_EQUIPPED",
+        "YES",
+        "NO",
+        "WorldFrame",
+        "TooltipUtil",
+        "Settings",
+        "LOCKED",
+        "LE_EXPANSION_LEVEL_CURRENT",
+        "LE_EXPANSION_WRATH_OF_THE_LICH_KING",
+        "StaticPopup_Show",
+        "LE_EXPANSION_BURNING_CRUSADE",
+        "ITEM_MILLABLE",
+        "ITEM_SOULBOUND",
+        "ITEM_ACCOUNTBOUND",
+        "ITEM_BNETACCOUNTBOUND",
+        "ITEM_PROSPECTABLE"
+    ]
+}
