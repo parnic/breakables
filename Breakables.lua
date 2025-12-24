@@ -598,6 +598,10 @@ function Breakables:OnTradeSkillUpdate()
 end
 
 function Breakables:OnSpellCastSucceeded(evt, unit, guid, spell)
+	if issecretvalue and issecretvalue(spell) then
+		return
+	end
+
 	if spell ~= PickLockId or not CanPickLock then
 		return
 	end
