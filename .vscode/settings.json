@@ -16,6 +16,7 @@
     ],
     "Lua.type.weakUnionCheck": true,
     "Lua.diagnostics.globals": [
+        "canaccessvalue",
         "EQUIPPED_LAST",
         "GetBagName",
         "GetContainerItemInfo",

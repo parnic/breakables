@@ -601,7 +601,11 @@ function Breakables:OnTradeSkillUpdate()
 end
 
 function Breakables:OnSpellCastSucceeded(evt, unit, guid, spell)
-	if issecretvalue and issecretvalue(spell) then
+	if unit ~= self.unit then
+		return
+	end
+
+	if canaccessvalue and not canaccessvalue(spell) then
 		return
 	end
 
