@@ -53,6 +53,7 @@ if not IsUsableSpell and C_Spell and C_Spell.IsSpellUsable then
 	IsUsableSpell = C_Spell.IsSpellUsable
 end
 
+---@diagnostic disable-next-line: deprecated
 local IsPlayerSpell = IsPlayerSpell
 if not IsPlayerSpell and C_SpellBook then
 	IsPlayerSpell = C_SpellBook.IsSpellKnown
@@ -402,7 +403,9 @@ function Breakables:InitLDB()
 
 		if ldbButton then
 			function ldbButton:OnTooltipShow()
+				---@diagnostic disable-next-line: undefined-field
 				self:AddLine(L["Breakables"] .. " @project-version@")
+				---@diagnostic disable-next-line: undefined-field
 				self:AddLine(L["Click to open Breakables options."], 1, 1, 1)
 			end
 		end
@@ -658,6 +661,7 @@ local function GetIgnoreListOptions()
 	local ret = {}
 
 	for k,v in pairs(Breakables.settings.ignoreList) do
+		---@diagnostic disable-next-line: deprecated
 		local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(k)
 		if texture ~= nil and name ~= nil then
 			ret[k] = ("|T%s:0|t %s"):format(texture, name)
@@ -1517,6 +1521,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			return nil
 		end
 
+		---@diagnostic disable-next-line: deprecated
 		local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType, _, equipSlot, itemTexture, vendorPrice = GetItemInfo(itemLink)
 
 		local tooltipData
