@@ -26,11 +26,9 @@
         "GetEquipmentSetItemIDs",
         "GetNumEquipmentSets",
         "GetSkillLineInfo",
-        "GetSpellInfo",
         "InterfaceOptionsFrame_OpenToCategory",
         "INVSLOT_LAST_EQUIPPED",
         "issecretvalue",
-        "IsUsableSpell",
         "ITEM_ACCOUNTBOUND",
         "ITEM_BNETACCOUNTBOUND",
         "ITEM_MILLABLE",
@@ -47,6 +45,6 @@
         "StaticPopupDialogs",
         "TooltipUtil",
         "WorldFrame",
-        "YES",
+        "YES"
     ]
 }
