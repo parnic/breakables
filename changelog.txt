@@ -1,3 +1,7 @@
+Unreleased:
+
+- Update TBC Anniversary TOC
+
 v1.11.0:
 
 - Support WoW 12.0.0 Midnight
