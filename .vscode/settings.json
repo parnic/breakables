@@ -45,6 +45,8 @@
         "StaticPopupDialogs",
         "TooltipUtil",
         "WorldFrame",
-        "YES"
+        "YES",
+        "IsUsableSpell",
+        "GetSpellInfo"
     ]
 }
