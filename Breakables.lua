@@ -284,6 +284,12 @@ local PickableItems = {
 	186161, -- stygian lockbox, 9.1.0
 	-- dragonflight
 	190954, -- serevite lockbox
+	191296,
+	204307,
+	-- war within
+	220376, -- bismuth lockbox
+	-- midnight
+	264475, -- umbral tin
 }
 local CanPickLock = false
 
