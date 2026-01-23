@@ -36,6 +36,9 @@ jobs:
         with:
           fetch-depth: 0  # gets git history for changelogs
 
+      - name: "Build Short Changelog"
+        run: sudo chmod +x ./build/create-short-changelog.sh && ./build/create-short-changelog.sh
+
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
         uses: BigWigsMods/packager@v2
