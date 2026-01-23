@@ -1,149 +1,151 @@
-v1.11.2:
+# Changelog
+
+## v1.11.2
 
 - Update TOC for Midnight release.
 
-v1.11.1:
+## v1.11.1
 
 - Update TBC Anniversary TOC
 
-v1.11.0:
+## v1.11.0
 
 - Support WoW 12.0.0 Midnight
 - Fix /brk command not opening to Settings correctly
 
-v1.10.14:
+## v1.10.14
 
 - Update MoP Classic TOC
 
-v1.10.13:
+## v1.10.13
 
 - Update TOCs
 
-v1.10.12:
+## v1.10.12
 
 - Update TOCs
 
-v1.10.11:
+## v1.10.11
 
 - Support WoW 11.2.0
 - Update TWW TOC to 11.2.0
 
-v1.10.10:
+## v1.10.10
 
 - Support Mists of Pandaria Classic 5.5.0
 - Switched the packaging method to release one version of the addon compatible with all game clients rather than separate packages per client type
 
-v1.10.9:
+## v1.10.9
 
 - Update TOC
 
-v1.10.8:
+## v1.10.8
 
 - Support WoW 11.1.5 (fixes #15)
 - Update TOC
 
-v1.10.7:
+## v1.10.7
 
 - Update TOCs
 
-v1.10.6:
+## v1.10.6
 
 - Update TOCs
 
-v1.10.5:
+## v1.10.5
 
 - Update TOCs
 
-v1.10.4:
+## v1.10.4
 
 - Update Cataclysm Classic TOC to 4.4.1
 - Update Classic-era TOC for 1.15.4
 - Update TWW TOC for 11.0.5
 
-v1.10.3:
+## v1.10.3
 
 - Fix another error from 11.0.2
 
-v1.10.2:
+## v1.10.2
 
 - Fix error from 11.0.2
 
-v1.10.1:
+## v1.10.1
 
 - Update Classic-era TOC for 1.15.3
 - Update TOC for TWW
 
-v1.10.0:
+## v1.10.0
 
 - Support The War Within/11.0
 
-v1.9.26:
+## v1.9.26
 
 - Update Dragonflight TOC for 10.2.7
 
-v1.9.25:
+## v1.9.25
 
 - Support Cataclysm Classic 4.4.0
 
-v1.9.24:
+## v1.9.24
 
 - Update TOCs
 
-v1.9.23:
+## v1.9.23
 
 - Update Dragonflight TOC for 10.2.5
 
-v1.9.22:
+## v1.9.22
 
 - Update Classic-era TOC for 1.15.0
 
-v1.9.21:
+## v1.9.21
 
 - Update Dragonflight TOC for 10.2.0
 
-v1.9.20:
+## v1.9.20
 
 - Update Wrath-Classic TOC for 3.4.3
 
-v1.9.19:
+## v1.9.19
 
 - Update Dragonflight TOC for 10.1.7
 - Update Classic-era TOC for 1.14.4
 
-v1.9.18:
+## v1.9.18
 
 - Added a confirmation dialog when ignoring breakables, and updated the description to mention the ignore feature.
 
-v1.9.17:
+## v1.9.17
 
 - Update Dragonflight TOC for 10.1.5
 
-v1.9.16:
+## v1.9.16
 
 - Update TOC for Wrath Classic 3.4.2
 
-v1.9.15:
+## v1.9.15
 
 - Updated TOCs for 10.1.0
 - Added icon for 10.1.0
 
-v1.9.14:
+## v1.9.14
 
 - Updated TOCs for 10.0.7
 
-v1.9.13:
+## v1.9.13
 
 - Updated TOCs for 10.0.5
 
-v1.9.12:
+## v1.9.12
 
 - Add detection of Dragonflight profession tools as disenchantable.
 
-v1.9.11:
+## v1.9.11
 
 - Add detection of Dragonflight profession gear as disenchantable.
 
-v1.9.10:
+## v1.9.10
 
 - Add Dragonflight Mystic disenchantable items. (Fixed)
 
@@ -151,148 +153,172 @@ v1.9.9
 
 - Fix issue with not updating or showing items in some cases.
 
-v1.9.8:
+## v1.9.8
 
 - Fix microstutter every time a modifier key, such as Alt, was pressed.
 - Improve performance when scanning for new breakables (such as when items enter/leave bags, a lockbox is clicked, etc.).
 
-v1.9.7:
+## v1.9.7
 
 - Add Dragonflight lockboxes.
 - Hide lockboxes that can't be picked because the player's level is too low, where we can detect it (10.0+, toggleable with an option).
 
-v1.9.6:
+## v1.9.6
 
 - Fix lockboxes in 10.0.2
 
-v1.9.5:
+## v1.9.5
 
 - Fix another error from 10.0.2
 
-v1.9.4:
+## v1.9.4
 
 - Update TOC for 10.0.2
 
-v1.9.3:
+## v1.9.3
 
 - Fix error on 10.0.0
 
-v1.9.2:
+## v1.9.2
 
 - Dragonflight/10.0.2 compatibility
 - Add ability to reset placement of the bar in case it gets lost somehow.
 - Shuffled settings into their own categories to make accidental resets unlikely.
 - Fix items being added to the ignore list both on press and release. This would frequently mean that two items would get ignored instead of just the one you wanted to click on.
 
-v1.9.1:
+## v1.9.1
 
 - Fix right-click ignore functionality after the upgrade to 10.0.
 
-v1.9.0:
+## v1.9.0
 
 - Handle gaining and losing a Breakable skill without requiring a UI reload
 - Update TOC, fix button clicking bug for 10.0
 
-v1.8.7:
+## v1.8.7
 
 - Improve reliability of UI updates after picking lockboxes. There's no good game event for "locked item opened", so this uses some best-guess heuristics to make it function as expected in most cases.
 
-v1.8.6:
+## v1.8.6
 
 - Improve enchanting level detection for Wrath Classic
 - Add option to ignore enchanting skill level for showing disenchantable items
 
-v1.8.5:
+## v1.8.5
 
 - Wrath Classic compatibility
 - Updated TOCs
 
-v1.8.4:
+## v1.8.4
 
 - Updated TOCs
 
-v1.8.3:
+## v1.8.3
+
 - Updated TOCs, added 9.1 and 9.2 herbs, ore, and lockboxes
 
-v1.8.2:
+## v1.8.2
+
 - Updated TOCs for 9.1.5, Classic, and BCC
 
-v1.8.1:
+## v1.8.1
+
 - Updated TOC for 9.1
 
-v1.8.0:
+## v1.8.0
+
 - Classic-BC support
 - Added option to hide during pet battles, by request.
 
-v1.7.4:
+## v1.7.4
+
 - Fix an issue when IsArtifactRelicItem is not defined
 
-v1.7.3:
+## v1.7.3
+
 - Add option to suppress tooltips by request
 - Updated Classic TOC to 1.13.6
 
-v1.7.2:
+## v1.7.2
+
 - Updated TOC for 9.0.5
 
-v1.7.1:
+## v1.7.1
+
 - Updated TOC to latest
 
-v1.7.0:
+## v1.7.0
+
 - Added Shadowlands herbs, ore, and lockboxes
 - Updated TOC for 9.0
 
-v1.6.4:
+## v1.6.4
+
 - Updated TOC for 8.3
 
-v1.6.3:
+## v1.6.3
+
 - (Classic) Made all items display as disenchantable whether you have the skill for it or not. I have not yet found the correct way to access the player's Enchanting profession level to check against item level for disenchant validity.
 
-v1.6.2:
+## v1.6.2
+
 - Added 8.2's lockboxes
 
-v1.6.1:
+## v1.6.1
+
 - Added patch 8.2's new herb and ore
 
-v1.6:
+## v1.6
+
 - Updated TOC for 8.2
 
-v1.5.1:
+## v1.5.1
+
 - Updated TOC for 8.1
 - Added Highmountain Armor as a disenchantable item
 
-v1.5:
+## v1.5
+
 - Updated TOC for 8.0
 - Added BfA herbs and ore
 - Fixed separate items sometimes showing up as one breakable
 - Added Leystone Lockbox
 
-v1.4.9.1:
+## v1.4.9.1
+
 - Added 7.3 herbs and ore
 
-v1.4.9:
+## v1.4.9
+
 - Updated TOC for 7.3
 
-v1.4.8:
+## v1.4.8
+
 - Fixed error in ignored items when the ignored item had not been loaded by the server since the last restart.
 - Updated TOC for 7.2
 
-v1.4.7:
+## v1.4.7
+
 - Fixed up milling herbs that the player knows Mass Milling for. Since Mass Mill is a profession ability and not a player ability/"spell", the addon can't currently automatically cast Mass Milling.
 
-v1.4.6:
+## v1.4.6
+
 - Added MoP Sparkling Shard as a combinable object.
 - Added support for registering artifact relics as disenchantable.
 - Added an ignore feature so certain items can be set to never show up as breakable.
 
-v1.4.5:
+## v1.4.5
+
 - Updated TOC for 7.1
 
-v1.4.4:
+## v1.4.4
+
 - Cap the disenchantable item rarity for Legion items at Epic (so we don't show the player's artifact weapon as disenchantable).
 - Automatically update the tooltip when the breakable list is updated while the player is hovering over a breakable item button.
 - Update the tooltip when the player presses Shift so that disenchantable items show what the player currently has equipped to compare against quickly.
 
-v1.4.3:
+## v1.4.3
+
 - Fixed up Mass Milling support.
 - Fixed the mod accidentally trying to break the wrong stack of something if, for example, you had a smaller stack placed in front of a larger stack in your bags.
 - Fixed the mod sometimes failing to break something if you had 2 similarly-named items in your bags in a specific order (Whiptail Stems in front of Whiptails, for example).
@@ -300,90 +326,115 @@ v1.4.3:
 - Made the breakable bar respond to changes much faster so it's less frustrating to work with.
 - Added support for combining items that then result in more breakables ("broken"/"stem" versions of herbs which can be combined into their proper breakable types) so it can all be done from the Breakables bar.
 
-v1.4.2:
+## v1.4.2
+
 - Added support for Legion ore since the ore items don't match previous expansions.
 
-v1.4.1:
+## v1.4.1
+
 - Added support for Mass Milling. Mass Milling of a particular herb type will be automatically chosen when clicking on an herb type if that herb is eligible for mass milling and the player knows that mass milling spell.
 - Added support for Legion herbs
 
-v1.4:
+## v1.4
+
 - Updated TOC for patch 7.0
 
-v1.3.21:
+## v1.3.21
+
 - Updated TOC for patch 6.2
 - Cleared the tooltip after successfully breaking an item so that we don't keep stale tooltips around.
 
-v1.3.20:
+## v1.3.20
+
 - Updated TOC for patch 6.1
 
-v1.3.19:
+## v1.3.19
+
 - Stopped True Iron Ore from showing up as prospectable.
 
-v1.3.18:
+## v1.3.18
+
 - Changed garrison follower armor items to not show up as disenchantable.
 
-v1.3.17:
+## v1.3.17
+
 - Revised WoD herb fix such that it doesn't cause the game to flag false positives on herbs that are not millable.
 
-v1.3.16:
+## v1.3.16
+
 - Made WoD herbs show up as millable. They weren't showing up before because they don't contain the "millable" text in the tooltip like every other herb in the game does.
 
-v1.3.15:
+## v1.3.15
+
 - Switched from LibButtonFacade to Masque (ticket #20).
 
-v1.3.14:
+## v1.3.14
+
 - Added WoD lockboxes/junkboxes. Oops.
 
-v1.3.13:
+## v1.3.13
+
 - Updated TOC for patch 6.0
 
-v1.3.12:
+## v1.3.12
+
 - Updated TOC for patch 5.4
 - Make sure to update the breakables list whenever a tracked tradeskill is updated in case we can then break down new items (right now, that's only enchanting).
 - Added option to hide tabards from the list of breakables. (ticket #16)
 - Only display items the player is capable of disenchanting.
 - Suppress account-bound and bnet-account-bound items when "show soulbound items" is unchecked.
 
-v1.3.11:
+## v1.3.11
+
 - fixed soulbound items not being ignored sometimes despite the option being checked
 - added lockboxes to the pickable items list
 
-v1.3.10:
+## v1.3.10
+
 - updated TOC for patch 5.3
 
-v1.3.9:
+## v1.3.9
+
 - updated TOC for patch 5.2
 
-v1.3.8:
+## v1.3.8
+
 - updated TOC for patch 5.1
 
-v1.3.7:
+## v1.3.7
+
 - fixed recognition of MoP junkboxes, herbs, and ore
 
-v1.3.6:
+## v1.3.6
+
 - updated TOC for patch 5.0.4
 
-v1.3.5:
+## v1.3.5
+
 - updated TOC for patch 4.3
 
-v1.3.4:
+## v1.3.4
+
 - updated TOC for patch 4.2
 
-v1.3.3:
+## v1.3.3
+
 - updated TOC for patch 4.1
 - ticket #10: look through the first 5 lines of the tooltip to find "millable" or "prospectable" instead of requiring it to be on line 2
 - moved LibButtonFacade's Group:Skin call from :OnInitialize() to :OnEnable(). apparently OnInitialize is too soon and causes the custom skin to get overwritten. (ticket #9)
 - added tracking for rogue junkboxes (obtained via 'pick pocket'). clicking the junkbox will automatically unlock it
 - shortened the delay for processing items after a BAG_UPDATE to 1 second (from 1.5)
 
-v1.3.2:
+## v1.3.2
+
 - properly parented the Breakables frame to UIParent so that it will go away when the user presses alt-z (thanks slayman). note that this change makes the Breakables frame use the UI Scale specified in video settings so it may initially not be in the same location you last set it to and could be a different size.
 
-v1.3.1:
+## v1.3.1
+
 - fixed a bug where the tooltip could be completely wrong or empty sometimes
 
-v1.3:
+## v1.3
+
 - fixed an error about AceGUI and AceConfigDialog that were showing up on load in certain situations
 - minor garbage/performance fixes
 - added spell tooltip to profession button
@@ -392,13 +443,16 @@ v1.3:
 - enabled new target-item/spell attributes for secure buttons instead of hacking together a macro
 - don't show heirloom items as disenchantable
 
-v1.2.2:
+## v1.2.2
+
 - fixed bar position not being saved/restored properly when moved out of the upper left section of the screen
 
-v1.2.1:
+## v1.2.1
+
 - fixed reported error message
 
-v1.2:
+## v1.2
+
 - created one bar per profession for the case where someone has some combination of inscription, enchanting, and jewelcrafting
 - set bar to update immediately after clicking an item to break it instead of waiting the 1.5 seconds. it was making life harder for mass breaking
 - added button scale and font size options
@@ -410,5 +464,6 @@ v1.2:
 - added short description to the config page explaining the functionality in the mod and how to get support/request features
 - made all slash commands print something back to the user so they know what they changed
 
-v1.1:
+## v1.1
+
 - added ability to hide soulbound disenchantable items that are part of an equipment manager set (since some quest rewards and such are soulbound but the player doesn't actually use them)

@@ -38,7 +38,10 @@ externals:
 ignore:
     - readme.md
     - FUNDING.yml
+    - build
 
-manual-changelog: changelog.txt
+manual-changelog:
+    filename: changelog.short.md
+    markup-type: markdown
 
 enable-nolib-creation: yes
