@@ -1569,11 +1569,21 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 
 		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and itemRarity < RARITY_HEIRLOOM
 			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId, equipSlot) then
-			local soulbound = self:ScanForTooltipLine(tooltipData, ITEM_SOULBOUND, ITEM_ACCOUNTBOUND, ITEM_BNETACCOUNTBOUND)
+			local itemLocation
+			if ItemLocation and ItemLocation.CreateFromBagAndSlot then
+				itemLocation = ItemLocation:CreateFromBagAndSlot(bagId, slotId)
+			end
+
+			local soulbound
+			if itemLocation and C_Item and C_Item.IsBound then
+				soulbound = C_Item.IsBound(itemLocation)
+			else
+				soulbound = self:ScanForTooltipLine(tooltipData, ITEM_SOULBOUND, ITEM_ACCOUNTBOUND, ITEM_BNETACCOUNTBOUND)
+			end
 
 			local warbound
-			if ItemLocation and ItemLocation.CreateFromBagAndSlot and C_Item and C_Item.IsBoundToAccountUntilEquip then
-				warbound = C_Item.IsBoundToAccountUntilEquip(ItemLocation:CreateFromBagAndSlot(bagId, slotId))
+			if itemLocation and C_Item and C_Item.IsBoundToAccountUntilEquip then
+				warbound = C_Item.IsBoundToAccountUntilEquip(itemLocation)
 			end
 
 			local boundHidden = (soulbound and not self.settings.showSoulbound) or (warbound and not self.settings.showWarbound)
