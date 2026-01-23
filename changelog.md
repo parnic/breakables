@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.11.3
+
+- Add option to show warbound items (warbound items are now hidden by default).
+
 ## v1.11.2
 
 - Update TOC for Midnight release.

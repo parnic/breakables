@@ -352,6 +352,7 @@ function Breakables:OnInitialize()
 			hideIfNoBreakables = true,
 			maxBreakablesToShow = 5,
 			showSoulbound = false,
+			showWarbound = false,
 			hideEqManagerItems = true,
 			hide = false,
 			hideInCombat = false,
@@ -933,6 +934,25 @@ function Breakables:GetOptions()
 						end,
 						order = 20,
 					},
+					showWarbound = {
+						type = "toggle",
+						name = L["Show warbound items"],
+						desc = L["Whether or not to display warbound items as breakables."],
+						get = function(info)
+							return self.settings.showWarbound
+						end,
+						set = function(info, v)
+							self.settings.showWarbound = v
+							if info.uiType == "cmd" then
+								print("|cff33ff99Breakables|r: set |cffffff78showWarbound|r to " .. tostring(self.settings.showWarbound))
+							end
+							self:FindBreakables()
+						end,
+						hidden = function()
+							return not CanDisenchant or not C_Item or not C_Item.IsBoundToAccountUntilEquip
+						end,
+						order = 21,
+					},
 				},
 			},
 			reset = {
@@ -975,7 +995,7 @@ function Breakables:GetOptions()
 				self:FindBreakables()
 			end,
 			hidden = function()
-				return not CanDisenchant and not self.settings.showSoulbound
+				return not CanDisenchant and not self.settings.showSoulbound and not self.settings.showWarbound
 			end,
 			order = 21,
 		}
@@ -1551,6 +1571,13 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId, equipSlot) then
 			local soulbound = self:ScanForTooltipLine(tooltipData, ITEM_SOULBOUND, ITEM_ACCOUNTBOUND, ITEM_BNETACCOUNTBOUND)
 
+			local warbound
+			if ItemLocation and ItemLocation.CreateFromBagAndSlot and C_Item and C_Item.IsBoundToAccountUntilEquip then
+				warbound = C_Item.IsBoundToAccountUntilEquip(ItemLocation:CreateFromBagAndSlot(bagId, slotId))
+			end
+
+			local boundHidden = (soulbound and not self.settings.showSoulbound) or (warbound and not self.settings.showWarbound)
+
 			local isInEquipmentSet = false
 			if self.settings.hideEqManagerItems then
 				isInEquipmentSet = self:IsInEquipmentSet(itemId)
@@ -1564,7 +1591,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 			local shouldHideThisItem = (self.settings.hideEqManagerItems and isInEquipmentSet) or (self.settings.hideTabards and isTabard)
 				or equipSlot == nil or (equipSlot == "" and not IsArtifactRelicItem(itemLink))
 
-			if self:IsForcedDisenchantable(itemId) or ((not soulbound or self.settings.showSoulbound) and not shouldHideThisItem) then
+			if self:IsForcedDisenchantable(itemId) or (not boundHidden and not shouldHideThisItem) then
 				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName, itemRarity, equipSlot}
 			else
 				return nil
