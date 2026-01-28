@@ -608,7 +608,7 @@ function Breakables:OnTradeSkillUpdate()
 end
 
 function Breakables:OnSpellCastSucceeded(evt, unit, guid, spell)
-	if unit ~= self.unit then
+	if unit ~= "player" then
 		return
 	end
 

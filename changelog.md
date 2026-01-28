@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.11.3
+
+- Fix lockbox-opening not re-searching for breakables and causing the lockbox to stay in the list.
+
 ## v1.11.2
 
 - Update TOC for Midnight release.
