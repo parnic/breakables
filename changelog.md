@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.11.4
+
+- Fix items not showing up as disenchantable in some non-English languages due to terms for Armor and Weapon in our localization library no longer matching the terms used by the game.
+
 ## v1.11.3
 
 - Fix lockbox-opening not re-searching for breakables and causing the lockbox to stay in the list.

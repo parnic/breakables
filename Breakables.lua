@@ -229,6 +229,11 @@ local OreCombineItems = {
 
 local DisenchantId = 13262
 local DisenchantTypes = {babbleInv["Armor"], babbleInv["Weapon"]}
+local DisenchantClasses = {}
+if Enum and Enum.ItemClass then
+	DisenchantClasses[#DisenchantClasses+1] = Enum.ItemClass.Armor
+	DisenchantClasses[#DisenchantClasses+1] = Enum.ItemClass.Weapon
+end
 local DisenchantEquipSlots = {"INVTYPE_PROFESSION_GEAR", "INVTYPE_PROFESSION_TOOL"}
 local CanDisenchant = false
 local EnchantingProfessionId = 333
@@ -312,6 +317,8 @@ local IDX_SOULBOUND = 10
 local IDX_NAME = 11
 local IDX_RARITY = 12
 local IDX_EQUIPSLOT = 13
+local IDX_CLASSID = 14
+local IDX_SUBCLASSID = 15
 
 local BREAKABLE_HERB = 1
 local BREAKABLE_ORE = 2
@@ -1287,7 +1294,7 @@ do
 				end
 
 				if (foundBreakables[i][IDX_BREAKABLETYPE] == self.buttonFrame[j].type or (foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_COMBINE and foundBreakables[i][IDX_COUNT] >= 10)) and numBreakableStacks[j] < self.settings.maxBreakablesToShow then
-					local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL], foundBreakables[i][IDX_RARITY], foundBreakables[i][IDX_LINK], nil, foundBreakables[i][IDX_EQUIPSLOT])
+					local isDisenchantable = self:BreakableIsDisenchantable(foundBreakables[i][IDX_TYPE], foundBreakables[i][IDX_LEVEL], foundBreakables[i][IDX_RARITY], foundBreakables[i][IDX_LINK], nil, foundBreakables[i][IDX_EQUIPSLOT], foundBreakables[i][IDX_CLASSID])
 					local isLockedItem = foundBreakables[i][IDX_BREAKABLETYPE] == BREAKABLE_PICK
 
 					if (CanDisenchant and isDisenchantable) or (CanPickLock and isLockedItem) or (foundBreakables[i][IDX_COUNT] >= 5) then
@@ -1552,7 +1559,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		end
 
 		---@diagnostic disable-next-line: deprecated
-		local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType, _, equipSlot, itemTexture, vendorPrice = GetItemInfo(itemLink)
+		local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType, _, equipSlot, itemTexture, vendorPrice, classID, subclassID = GetItemInfo(itemLink)
 
 		local tooltipData
 		if C_TooltipInfo then
@@ -1568,7 +1575,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 		end
 
 		if CanDisenchant and itemRarity and itemRarity >= RARITY_UNCOMMON and itemRarity < RARITY_HEIRLOOM
-			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId, equipSlot) then
+			and self:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId, equipSlot, classID) then
 			local itemLocation
 			if ItemLocation and ItemLocation.CreateFromBagAndSlot then
 				itemLocation = ItemLocation:CreateFromBagAndSlot(bagId, slotId)
@@ -1602,7 +1609,7 @@ function Breakables:FindBreakablesInSlot(bagId, slotId)
 				or equipSlot == nil or (equipSlot == "" and not IsArtifactRelicItem(itemLink))
 
 			if self:IsForcedDisenchantable(itemId) or (not boundHidden and not shouldHideThisItem) then
-				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName, itemRarity, equipSlot}
+				return {itemLink, itemCount, itemType, itemTexture, bagId, slotId, itemSubType, itemLevel, BREAKABLE_DE, soulbound, itemName, itemRarity, equipSlot, classID, subclassID}
 			else
 				return nil
 			end
@@ -1805,12 +1812,12 @@ function Breakables:SortBreakables(foundBreakables)
 	end
 end
 
-function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId, equipSlot)
+function Breakables:BreakableIsDisenchantable(itemType, itemLevel, itemRarity, itemLink, itemId, equipSlot, classId)
 	if not itemId and itemLink then
 		itemId = self:GetItemIdFromLink(itemLink)
 	end
 
-	if self:IsDisenchantableItemType(itemType) or IsArtifactRelicItem(itemLink) or self:IsDisenchantableEquipSlot(equipSlot) then
+	if self:IsDisenchantableItemType(itemType, classId) or IsArtifactRelicItem(itemLink) or self:IsDisenchantableEquipSlot(equipSlot) then
 		-- bfa+ no longer has skill level requirements for disenchanting
 		if IgnoreEnchantingSkillLevelForDisenchant then
 			return true
@@ -1932,7 +1939,15 @@ function Breakables:IsForcedDisenchantable(itemId)
 	return false
 end
 
-function Breakables:IsDisenchantableItemType(itemType)
+function Breakables:IsDisenchantableItemType(itemType, classId)
+	if classId ~= nil then
+		for i=1,#DisenchantClasses do
+			if DisenchantClasses[i] == classId then
+				return true
+			end
+		end
+	end
+
 	for i=1,#DisenchantTypes do
 		if DisenchantTypes[i] == itemType then
 			return true
