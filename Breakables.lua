@@ -8,7 +8,7 @@ local lbfGroup
 local IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink
 	= IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink
 if not IsArtifactRelicItem then
-	IsArtifactRelicItem = function()
+	IsArtifactRelicItem = function(item)
 		return false
 	end
 end
@@ -1442,7 +1442,7 @@ function Breakables:OnEnterProfessionButton(btn)
 		GameTooltip:SetSpellByID(spellId)
 
 		GameTooltip:AddLine(" ")
-		GameTooltip:AddLine(L["Hold shift and left-click to drag the Breakables bar around."], 1, 1, 1, 1)
+		GameTooltip:AddLine(L["Hold shift and left-click to drag the Breakables bar around."], 1, 1, 1, true)
 		GameTooltip:Show()
 	end
 end
@@ -1457,9 +1457,9 @@ function Breakables:OnEnterBreakableButton(this)
 		GameTooltip:SetBagItem(this.bag, this.slot)
 
 		GameTooltip:AddLine(" ")
-		GameTooltip:AddLine(L["You can click on this button to break this item without having to click on the profession button first."], 1, 1, 1, 1)
+		GameTooltip:AddLine(L["You can click on this button to break this item without having to click on the profession button first."], 1, 1, 1, true)
 		GameTooltip:AddLine(" ")
-		GameTooltip:AddLine(L["You can right-click on this button to ignore this item. Items can be unignored from the options screen."], 1, 1, 1, 1)
+		GameTooltip:AddLine(L["You can right-click on this button to ignore this item. Items can be unignored from the options screen."], 1, 1, 1, true)
 		GameTooltip:Show()
 		showingTooltip = this
 	end
