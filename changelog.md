@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.11.5
+
+- Update TOCs
+
 ## v1.11.4
 
 - Fix items not showing up as disenchantable in some non-English languages due to terms for Armor and Weapon in our localization library no longer matching the terms used by the game.
