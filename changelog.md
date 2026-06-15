@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.11.6
+
+- Update TOCs
+
 ## v1.11.5
 
 - Update TOCs
