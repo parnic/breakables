@@ -472,6 +472,13 @@ local canBreakSomething = function()
 end
 
 function Breakables:SetupButtons()
+	-- self.frame parents SecureActionButtonTemplate buttons, so scaling/showing/configuring
+	-- it is protected while in combat. Defer the rebuild until combat ends.
+	if InCombatLockdown() then
+		self.bPendingSetupButtons = true
+		return
+	end
+
 	numEligibleProfessions = 0
 	if canBreakSomething() then
 		if CanMill then
@@ -549,6 +556,13 @@ function Breakables:OnDisable()
 end
 
 function Breakables:OnSlashCommand(input)
+	-- Changing the scale/font sliders is protected because of the secure buttons, so don't let
+	-- our entry points open the options in combat. The Blizzard options panel route is unavoidable.
+	if InCombatLockdown() then
+		print("|cff33ff99Breakables|r: " .. L["Can't open options while in combat."])
+		return
+	end
+
 	if InterfaceOptionsFrame_OpenToCategory then
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
 	else
@@ -598,6 +612,13 @@ end
 
 function Breakables:OnLeaveCombat()
 	self.bCombat = false
+
+	if self.bPendingSetupButtons then
+		self.bPendingSetupButtons = false
+		self.bPendingUpdate = false
+		self:SetupButtons() -- rebuilds and re-displays the buttons, so no separate FindBreakables needed
+		return
+	end
 
 	if self.bPendingUpdate or self.settings.hideInCombat then
 		self.bPendingUpdate = false
@@ -1068,6 +1089,12 @@ function Breakables:GetOptions()
 end
 
 function Breakables:CreateButtonFrame()
+	-- SetScale and the secure-button setup below are protected in combat. Defer to combat end.
+	if InCombatLockdown() then
+		self.bPendingSetupButtons = true
+		return
+	end
+
 	if not self.frame then
 		self.frame = CreateFrame("Frame", nil, UIParent)
 	end
