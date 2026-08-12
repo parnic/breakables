@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.11.7
+
+- Fix error when attempting to change scale in combat
+- Update TOCs
+
 ## v1.11.6
 
 - Update TOCs
