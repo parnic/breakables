@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.11.8
+
+- Add WoW Forever support
+
 ## v1.11.7
 
 - Fix error when attempting to change scale in combat
