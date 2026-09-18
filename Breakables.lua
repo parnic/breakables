@@ -92,7 +92,8 @@ else
 	end
 end
 
-local ShouldHookTradeskillUpdate = WowVer < 80000
+local IsWowForever = WowVer >= 16000 and WowVer < 20000
+local ShouldHookTradeskillUpdate = WowVer < 80000 and not IsWowForever
 local ShouldShowTabardControls = WowVer >= 80000
 local UseNonNativeEqManagerChecks = WowVer < 80000
 local IgnoreEnchantingSkillLevelForDisenchant = WowVer >= 80000
@@ -427,8 +428,8 @@ function Breakables:InitLDB()
 end
 
 function Breakables:SetCapabilities()
-	CanMill = IsUsableSpell(GetSpellInfo(MillingId))
-	CanProspect = IsUsableSpell(GetSpellInfo(ProspectingId))
+	CanMill = GetSpellInfo(MillingId) and IsUsableSpell(GetSpellInfo(MillingId))
+	CanProspect = GetSpellInfo(ProspectingId) and IsUsableSpell(GetSpellInfo(ProspectingId))
 	CanDisenchant = IsUsableSpell(GetSpellInfo(DisenchantId))
 	CanPickLock = IsUsableSpell(GetSpellInfo(PickLockId))
 end
