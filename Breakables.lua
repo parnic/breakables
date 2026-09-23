@@ -5,8 +5,11 @@ local LBF = LibStub("Masque", true)
 
 local lbfGroup
 
-local IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink
-	= IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink
+local IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink, GetItemInfo
+	= IsArtifactRelicItem, GetBagName, GetContainerNumSlots, GetContainerItemInfo, GetContainerItemLink, GetItemInfo
+if not IsArtifactRelicItem and C_ItemSocketInfo then
+	IsArtifactRelicItem = C_ItemSocketInfo.IsArtifactRelicItem
+end
 if not IsArtifactRelicItem then
 	IsArtifactRelicItem = function(item)
 		return false
@@ -32,6 +35,10 @@ if C_Container then
 	if C_Container.GetContainerItemLink then
 		GetContainerItemLink = C_Container.GetContainerItemLink
 	end
+end
+
+if not GetItemInfo and C_Item then
+	GetItemInfo = C_Item.GetItemInfo
 end
 
 local GetSpellInfo = GetSpellInfo
